@@ -3,8 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title id="docTitle">حاسبة مستحقات نهاية الخدمة ورصيد الإجازات - الكويت</title>
-  <meta name="google-site-verification" content="llEzZz1Y2S0q038h1cp9HxAVtNvTJTgvsCNL7Brs5LM" />
+
+<!-- إثبات الملكية لـ Google Search Console -->
+<meta name="google-site-verification" content="llEzZz1Y2S0q038h1cp9HxAVtNvTJTgvsCNL7Brs5LM" />
+
+<!-- تحسين محركات البحث SEO Meta Tags -->
+<title id="docTitle">حاسبة نهاية الخدمة ورصيد الإجازات في الكويت | قانون العمل 6/2010</title>
+<meta name="description" content="أدق حاسبة نهاية الخدمة ورصيد الإجازات في الكويت وفقاً لقانون العمل في القطاع الأهلي رقم 6 لسنة 2010. احسب مكافأتكم والراتب المتبقي مجاناً وبدقة عالية.">
+<meta name="keywords" content="حاسبة نهاية الخدمة, حساب نهاية الخدمة الكويت, مكافأة نهاية الخدمة, بدل رصيد الإجازات, قانون العمل الكويتي, مستحقات نهاية الخدمة, طريقة حساب نهاية الخدمة">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://financial-mocha-psi.vercel.app/" />
+
+<!-- Open Graph / Facebook / WhatsApp SEO -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://financial-mocha-psi.vercel.app/">
+<meta property="og:title" content="حاسبة نهاية الخدمة ورصيد الإجازات في الكويت">
+<meta property="og:description" content="حساب مكافأة نهاية الخدمة وبدل الإجازات وفقاً لقانون العمل الكويتي رقم 6 لسنة 2010 مجاناً وبدقة متناهية.">
+
+<!-- Structured Data (JSON-LD) لمساعدة جوجل على تصدر البحث -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "حاسبة نهاية الخدمة ورصيد الإجازات - الكويت",
+  "url": "https://financial-mocha-psi.vercel.app/",
+  "description": "أداة مجانية لحساب مكافأة نهاية الخدمة وبدل رصيد الإجازات والرواتب المتأخرة وفق قانون العمل الكويتي رقم 6 لسنة 2010.",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "All",
+  "inLanguage": ["ar", "en"],
+  "author": {
+    "@type": "Person",
+    "name": "Ahmed Abdelkarim"
+  }
+}
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <!-- مكتبة تصدير الإكسل -->
@@ -359,7 +392,7 @@
   <div class="lang-switcher">
     <button class="lang-btn" onclick="toggleLanguage()" id="langBtn">English 🌐</button>
   </div>
-  <h1 id="headerTitle">حاسبة مستحقات نهاية الخدمة بالإجازات</h1>
+  <h1 id="headerTitle">حاسبة مستحقات نهاية الخدمة ورصيد الاجازات</h1>
   <p id="headerSub">وفقاً لقانون العمل الكويتي في القطاع الأهلي (رقم 6 لسنة 2010)</p>
   
   <div class="visitor-badge">
@@ -511,7 +544,7 @@ let lastCalculationData = null;
 
 const i18n = {
   ar: {
-    docTitle: "حاسبة مستحقات نهاية الخدمة ورصيد الإجازات - الكويت",
+    docTitle: "حاسبة نهاية الخدمة ورصيد الإجازات في الكويت | قانون العمل 6/2010",
     langBtn: "English 🌐",
     headerTitle: "حاسبة مستحقات نهاية الخدمة بالإجازات",
     headerSub: "وفقاً لقانون العمل الكويتي في القطاع الأهلي (رقم 6 لسنة 2010)",
@@ -563,7 +596,7 @@ const i18n = {
     notCalculated: "غير مشمول بالحساب"
   },
   en: {
-    docTitle: "Indemnity & Vacation Calculator - Kuwait",
+    docTitle: "Indemnity & Vacation Calculator - Kuwait Labor Law 6/2010",
     langBtn: "عربي 🌐",
     headerTitle: "End of Service & Vacation Calculator",
     headerSub: "According to Kuwait Labor Law in Private Sector (No. 6 of 2010)",
@@ -631,7 +664,6 @@ async function initVisitorCounter() {
   }
 }
 
-// تشغيل العداد عند فتح الصفحة
 initVisitorCounter();
 
 function handleCalcModeChange() {
@@ -686,11 +718,9 @@ function toggleLanguage() {
   currentLang = currentLang === 'ar' ? 'en' : 'ar';
   const t = i18n[currentLang];
 
-  // Change HTML dir and lang
   document.documentElement.lang = currentLang;
   document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
 
-  // Translate Texts
   document.getElementById('docTitle').innerText = t.docTitle;
   document.getElementById('langBtn').innerText = t.langBtn;
   document.getElementById('headerTitle').innerText = t.headerTitle;
@@ -731,13 +761,11 @@ function toggleLanguage() {
 
   autoCalcVacation();
 
-  // Re-calculate if results are already open
   if (document.getElementById('resultsBox').style.display === 'block') {
     document.getElementById('calcForm').dispatchEvent(new Event('submit'));
   }
 }
 
-// دالة الحساب التلقائي لرصيد الإجازات
 function autoCalcVacation() {
   const t = i18n[currentLang];
   const mode = document.getElementById('calcMode').value;
@@ -797,7 +825,6 @@ function calculate(e) {
       return;
     }
 
-    // 1. حساب مدة الخدمة بالأيام والسنوات
     const diffTime = Math.abs(endDate - startDate);
     const totalDays = diffTime / (1000 * 60 * 60 * 24);
     years = totalDays / 365.25;
@@ -815,10 +842,8 @@ function calculate(e) {
 
   document.getElementById('resEmpName').innerText = `${t.resEmpName}${empName}`;
 
-  // 2. حساب قيمة أجر اليوم
   const dailySalary = salary / 26; 
 
-  // 3. حساب مكافأة نهاية الخدمة
   let rawEOSBDays = 0;
   let ratio = 1.0;
   let rawEOSB = 0;
@@ -857,13 +882,11 @@ function calculate(e) {
     finalEOSB = rawEOSB * ratio;
   }
 
-  // 4. حساب بدل رصيد الإجازات
   let vacationAmount = 0;
   if (mode === 'both' || mode === 'vacation') {
     vacationAmount = vacationDays * dailySalary;
   }
 
-  // 5. الإجمالي النهائي
   const grandTotal = finalEOSB + vacationAmount + unpaidSalary;
 
   lastCalculationData = {
@@ -886,7 +909,6 @@ function calculate(e) {
     grandTotal
   };
 
-  // التحكم في ظهور الصفوف حسب نوع الحساب
   const showEOSB = mode === 'both' || mode === 'eosb';
   const showVacation = mode === 'both' || mode === 'vacation';
 
@@ -897,7 +919,6 @@ function calculate(e) {
   document.getElementById('rowFinalEOSB').style.display = showEOSB ? 'flex' : 'none';
   document.getElementById('rowVacationAmount').style.display = showVacation ? 'flex' : 'none';
 
-  // عرض النتائج
   if (showEOSB) {
     document.getElementById('rawEOSBDays').innerText = rawEOSBDays.toFixed(2) + t.unitDays;
     document.getElementById('netEOSBDays').innerText = netEOSBDays.toFixed(2) + t.unitDays;
