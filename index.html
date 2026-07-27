@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>حاسبة مستحقات نهاية الخدمة ورصيد الإجازات - الكويت</title>
+<title id="docTitle">حاسبة مستحقات نهاية الخدمة ورصيد الإجازات - الكويت</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <!-- مكتبة تصدير الإكسل -->
@@ -43,6 +43,10 @@
     pointer-events: none;
     z-index: 0;
   }
+  html[dir="ltr"] .margin-line {
+    right: auto;
+    left: 64px;
+  }
   header {
     background: linear-gradient(180deg, var(--green-dark), var(--green));
     padding: 38px 24px 20px;
@@ -61,7 +65,7 @@
   header h1 {
     color: var(--white);
     font-weight: 900;
-    font-size: clamp(24px, 5vw, 36px);
+    font-size: clamp(22px, 5vw, 34px);
     margin: 0;
     letter-spacing: 0.5px;
   }
@@ -71,6 +75,34 @@
     font-size: 15px;
     font-weight: 500;
   }
+  
+  /* Lang Switcher */
+  .lang-switcher {
+    position: absolute;
+    top: 15px;
+    left: 20px;
+  }
+  html[dir="ltr"] .lang-switcher {
+    left: auto;
+    right: 20px;
+  }
+  .lang-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--brass-light);
+    color: var(--white);
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+  .lang-btn:hover {
+    background: var(--brass);
+    color: var(--green-dark);
+  }
+
   main {
     max-width: 840px;
     margin: 0 auto;
@@ -304,66 +336,69 @@
 <div class="margin-line"></div>
 
 <header>
-  <h1>حاسبة مستحقات نهاية الخدمة ورصيد الاجازات</h1>
-  <p>وفقاً لقانون العمل الكويتي في القطاع الأهلي (رقم 6 لسنة 2010)</p>
+  <div class="lang-switcher">
+    <button class="lang-btn" onclick="toggleLanguage()" id="langBtn">English 🌐</button>
+  </div>
+  <h1 id="headerTitle">حاسبة مستحقات نهاية الخدمة بالإجازات</h1>
+  <p id="headerSub">وفقاً لقانون العمل الكويتي في القطاع الأهلي (رقم 6 لسنة 2010)</p>
 </header>
 
 <main>
   <div class="card">
-    <div class="card-title">📋 بيانات الموظف والعقد</div>
+    <div class="card-title" id="formTitle">📋 بيانات الموظف والعقد</div>
     <form id="calcForm" onsubmit="calculate(event)">
       <div class="grid">
         
         <div class="form-group full-width">
-          <label for="empName">اسم الموظف بالكامل</label>
+          <label for="empName" id="lblEmpName">اسم الموظف بالكامل</label>
           <input type="text" id="empName" placeholder="أدخل اسم الموظف" required>
         </div>
 
         <div class="form-group">
-          <label for="startDate">تاريخ بداية العمل</label>
+          <label for="startDate" id="lblStartDate">تاريخ بداية العمل</label>
           <input type="date" id="startDate" onchange="autoCalcVacation()" required>
         </div>
 
         <div class="form-group">
-          <label for="endDate">تاريخ نهاية العمل</label>
+          <label for="endDate" id="lblEndDate">تاريخ نهاية العمل</label>
           <input type="date" id="endDate" onchange="autoCalcVacation()" required>
         </div>
 
         <div class="form-group">
-          <label for="lastVacationReturn">تاريخ آخر عودة من إجازة (اختياري)</label>
+          <label for="lastVacationReturn" id="lblLastVacation">تاريخ آخر عودة من إجازة (اختياري)</label>
           <input type="date" id="lastVacationReturn" onchange="autoCalcVacation()">
-          <span class="hint">لحساب رصيد الإجازات تلقائياً، اتركه فارغاً للإدخال اليدوي</span>
+          <span class="hint" id="hintLastVacation">لحساب رصيد الإجازات تلقائياً، اتركه فارغاً للإدخال اليدوي</span>
         </div>
 
         <div class="form-group">
-          <label for="vacationDays">رصيد الإجازات المتبقي (بالأيام)</label>
+          <label for="vacationDays" id="lblVacationDays">رصيد الإجازات المتبقي (بالأيام)</label>
           <input type="number" id="vacationDays" min="0" step="0.01" value="0">
           <span class="hint" id="vacationHint">عدد الأيام المستحقة للموظف</span>
         </div>
 
         <div class="form-group">
-          <label for="salary">الأجر الأخير الشامل (د.ك)</label>
+          <label for="salary" id="lblSalary">الأجر الأخير الشامل (د.ك)</label>
           <input type="number" id="salary" step="0.001" min="0" placeholder="مثال: 750" required>
-          <span class="hint">يشمل الراتب الأساسي + جميع البدلات الثابتة</span>
+          <span class="hint" id="hintSalary">يشمل الراتب الأساسي + جميع البدلات الثابتة</span>
         </div>
 
         <div class="form-group">
-          <label for="reason">سبب ترك العمل</label>
+          <label for="reason" id="lblReason">سبب ترك العمل</label>
           <select id="reason" required>
-            <option value="termination">إنهاء خدمات (فصل / تسريح من الشركة)</option>
-            <option value="resignation">استقالة الموظف</option>
+            <option value="termination" id="optTermination">إنهاء خدمات (فصل / تسريح من الشركة)</option>
+            <option value="resignation" id="optResignation">استقالة الموظف</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label for="unpaidSalary">الراتب المتأخر / المتبقي (د.ك)</label>
+          <label for="unpaidSalary" id="lblUnpaidSalary">الراتب المتأخر / المتبقي (د.ك)</label>
           <input type="number" id="unpaidSalary" step="0.001" min="0" value="0" placeholder="0.000">
-          <span class="hint">أي رواتب أو مستحقات شهرية سابقة لم يتسلمها الموظف</span>
+          <span class="hint" id="hintUnpaidSalary">أي رواتب أو مستحقات شهرية سابقة لم يتسلمها الموظف</span>
         </div>
 
       </div>
 
-      <button type="submit" class="btn-calc">احسب المستحقات الآن</button>
+      <button type="submit" class="btn-calc" id="btnCalc">احسب المستحقات الآن</button>
     </form>
   </div>
 
@@ -376,32 +411,42 @@
       <div class="result-body">
         
         <div class="result-row">
-          <span>مكافأة نهاية الخدمة الإجمالية (قبل النسبة):</span>
-          <span class="amount" id="rawEOSB">0.000 د.ك</span>
+          <span id="lblRawEOSBDays">عدد أيام نهاية الخدمة المستحقة (الإجمالي):</span>
+          <span class="amount" id="rawEOSBDays">0.00 يوم</span>
         </div>
 
         <div class="result-row">
-          <span>نسبة الاستحقاق القانونية:</span>
+          <span id="lblEntitlementRatio">نسبة الاستحقاق القانونية:</span>
           <span class="amount" id="entitlementRatio">100%</span>
         </div>
 
         <div class="result-row">
-          <span>صافي مكافأة نهاية الخدمة المستحقة:</span>
+          <span id="lblNetEOSBDays">عدد أيام نهاية الخدمة الصافية (بعد النسبة):</span>
+          <span class="amount" id="netEOSBDays">0.00 يوم</span>
+        </div>
+
+        <div class="result-row">
+          <span id="lblRawEOSB">مكافأة نهاية الخدمة الإجمالية (قبل النسبة):</span>
+          <span class="amount" id="rawEOSB">0.000 د.ك</span>
+        </div>
+
+        <div class="result-row">
+          <span id="lblFinalEOSB">صافي مكافأة نهاية الخدمة المستحقة:</span>
           <span class="amount" id="finalEOSB">0.000 د.ك</span>
         </div>
 
         <div class="result-row">
-          <span>بدل رصيد الإجازات السنوية:</span>
+          <span id="lblVacationAmount">بدل رصيد الإجازات السنوية:</span>
           <span class="amount" id="vacationAmount">0.000 د.ك</span>
         </div>
 
         <div class="result-row">
-          <span>الراتب المتبقي / المتأخرات:</span>
+          <span id="lblUnpaidSalaryAmount">الراتب المتبقي / المتأخرات:</span>
           <span class="amount" id="unpaidSalaryAmount">0.000 د.ك</span>
         </div>
 
         <div class="result-row total">
-          <span>إجمالي الصافي المستحق للصرف:</span>
+          <span id="lblGrandTotal">إجمالي الصافي المستحق للصرف:</span>
           <span class="amount" id="grandTotal">0.000 د.ك</span>
         </div>
 
@@ -409,16 +454,16 @@
     </div>
 
     <div class="action-bar">
-      <button type="button" class="btn-export" onclick="exportToExcel()">📊 تصدير النتائج إلى إكسل</button>
+      <button type="button" class="btn-export" onclick="exportToExcel()" id="btnExport">📊 تصدير النتائج إلى إكسل</button>
     </div>
   </div>
 </main>
 
 <footer>
-  <div>برمجية حساب المستحقات وفق قانون العمل الكويتي رقم 6/2010</div>
+  <div id="footerLaw">برمجية حساب المستحقات وفق قانون العمل الكويتي رقم 6/2010</div>
   
   <div class="developer-card">
-    <h4>💻 تطوير وتصميم: أحمد عبدالكريم</h4>
+    <h4 id="footerDev">💻 تطوير وتصميم: أحمد عبدالكريم</h4>
     <div class="developer-contacts">
       <span>✉️ <a href="mailto:mr.ahmed22296@gmail.com">mr.ahmed22296@gmail.com</a></span>
       <span>📱 <a href="tel:60085043">60085043</a> / <a href="tel:01201487209">01201487209</a></span>
@@ -427,12 +472,158 @@
 </footer>
 
 <script>
+let currentLang = 'ar';
 let lastCalculationData = null;
 
-// دالة الحساب التلقائي لرصيد الإجازات بناءً على تاريخ العودة وتاريخ النهاية
+const i18n = {
+  ar: {
+    docTitle: "حاسبة مستحقات نهاية الخدمة ورصيد الإجازات - الكويت",
+    langBtn: "English 🌐",
+    headerTitle: "حاسبة مستحقات نهاية الخدمة بالإجازات",
+    headerSub: "وفقاً لقانون العمل الكويتي في القطاع الأهلي (رقم 6 لسنة 2010)",
+    formTitle: "📋 بيانات الموظف والعقد",
+    lblEmpName: "اسم الموظف بالكامل",
+    phEmpName: "أدخل اسم الموظف",
+    lblStartDate: "تاريخ بداية العمل",
+    lblEndDate: "تاريخ نهاية العمل",
+    lblLastVacation: "تاريخ آخر عودة من إجازة (اختياري)",
+    hintLastVacation: "لحساب رصيد الإجازات تلقائياً، اتركه فارغاً للإدخال اليدوي",
+    lblVacationDays: "رصيد الإجازات المتبقي (بالأيام)",
+    vacationHintDefault: "عدد الأيام المستحقة للموظف",
+    vacationHintAuto: "تم حساب الأيام تلقائياً بناءً على تاريخ آخر عودة (30 يوم/سنة)",
+    lblSalary: "الأجر الأخير الشامل (د.ك)",
+    phSalary: "مثال: 750",
+    hintSalary: "يشمل الراتب الأساسي + جميع البدلات الثابتة",
+    lblReason: "سبب ترك العمل",
+    optTermination: "إنهاء خدمات (فصل / تسريح من الشركة)",
+    optResignation: "استقالة الموظف",
+    lblUnpaidSalary: "الراتب المتأخر / المتبقي (د.ك)",
+    hintUnpaidSalary: "أي رواتب أو مستحقات شهرية سابقة لم يتسلمها الموظف",
+    btnCalc: "احسب المستحقات الآن",
+    resEmpName: "📊 تفاصيل المستحقات المالية: ",
+    servicePeriodText: "مدة الخدمة: ",
+    lblRawEOSBDays: "عدد أيام نهاية الخدمة المستحقة (الإجمالي):",
+    lblEntitlementRatio: "نسبة الاستحقاق القانونية:",
+    lblNetEOSBDays: "عدد أيام نهاية الخدمة الصافية (بعد النسبة):",
+    lblRawEOSB: "مكافأة نهاية الخدمة الإجمالية (قبل النسبة):",
+    lblFinalEOSB: "صافي مكافأة نهاية الخدمة المستحقة:",
+    lblVacationAmount: "بدل رصيد الإجازات السنوية:",
+    lblUnpaidSalaryAmount: "الراتب المتبقي / المتأخرات:",
+    lblGrandTotal: "إجمالي الصافي المستحق للصرف:",
+    btnExport: "📊 تصدير النتائج إلى إكسل",
+    footerLaw: "برمجية حساب المستحقات وفق قانون العمل الكويتي رقم 6/2010",
+    footerDev: "💻 تطوير وتصميم: أحمد عبدالكريم",
+    unitDays: " يوم",
+    unitKWD: " د.ك",
+    yearText: "سنة",
+    monthText: "شهر",
+    dayText: "يوم",
+    andText: "و",
+    dateAlert: "تاريخ نهاية العمل يجب أن يكون بعد تاريخ البداية!",
+    notSpecified: "لم يحدد"
+  },
+  en: {
+    docTitle: "Indemnity & Vacation Calculator - Kuwait",
+    langBtn: "عربي 🌐",
+    headerTitle: "End of Service & Vacation Calculator",
+    headerSub: "According to Kuwait Labor Law in Private Sector (No. 6 of 2010)",
+    formTitle: "📋 Employee & Contract Details",
+    lblEmpName: "Full Employee Name",
+    phEmpName: "Enter employee name",
+    lblStartDate: "Start Date",
+    lblEndDate: "End Date",
+    lblLastVacation: "Last Return Date from Vacation (Optional)",
+    hintLastVacation: "Leave blank for manual entry to calculate vacation balance automatically",
+    lblVacationDays: "Remaining Vacation Days",
+    vacationHintDefault: "Number of accrued vacation days",
+    vacationHintAuto: "Calculated automatically based on last return date (30 days/year)",
+    lblSalary: "Last Total Salary (KWD)",
+    phSalary: "e.g. 750",
+    hintSalary: "Includes basic salary + all fixed allowances",
+    lblReason: "Reason for Termination",
+    optTermination: "Termination (Fired / Laid off by company)",
+    optResignation: "Resignation",
+    lblUnpaidSalary: "Unpaid / Remaining Salary (KWD)",
+    hintUnpaidSalary: "Any unpaid monthly salaries or previous dues",
+    btnCalc: "Calculate Entitlements Now",
+    resEmpName: "📊 Entitlement Details for: ",
+    servicePeriodText: "Service Period: ",
+    lblRawEOSBDays: "Gross End of Service Days:",
+    lblEntitlementRatio: "Legal Entitlement Ratio:",
+    lblNetEOSBDays: "Net End of Service Days (After Ratio):",
+    lblRawEOSB: "Gross Indemnity (Before Ratio):",
+    lblFinalEOSB: "Net Indemnity Amount:",
+    lblVacationAmount: "Annual Leave Pay:",
+    lblUnpaidSalaryAmount: "Unpaid Salary / Arrears:",
+    lblGrandTotal: "Grand Net Payable Amount:",
+    btnExport: "📊 Export Results to Excel",
+    footerLaw: "Indemnity Calculation Tool according to Kuwait Labor Law No. 6/2010",
+    footerDev: "💻 Developed & Designed by: Ahmed Abdelkarim",
+    unitDays: " days",
+    unitKWD: " KWD",
+    yearText: "Year(s)",
+    monthText: "Month(s)",
+    dayText: "Day(s)",
+    andText: "and",
+    dateAlert: "End date must be after the start date!",
+    notSpecified: "Not Specified"
+  }
+};
+
+function toggleLanguage() {
+  currentLang = currentLang === 'ar' ? 'en' : 'ar';
+  const t = i18n[currentLang];
+
+  // Change HTML dir and lang
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+
+  // Translate Texts
+  document.getElementById('docTitle').innerText = t.docTitle;
+  document.getElementById('langBtn').innerText = t.langBtn;
+  document.getElementById('headerTitle').innerText = t.headerTitle;
+  document.getElementById('headerSub').innerText = t.headerSub;
+  document.getElementById('formTitle').innerText = t.formTitle;
+  document.getElementById('lblEmpName').innerText = t.lblEmpName;
+  document.getElementById('empName').placeholder = t.phEmpName;
+  document.getElementById('lblStartDate').innerText = t.lblStartDate;
+  document.getElementById('lblEndDate').innerText = t.lblEndDate;
+  document.getElementById('lblLastVacation').innerText = t.lblLastVacation;
+  document.getElementById('hintLastVacation').innerText = t.hintLastVacation;
+  document.getElementById('lblVacationDays').innerText = t.lblVacationDays;
+  document.getElementById('lblSalary').innerText = t.lblSalary;
+  document.getElementById('salary').placeholder = t.phSalary;
+  document.getElementById('hintSalary').innerText = t.hintSalary;
+  document.getElementById('lblReason').innerText = t.lblReason;
+  document.getElementById('optTermination').innerText = t.optTermination;
+  document.getElementById('optResignation').innerText = t.optResignation;
+  document.getElementById('lblUnpaidSalary').innerText = t.lblUnpaidSalary;
+  document.getElementById('hintUnpaidSalary').innerText = t.hintUnpaidSalary;
+  document.getElementById('btnCalc').innerText = t.btnCalc;
+  document.getElementById('lblRawEOSBDays').innerText = t.lblRawEOSBDays;
+  document.getElementById('lblEntitlementRatio').innerText = t.lblEntitlementRatio;
+  document.getElementById('lblNetEOSBDays').innerText = t.lblNetEOSBDays;
+  document.getElementById('lblRawEOSB').innerText = t.lblRawEOSB;
+  document.getElementById('lblFinalEOSB').innerText = t.lblFinalEOSB;
+  document.getElementById('lblVacationAmount').innerText = t.lblVacationAmount;
+  document.getElementById('lblUnpaidSalaryAmount').innerText = t.lblUnpaidSalaryAmount;
+  document.getElementById('lblGrandTotal').innerText = t.lblGrandTotal;
+  document.getElementById('btnExport').innerText = t.btnExport;
+  document.getElementById('footerLaw').innerText = t.footerLaw;
+  document.getElementById('footerDev').innerText = t.footerDev;
+
+  autoCalcVacation();
+
+  // Re-calculate if results are already open
+  if (document.getElementById('resultsBox').style.display === 'block') {
+    document.getElementById('calcForm').dispatchEvent(new Event('submit'));
+  }
+}
+
+// دالة الحساب التلقائي لرصيد الإجازات
 function autoCalcVacation() {
+  const t = i18n[currentLang];
   const lastReturnVal = document.getElementById('lastVacationReturn').value;
-  const startDateVal = document.getElementById('startDate').value;
   const endDateVal = document.getElementById('endDate').value;
   const vacationInput = document.getElementById('vacationDays');
   const vacationHint = document.getElementById('vacationHint');
@@ -445,23 +636,22 @@ function autoCalcVacation() {
       const diffTime = Math.abs(endDate - calcFromDate);
       const totalDays = diffTime / (1000 * 60 * 60 * 24);
       
-      // القانون الكويتي: 30 يوم إجازة سنوية في السنة (30 / 365.25 = 0.082136 يوم لكل يوم عمل)
       const calculatedVacation = totalDays * (30 / 365.25);
       
       vacationInput.value = calculatedVacation.toFixed(2);
       vacationInput.disabled = true;
-      vacationHint.innerText = "تم حساب الأيام تلقائياً بناءً على تاريخ آخر عودة (30 يوم/سنة)";
+      vacationHint.innerText = t.vacationHintAuto;
       return;
     }
   }
   
-  // إعادة تفعيل التعديل اليدوي إن لم يُدخل تاريخ آخر عودة
   vacationInput.disabled = false;
-  vacationHint.innerText = "عدد الأيام المستحقة التي لم يستغلها الموظف";
+  vacationHint.innerText = t.vacationHintDefault;
 }
 
 function calculate(e) {
   e.preventDefault();
+  const t = i18n[currentLang];
 
   const empName = document.getElementById('empName').value.trim();
   const startDateVal = document.getElementById('startDate').value;
@@ -477,7 +667,7 @@ function calculate(e) {
   const unpaidSalary = parseFloat(document.getElementById('unpaidSalary').value) || 0;
 
   if (endDate <= startDate) {
-    alert("تاريخ نهاية العمل يجب أن يكون بعد تاريخ البداية!");
+    alert(t.dateAlert);
     return;
   }
 
@@ -490,28 +680,29 @@ function calculate(e) {
   const remainingMonths = Math.floor((years - displayYears) * 12);
   const remainingDays = Math.floor(totalDays % 30.4375);
 
-  const serviceText = `${displayYears} سنة و ${remainingMonths} شهر و ${remainingDays} يوم`;
-  document.getElementById('servicePeriodText').innerText = `مدة الخدمة: ${serviceText}`;
-  document.getElementById('resEmpName').innerText = `📊 مستحقات الموظف: ${empName}`;
+  const serviceText = `${displayYears} ${t.yearText} ${t.andText} ${remainingMonths} ${t.monthText} ${t.andText} ${remainingDays} ${t.dayText}`;
+  document.getElementById('servicePeriodText').innerText = `${t.servicePeriodText}${serviceText}`;
+  document.getElementById('resEmpName').innerText = `${t.resEmpName}${empName}`;
 
   // 2. حساب قيمة أجر اليوم
-  const dailySalary = salary / 26; // القانون الكويتي يعتمد 26 يوم عمل لحساب اليومية
+  const dailySalary = salary / 26; 
 
-  // 3. حساب مكافأة نهاية الخدمة الإجمالية
-  let rawEOSB = 0;
+  // 3. حساب عدد أيام نهاية الخدمة الإجمالية
+  let rawEOSBDays = 0;
   if (years <= 5) {
-    rawEOSB = years * (15 * dailySalary);
+    rawEOSBDays = years * 15;
   } else {
-    const first5Years = 5 * (15 * dailySalary);
-    const restYears = (years - 5) * (30 * dailySalary);
-    rawEOSB = first5Years + restYears;
+    const first5YearsDays = 5 * 15;
+    const restYearsDays = (years - 5) * 30;
+    rawEOSBDays = first5YearsDays + restYearsDays;
   }
 
-  // تطبيق الحد الأقصى (أجر 18 شهراً)
-  const maxCap = salary * 18;
-  if (rawEOSB > maxCap) {
-    rawEOSB = maxCap;
+  const maxCapDays = 18 * 26; 
+  if (rawEOSBDays > maxCapDays) {
+    rawEOSBDays = maxCapDays;
   }
+
+  let rawEOSB = rawEOSBDays * dailySalary;
 
   // 4. تطبيق نسبة الاستحقاق حسب سبب انتهاء الخدمة
   let ratio = 1.0;
@@ -527,23 +718,25 @@ function calculate(e) {
     }
   }
 
+  const netEOSBDays = rawEOSBDays * ratio;
   const finalEOSB = rawEOSB * ratio;
 
   // 5. حساب بدل رصيد الإجازات
   const vacationAmount = vacationDays * dailySalary;
 
-  // 6. الإجمالي النهائي شامل الراتب المتأخر
+  // 6. الإجمالي النهائي
   const grandTotal = finalEOSB + vacationAmount + unpaidSalary;
 
-  // حفظ البيانات لاستخدامها عند التصدير
   lastCalculationData = {
     empName,
     startDateVal,
     endDateVal,
-    lastVacationReturnVal: lastVacationReturnVal || "لم يحدد",
+    lastVacationReturnVal: lastVacationReturnVal || t.notSpecified,
     salary,
     reasonText,
     vacationDays: vacationDays.toFixed(2),
+    rawEOSBDays: rawEOSBDays.toFixed(2),
+    netEOSBDays: netEOSBDays.toFixed(2),
     unpaidSalary,
     serviceText,
     rawEOSB,
@@ -553,9 +746,11 @@ function calculate(e) {
     grandTotal
   };
 
-  // عرض النتائج في الواجهة
-  document.getElementById('rawEOSB').innerText = formatKWD(rawEOSB);
+  // عرض النتائج
+  document.getElementById('rawEOSBDays').innerText = rawEOSBDays.toFixed(2) + t.unitDays;
+  document.getElementById('netEOSBDays').innerText = netEOSBDays.toFixed(2) + t.unitDays;
   document.getElementById('entitlementRatio').innerText = lastCalculationData.ratioText;
+  document.getElementById('rawEOSB').innerText = formatKWD(rawEOSB);
   document.getElementById('finalEOSB').innerText = formatKWD(finalEOSB);
   document.getElementById('vacationAmount').innerText = formatKWD(vacationAmount);
   document.getElementById('unpaidSalaryAmount').innerText = formatKWD(unpaidSalary);
@@ -566,30 +761,31 @@ function calculate(e) {
 }
 
 function formatKWD(amount) {
-  return amount.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + ' د.ك';
+  return amount.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + i18n[currentLang].unitKWD;
 }
 
 function exportToExcel() {
   if (!lastCalculationData) return;
-
   const d = lastCalculationData;
+  const t = i18n[currentLang];
 
-  // التنسيق الرأسي لإكسل
   const fields = [
-    { label: "اسم الموظف", value: d.empName },
-    { label: "تاريخ بداية العمل", value: d.startDateVal },
-    { label: "تاريخ نهاية العمل", value: d.endDateVal },
-    { label: "تاريخ آخر عودة من إجازة", value: d.lastVacationReturnVal },
-    { label: "مدة الخدمة", value: d.serviceText },
-    { label: "الأجر الأخير الشامل (د.ك)", value: d.salary.toFixed(3) },
-    { label: "سبب ترك العمل", value: d.reasonText },
-    { label: "رصيد الإجازات المتبقي (أيام)", value: d.vacationDays },
-    { label: "الراتب المتبقي / المتأخرات (د.ك)", value: d.unpaidSalary.toFixed(3) },
-    { label: "المكافأة الإجمالية الخام (د.ك)", value: d.rawEOSB.toFixed(3) },
-    { label: "نسبة الاستحقاق القانونية", value: d.ratioText },
-    { label: "صافي مكافأة نهاية الخدمة (د.ك)", value: d.finalEOSB.toFixed(3) },
-    { label: "بدل رصيد الإجازات (د.ك)", value: d.vacationAmount.toFixed(3) },
-    { label: "إجمالي المستحقات النهائية (د.ك)", value: d.grandTotal.toFixed(3) }
+    { label: t.lblEmpName, value: d.empName },
+    { label: t.lblStartDate, value: d.startDateVal },
+    { label: t.lblEndDate, value: d.endDateVal },
+    { label: t.lblLastVacation, value: d.lastVacationReturnVal },
+    { label: t.servicePeriodText.replace(': ', ''), value: d.serviceText },
+    { label: t.lblSalary, value: d.salary.toFixed(3) },
+    { label: t.lblReason, value: d.reasonText },
+    { label: t.lblRawEOSBDays, value: d.rawEOSBDays + t.unitDays },
+    { label: t.lblEntitlementRatio, value: d.ratioText },
+    { label: t.lblNetEOSBDays, value: d.netEOSBDays + t.unitDays },
+    { label: t.lblRawEOSB, value: d.rawEOSB.toFixed(3) },
+    { label: t.lblFinalEOSB, value: d.finalEOSB.toFixed(3) },
+    { label: t.lblVacationDays, value: d.vacationDays + t.unitDays },
+    { label: t.lblVacationAmount, value: d.vacationAmount.toFixed(3) },
+    { label: t.lblUnpaidSalary, value: d.unpaidSalary.toFixed(3) },
+    { label: t.lblGrandTotal, value: d.grandTotal.toFixed(3) }
   ];
 
   let rowsHtml = fields.map(f => `
@@ -598,6 +794,9 @@ function exportToExcel() {
       <td>${f.value}</td>
     </tr>
   `).join('');
+
+  const dirAttr = currentLang === 'ar' ? 'dir="rtl"' : 'dir="ltr"';
+  const textAlign = currentLang === 'ar' ? 'right' : 'left';
 
   const tableHtml = `
     <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
@@ -611,8 +810,8 @@ function exportToExcel() {
           font-size: 14px;
           border: 1px solid #000000;
           padding: 10px;
-          text-align: right;
-          width: 250px;
+          text-align: ${textAlign};
+          width: 280px;
         }
         td {
           background-color: #C6EFCE !important;
@@ -621,12 +820,12 @@ function exportToExcel() {
           font-size: 13px;
           border: 1px solid #000000;
           padding: 8px 15px;
-          text-align: right;
+          text-align: ${textAlign};
           width: 250px;
         }
       </style>
     </head>
-    <body dir="rtl">
+    <body ${dirAttr}>
       <table>
         <tbody>
           ${rowsHtml}
@@ -640,7 +839,7 @@ function exportToExcel() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `تقرير_مستحقات_${d.empName.replace(/\s+/g, '_')}.xls`;
+  a.download = `Indemnity_Report_${d.empName.replace(/\s+/g, '_')}.xls`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
