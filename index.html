@@ -344,6 +344,12 @@
           <span class="hint">عدد الأيام المستحقة التي لم يستغلها الموظف</span>
         </div>
 
+        <div class="form-group">
+          <label for="unpaidSalary">الراتب المتأخر / المتبقي (د.ك)</label>
+          <input type="number" id="unpaidSalary" step="0.001" min="0" value="0" placeholder="0.000">
+          <span class="hint">أي رواتب أو مستحقات شهرية سابقة لم يتسلمها الموظف</span>
+        </div>
+
       </div>
 
       <button type="submit" class="btn-calc">احسب المستحقات الآن</button>
@@ -376,6 +382,11 @@
         <div class="result-row">
           <span>بدل رصيد الإجازات السنوية:</span>
           <span class="amount" id="vacationAmount">0.000 د.ك</span>
+        </div>
+
+        <div class="result-row">
+          <span>الراتب المتبقي / المتأخرات:</span>
+          <span class="amount" id="unpaidSalaryAmount">0.000 د.ك</span>
         </div>
 
         <div class="result-row total">
@@ -420,6 +431,7 @@ function calculate(e) {
   const reason = reasonSelect.value;
   const reasonText = reasonSelect.options[reasonSelect.selectedIndex].text;
   const vacationDays = parseFloat(document.getElementById('vacationDays').value) || 0;
+  const unpaidSalary = parseFloat(document.getElementById('unpaidSalary').value) || 0;
 
   if (endDate <= startDate) {
     alert("تاريخ نهاية العمل يجب أن يكون بعد تاريخ البداية!");
@@ -477,8 +489,8 @@ function calculate(e) {
   // 5. حساب بدل رصيد الإجازات
   const vacationAmount = vacationDays * dailySalary;
 
-  // 6. الإجمالي النهائي
-  const grandTotal = finalEOSB + vacationAmount;
+  // 6. الإجمالي النهائي شامل الراتب المتأخر
+  const grandTotal = finalEOSB + vacationAmount + unpaidSalary;
 
   // حفظ البيانات لاستخدامها عند التصدير
   lastCalculationData = {
@@ -488,6 +500,7 @@ function calculate(e) {
     salary,
     reasonText,
     vacationDays,
+    unpaidSalary,
     serviceText,
     rawEOSB,
     ratioText: (ratio * 100).toFixed(1).replace('.0', '') + '%',
@@ -501,6 +514,7 @@ function calculate(e) {
   document.getElementById('entitlementRatio').innerText = lastCalculationData.ratioText;
   document.getElementById('finalEOSB').innerText = formatKWD(finalEOSB);
   document.getElementById('vacationAmount').innerText = formatKWD(vacationAmount);
+  document.getElementById('unpaidSalaryAmount').innerText = formatKWD(unpaidSalary);
   document.getElementById('grandTotal').innerText = formatKWD(grandTotal);
 
   document.getElementById('resultsBox').style.display = 'block';
@@ -525,6 +539,7 @@ function exportToExcel() {
     { label: "الأجر الأخير الشامل (د.ك)", value: d.salary.toFixed(3) },
     { label: "سبب ترك العمل", value: d.reasonText },
     { label: "رصيد الإجازات المتبقي (أيام)", value: d.vacationDays },
+    { label: "الراتب المتبقي / المتأخرات (د.ك)", value: d.unpaidSalary.toFixed(3) },
     { label: "المكافأة الإجمالية الخام (د.ك)", value: d.rawEOSB.toFixed(3) },
     { label: "نسبة الاستحقاق القانونية", value: d.ratioText },
     { label: "صافي مكافأة نهاية الخدمة (د.ك)", value: d.finalEOSB.toFixed(3) },
