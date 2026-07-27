@@ -516,65 +516,60 @@ function exportToExcel() {
 
   const d = lastCalculationData;
 
-  // إنشاء جدول HTML للتصدير مع التنسيقات المطلوبة (أزرق غامق + أخضر + نص أبيض/أزرق)
+  // التنسيق الرأسي: العمود الأول أزرق غامق (أناوين البيانات) والعمود الثاني أخضر فاتح (القيم)
+  const fields = [
+    { label: "اسم الموظف", value: d.empName },
+    { label: "تاريخ بداية العمل", value: d.startDateVal },
+    { label: "تاريخ نهاية العمل", value: d.endDateVal },
+    { label: "مدة الخدمة", value: d.serviceText },
+    { label: "الأجر الأخير الشامل (د.ك)", value: d.salary.toFixed(3) },
+    { label: "سبب ترك العمل", value: d.reasonText },
+    { label: "رصيد الإجازات المتبقي (أيام)", value: d.vacationDays },
+    { label: "المكافأة الإجمالية الخام (د.ك)", value: d.rawEOSB.toFixed(3) },
+    { label: "نسبة الاستحقاق القانونية", value: d.ratioText },
+    { label: "صافي مكافأة نهاية الخدمة (د.ك)", value: d.finalEOSB.toFixed(3) },
+    { label: "بدل رصيد الإجازات (د.ك)", value: d.vacationAmount.toFixed(3) },
+    { label: "إجمالي المستحقات النهائية (د.ك)", value: d.grandTotal.toFixed(3) }
+  ];
+
+  let rowsHtml = fields.map(f => `
+    <tr>
+      <th>${f.label}</th>
+      <td>${f.value}</td>
+    </tr>
+  `).join('');
+
   const tableHtml = `
     <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
     <head>
       <meta charset="utf-8">
       <style>
         th {
-          background-color: #1A2B4C !important;
+          background-color: #002060 !important;
           color: #FFFFFF !important;
           font-weight: bold;
           font-size: 14px;
           border: 1px solid #000000;
-          padding: 8px;
-          text-align: center;
+          padding: 10px;
+          text-align: right;
+          width: 250px;
         }
         td {
-          background-color: #2F5233 !important;
-          color: #1A2B4C !important;
+          background-color: #C6EFCE !important;
+          color: #002060 !important;
           font-weight: bold;
           font-size: 13px;
           border: 1px solid #000000;
-          padding: 8px;
-          text-align: center;
+          padding: 8px 15px;
+          text-align: right;
+          width: 250px;
         }
       </style>
     </head>
     <body dir="rtl">
       <table>
-        <thead>
-          <tr>
-            <th>اسم الموظف</th>
-            <th>تاريخ البداية</th>
-            <th>تاريخ النهاية</th>
-            <th>مدة الخدمة</th>
-            <th>الأجر الشامل (د.ك)</th>
-            <th>سبب الترك</th>
-            <th>رصيد الإجازات (أيام)</th>
-            <th>المكافأة الخام (د.ك)</th>
-            <th>نسبة الاستحقاق</th>
-            <th>صافي المكافأة (د.ك)</th>
-            <th>بدل الإجازات (د.ك)</th>
-            <th>إجمالي المستحقات (د.ك)</th>
-          </tr>
-        </thead>
         <tbody>
-          <tr>
-            <td>${d.empName}</td>
-            <td>${d.startDateVal}</td>
-            <td>${d.endDateVal}</td>
-            <td>${d.serviceText}</td>
-            <td>${d.salary.toFixed(3)}</td>
-            <td>${d.reasonText}</td>
-            <td>${d.vacationDays}</td>
-            <td>${d.rawEOSB.toFixed(3)}</td>
-            <td>${d.ratioText}</td>
-            <td>${d.finalEOSB.toFixed(3)}</td>
-            <td>${d.vacationAmount.toFixed(3)}</td>
-            <td>${d.grandTotal.toFixed(3)}</td>
-          </tr>
+          ${rowsHtml}
         </tbody>
       </table>
     </body>
@@ -585,7 +580,7 @@ function exportToExcel() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `مستحقات_${d.empName.replace(/\s+/g, '_')}.xls`;
+  a.download = `تقرير_مستحقات_${d.empName.replace(/\s+/g, '_')}.xls`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
