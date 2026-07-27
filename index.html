@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حاسبة مستحقات نهاية الخدمة ورصيد الإجازات - الكويت</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #EDF1E6;
+    --paper-line: #C7D6C4;
+    --ink: #1C2620;
+    --green: #2F5233;
+    --green-dark: #1B3320;
+    --brass: #B08D57;
+    --brass-light: #DCC79A;
+    --red: #A63D40;
+    --white: #FAFAF7;
+    --gray-bg: #F4F6F1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Tajawal', sans-serif;
+    color: var(--ink);
+    background:
+      repeating-linear-gradient(to bottom, transparent, transparent 30px, var(--paper-line) 31px),
+      var(--paper);
+    min-height: 100vh;
+    padding-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+  }
+  .margin-line {
+    position: fixed;
+    top: 0; bottom: 0; right: 64px;
+    width: 1px;
+    background: rgba(166,61,64,0.35);
+    pointer-events: none;
+    z-index: 0;
+  }
+  header {
+    background: linear-gradient(180deg, var(--green-dark), var(--green));
+    padding: 38px 24px 20px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  }
+  header::after {
+    content: "";
+    position: absolute;
+    right: 0; left: 0; bottom: 0;
+    height: 3px;
+    background: repeating-linear-gradient(90deg, var(--brass) 0 10px, transparent 10px 16px);
+    opacity: 0.8;
+  }
+  header h1 {
+    color: var(--white);
+    font-weight: 900;
+    font-size: clamp(24px, 5vw, 36px);
+    margin: 0;
+    letter-spacing: 0.5px;
+  }
+  header p {
+    color: var(--brass-light);
+    margin: 8px 0 0;
+    font-size: 15px;
+    font-weight: 500;
+  }
+  main {
+    max-width: 840px;
+    margin: 0 auto;
+    padding: 28px 20px 0;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    width: 100%;
+  }
+  .card {
+    background: var(--white);
+    border: 1px solid var(--paper-line);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  }
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--green-dark);
+    margin-top: 0;
+    margin-bottom: 18px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--paper-line);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  label {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  input, select {
+    width: 100%;
+    padding: 10px 12px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 14.5px;
+    border: 1px solid var(--paper-line);
+    border-radius: 5px;
+    background: var(--paper);
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  input:focus, select:focus {
+    border-color: var(--brass);
+    background: #fff;
+  }
+  .hint {
+    font-size: 12px;
+    color: #6b756b;
+  }
+  .btn-calc {
+    width: 100%;
+    background: var(--brass);
+    color: var(--green-dark);
+    border: none;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 900;
+    font-size: 17px;
+    padding: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: transform 0.15s, background 0.15s;
+    margin-top: 10px;
+  }
+  .btn-calc:hover {
+    background: var(--brass-light);
+    transform: translateY(-1px);
+  }
+  
+  /* Results section */
+  .results {
+    display: none;
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .result-header {
+    background: var(--green-dark);
+    color: var(--white);
+    padding: 16px 20px;
+    border-radius: 6px 6px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .result-header h3 { margin: 0; font-size: 16px; }
+  .result-header .service-period {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13.5px;
+    color: var(--brass-light);
+  }
+  
+  .result-body {
+    border: 1px solid var(--paper-line);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    background: var(--white);
+    padding: 20px;
+  }
+  
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--paper-line);
+    font-size: 14.5px;
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-row.total {
+    background: rgba(176, 141, 87, 0.12);
+    margin: 12px -20px -20px;
+    padding: 16px 20px;
+    border-radius: 0 0 6px 6px;
+    border-top: 2px solid var(--brass);
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--green-dark);
+  }
+  .amount {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700;
+    font-size: 16px;
+    direction: ltr;
+  }
+  .total .amount {
+    font-size: 20px;
+    color: var(--green-dark);
+  }
+  
+  .legal-note {
+    background: #F2F5EC;
+    border-right: 4px solid var(--brass);
+    padding: 12px 14px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #4a544a;
+    margin-top: 16px;
+    line-height: 1.6;
+  }
+
+  footer {
+    position: relative;
+    z-index: 1;
+    background: var(--green-dark);
+    color: var(--white);
+    padding: 20px;
+    margin-top: 40px;
+    border-top: 2px solid var(--brass);
+    text-align: center;
+    font-size: 13.5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="margin-line"></div>
+
+<header>
+  <h1>حاسبة مستحقات نهاية الخدمة بالإجازات</h1>
+  <p>وفقاً لقانون العمل الكويتي في القطاع الأهلي (رقم 6 لسنة 2010)</p>
+</header>
+
+<main>
+  <div class="card">
+    <div class="card-title">📋 بيانات العقد والرواتب</div>
+    <form id="calcForm" onsubmit="calculate(event)">
+      <div class="grid">
+        
+        <div class="form-group">
+          <label for="startDate">تاريخ بداية العمل</label>
+          <input type="date" id="startDate" required>
+        </div>
+
+        <div class="form-group">
+          <label for="endDate">تاريخ نهاية العمل</label>
+          <input type="date" id="endDate" required>
+        </div>
+
+        <div class="form-group">
+          <label for="salary">الأجر الأخير الشامل (د.ك)</label>
+          <input type="number" id="salary" step="0.001" min="0" placeholder="مثال: 750" required>
+          <span class="hint">يشمل الراتب الأساسي + جميع البدلات الثابتة</span>
+        </div>
+
+        <div class="form-group">
+          <label for="reason">سبب ترك العمل</label>
+          <select id="reason" required>
+            <option value="termination">إنهاء خدمات (فصل / تسريح من الشركة)</option>
+            <option value="resignation">استقالة الموظف</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="vacationDays">رصيد الإجازات المتبقي (بالأيام)</label>
+          <input type="number" id="vacationDays" min="0" step="0.5" value="0">
+          <span class="hint">عدد الأيام المستحقة التي لم يستغلها الموظف</span>
+        </div>
+
+      </div>
+
+      <button type="submit" class="btn-calc">احسب المستحقات الآن</button>
+    </form>
+  </div>
+
+  <div class="results" id="resultsBox">
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <div class="result-header">
+        <h3>📊 تفاصيل المستحقات المالية</h3>
+        <span class="service-period" id="servicePeriodText">مدة الخدمة: -</span>
+      </div>
+      <div class="result-body">
+        
+        <div class="result-row">
+          <span>مكافأة نهاية الخدمة الإجمالية (قبل النسبة):</span>
+          <span class="amount" id="rawEOSB">0.000 د.ك</span>
+        </div>
+
+        <div class="result-row">
+          <span>نسبة الاستحقاق القانونية:</span>
+          <span class="amount" id="entitlementRatio">100%</span>
+        </div>
+
+        <div class="result-row">
+          <span>صافي مكافأة نهاية الخدمة المستحقة:</span>
+          <span class="amount" id="finalEOSB">0.000 د.ك</span>
+        </div>
+
+        <div class="result-row">
+          <span>بدل رصيد الإجازات السنوية:</span>
+          <span class="amount" id="vacationAmount">0.000 د.ك</span>
+        </div>
+
+        <div class="result-row total">
+          <span>إجمالي الصافي المستحق للصرف:</span>
+          <span class="amount" id="grandTotal">0.000 د.ك</span>
+        </div>
+
+        <div class="legal-note">
+          <strong>📌 ملاحظات قانونية مهمة:</strong><br>
+          • يُحسب أجر اليوم في الإجازات ومكافأة نهاية الخدمة على أساس قسمة الراتب الشامل على (26 يوم عمل).<br>
+          • الحد الأقصى لمكافأة نهاية الخدمة هو أجر 18 شهراً وفق المادة 51 من القانون.<br>
+          • في حالة الاستقالة: أقل من سنتين (لا شيء)، من 2 إلى 5 سنوات (النصف 50%)، من 5 إلى 10 سنوات (الثلثين 66.6%)، 10 سنوات فأكثر (المكافأة كاملة 100%).
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  برمجية حساب المستحقات وفق قانون العمل الكويتي رقم 6/2010
+</footer>
+
+<script>
+function calculate(e) {
+  e.preventDefault();
+
+  const startDate = new Date(document.getElementById('startDate').value);
+  const endDate = new Date(document.getElementById('endDate').value);
+  const salary = parseFloat(document.getElementById('salary').value) || 0;
+  const reason = document.getElementById('reason').value;
+  const vacationDays = parseFloat(document.getElementById('vacationDays').value) || 0;
+
+  if (endDate <= startDate) {
+    alert("تاريخ نهاية العمل يجب أن يكون بعد تاريخ البداية!");
+    return;
+  }
+
+  // 1. حساب مدة الخدمة بالأيام والسنوات
+  const diffTime = Math.abs(endDate - startDate);
+  const totalDays = diffTime / (1000 * 60 * 60 * 24);
+  const years = totalDays / 365.25;
+
+  const displayYears = Math.floor(years);
+  const remainingMonths = Math.floor((years - displayYears) * 12);
+  const remainingDays = Math.floor(totalDays % 30.4375);
+
+  document.getElementById('servicePeriodText').innerText = 
+    `مدة الخدمة: ${displayYears} سنة و ${remainingMonths} شهر و ${remainingDays} يوم`;
+
+  // 2. حساب قيمة أجر اليوم والأجر الشهري
+  const dailySalary = salary / 26; // القانون الكويتي يعتمد 26 يوم عمل لحساب اليومية
+
+  // 3. حساب مكافأة نهاية الخدمة الإجمالية
+  let rawEOSB = 0;
+  if (years <= 5) {
+    rawEOSB = years * (15 * dailySalary);
+  } else {
+    const first5Years = 5 * (15 * dailySalary);
+    const restYears = (years - 5) * (30 * dailySalary);
+    rawEOSB = first5Years + restYears;
+  }
+
+  // تطبيق الحد الأقصى (أجر 18 شهراً)
+  const maxCap = salary * 18;
+  if (rawEOSB > maxCap) {
+    rawEOSB = maxCap;
+  }
+
+  // 4. تطبيق نسبة الاستحقاق حسب سبب انتهاء الخدمة
+  let ratio = 1.0;
+
+  if (reason === 'resignation') {
+    if (years < 2) {
+      ratio = 0;
+    } else if (years >= 2 && years < 5) {
+      ratio = 0.5;
+    } else if (years >= 5 && years < 10) {
+      ratio = 2 / 3;
+    } else {
+      ratio = 1.0;
+    }
+  }
+
+  const finalEOSB = rawEOSB * ratio;
+
+  // 5. حساب بدل رصيد الإجازات
+  const vacationAmount = vacationDays * dailySalary;
+
+  // 6. الإجمالي النهائي
+  const grandTotal = finalEOSB + vacationAmount;
+
+  // عرض النتائج
+  document.getElementById('rawEOSB').innerText = formatKWD(rawEOSB);
+  document.getElementById('entitlementRatio').innerText = (ratio * 100).toFixed(1).replace('.0', '') + '%';
+  document.getElementById('finalEOSB').innerText = formatKWD(finalEOSB);
+  document.getElementById('vacationAmount').innerText = formatKWD(vacationAmount);
+  document.getElementById('grandTotal').innerText = formatKWD(grandTotal);
+
+  document.getElementById('resultsBox').style.display = 'block';
+  document.getElementById('resultsBox').scrollIntoView({ behavior: 'smooth' });
+}
+
+function formatKWD(amount) {
+  return amount.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + ' د.ك';
+}
+</script>
+
+</body>
+</html>
