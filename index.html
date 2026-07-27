@@ -185,9 +185,9 @@
     border-color: var(--brass);
     background: #fff;
   }
-  input:disabled {
+  input:disabled, select:disabled {
     background: #e2e8de;
-    color: #555;
+    color: #888;
     cursor: not-allowed;
   }
   .hint {
@@ -374,27 +374,36 @@
       <div class="grid">
         
         <div class="form-group full-width">
+          <label for="calcMode" id="lblCalcMode">نوع الحساب المطلوب</label>
+          <select id="calcMode" onchange="handleCalcModeChange()" required>
+            <option value="both" id="optBoth">حساب نهاية الخدمة + رصيد الإجازات معاً</option>
+            <option value="eosb" id="optEosbOnly">حساب مكافأة نهاية الخدمة فقط</option>
+            <option value="vacation" id="optVacationOnly">حساب بدل رصيد الإجازات فقط</option>
+          </select>
+        </div>
+
+        <div class="form-group full-width">
           <label for="empName" id="lblEmpName">اسم الموظف بالكامل</label>
           <input type="text" id="empName" placeholder="أدخل اسم الموظف" required>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" id="grpStartDate">
           <label for="startDate" id="lblStartDate">تاريخ بداية العمل</label>
           <input type="date" id="startDate" onchange="autoCalcVacation()" required>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" id="grpEndDate">
           <label for="endDate" id="lblEndDate">تاريخ نهاية العمل</label>
           <input type="date" id="endDate" onchange="autoCalcVacation()" required>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" id="grpLastVacation">
           <label for="lastVacationReturn" id="lblLastVacation">تاريخ آخر عودة من إجازة (اختياري)</label>
           <input type="date" id="lastVacationReturn" onchange="autoCalcVacation()">
           <span class="hint" id="hintLastVacation">لحساب رصيد الإجازات تلقائياً، اتركه فارغاً للإدخال اليدوي</span>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" id="grpVacationDays">
           <label for="vacationDays" id="lblVacationDays">رصيد الإجازات المتبقي (بالأيام)</label>
           <input type="number" id="vacationDays" min="0" step="0.01" value="0">
           <span class="hint" id="vacationHint">عدد الأيام المستحقة للموظف</span>
@@ -406,7 +415,7 @@
           <span class="hint" id="hintSalary">يشمل الراتب الأساسي + جميع البدلات الثابتة</span>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" id="grpReason">
           <label for="reason" id="lblReason">سبب ترك العمل</label>
           <select id="reason" required>
             <option value="termination" id="optTermination">إنهاء خدمات (فصل / تسريح من الشركة)</option>
@@ -434,37 +443,37 @@
       </div>
       <div class="result-body">
         
-        <div class="result-row">
+        <div class="result-row" id="rowRawEOSBDays">
           <span id="lblRawEOSBDays">عدد أيام نهاية الخدمة المستحقة (الإجمالي):</span>
           <span class="amount" id="rawEOSBDays">0.00 يوم</span>
         </div>
 
-        <div class="result-row">
+        <div class="result-row" id="rowEntitlementRatio">
           <span id="lblEntitlementRatio">نسبة الاستحقاق القانونية:</span>
           <span class="amount" id="entitlementRatio">100%</span>
         </div>
 
-        <div class="result-row">
+        <div class="result-row" id="rowNetEOSBDays">
           <span id="lblNetEOSBDays">عدد أيام نهاية الخدمة الصافية (بعد النسبة):</span>
           <span class="amount" id="netEOSBDays">0.00 يوم</span>
         </div>
 
-        <div class="result-row">
+        <div class="result-row" id="rowRawEOSB">
           <span id="lblRawEOSB">مكافأة نهاية الخدمة الإجمالية (قبل النسبة):</span>
           <span class="amount" id="rawEOSB">0.000 د.ك</span>
         </div>
 
-        <div class="result-row">
+        <div class="result-row" id="rowFinalEOSB">
           <span id="lblFinalEOSB">صافي مكافأة نهاية الخدمة المستحقة:</span>
           <span class="amount" id="finalEOSB">0.000 د.ك</span>
         </div>
 
-        <div class="result-row">
+        <div class="result-row" id="rowVacationAmount">
           <span id="lblVacationAmount">بدل رصيد الإجازات السنوية:</span>
           <span class="amount" id="vacationAmount">0.000 د.ك</span>
         </div>
 
-        <div class="result-row">
+        <div class="result-row" id="rowUnpaidSalaryAmount">
           <span id="lblUnpaidSalaryAmount">الراتب المتبقي / المتأخرات:</span>
           <span class="amount" id="unpaidSalaryAmount">0.000 د.ك</span>
         </div>
@@ -507,6 +516,10 @@ const i18n = {
     headerSub: "وفقاً لقانون العمل الكويتي في القطاع الأهلي (رقم 6 لسنة 2010)",
     lblVisitors: "👥 عدد زوار الموقع:",
     formTitle: "📋 بيانات الموظف والعقد",
+    lblCalcMode: "نوع الحساب المطلوب",
+    optBoth: "حساب نهاية الخدمة + رصيد الإجازات معاً",
+    optEosbOnly: "حساب مكافأة نهاية الخدمة فقط",
+    optVacationOnly: "حساب بدل رصيد الإجازات فقط",
     lblEmpName: "اسم الموظف بالكامل",
     phEmpName: "أدخل اسم الموظف",
     lblStartDate: "تاريخ بداية العمل",
@@ -545,7 +558,8 @@ const i18n = {
     dayText: "يوم",
     andText: "و",
     dateAlert: "تاريخ نهاية العمل يجب أن يكون بعد تاريخ البداية!",
-    notSpecified: "لم يحدد"
+    notSpecified: "لم يحدد",
+    notCalculated: "غير مشمول بالحساب"
   },
   en: {
     docTitle: "Indemnity & Vacation Calculator - Kuwait",
@@ -554,6 +568,10 @@ const i18n = {
     headerSub: "According to Kuwait Labor Law in Private Sector (No. 6 of 2010)",
     lblVisitors: "👥 Total Visitors:",
     formTitle: "📋 Employee & Contract Details",
+    lblCalcMode: "Calculation Mode",
+    optBoth: "End of Service + Vacation Balance Both",
+    optEosbOnly: "End of Service Indemnity Only",
+    optVacationOnly: "Vacation Balance Pay Only",
     lblEmpName: "Full Employee Name",
     phEmpName: "Enter employee name",
     lblStartDate: "Start Date",
@@ -592,7 +610,8 @@ const i18n = {
     dayText: "Day(s)",
     andText: "and",
     dateAlert: "End date must be after the start date!",
-    notSpecified: "Not Specified"
+    notSpecified: "Not Specified",
+    notCalculated: "Not Calculated"
   }
 };
 
@@ -614,6 +633,54 @@ async function initVisitorCounter() {
 // تشغيل العداد عند فتح الصفحة
 initVisitorCounter();
 
+function handleCalcModeChange() {
+  const mode = document.getElementById('calcMode').value;
+
+  const grpStartDate = document.getElementById('grpStartDate');
+  const grpEndDate = document.getElementById('grpEndDate');
+  const grpReason = document.getElementById('grpReason');
+  const grpLastVacation = document.getElementById('grpLastVacation');
+  const grpVacationDays = document.getElementById('grpVacationDays');
+
+  const startDate = document.getElementById('startDate');
+  const endDate = document.getElementById('endDate');
+  const reason = document.getElementById('reason');
+
+  if (mode === 'both') {
+    grpStartDate.style.display = 'flex';
+    grpEndDate.style.display = 'flex';
+    grpReason.style.display = 'flex';
+    grpLastVacation.style.display = 'flex';
+    grpVacationDays.style.display = 'flex';
+
+    startDate.required = true;
+    endDate.required = true;
+    reason.required = true;
+  } else if (mode === 'eosb') {
+    grpStartDate.style.display = 'flex';
+    grpEndDate.style.display = 'flex';
+    grpReason.style.display = 'flex';
+    grpLastVacation.style.display = 'none';
+    grpVacationDays.style.display = 'none';
+
+    startDate.required = true;
+    endDate.required = true;
+    reason.required = true;
+  } else if (mode === 'vacation') {
+    grpStartDate.style.display = 'none';
+    grpEndDate.style.display = 'flex';
+    grpReason.style.display = 'none';
+    grpLastVacation.style.display = 'flex';
+    grpVacationDays.style.display = 'flex';
+
+    startDate.required = false;
+    endDate.required = false;
+    reason.required = false;
+  }
+
+  autoCalcVacation();
+}
+
 function toggleLanguage() {
   currentLang = currentLang === 'ar' ? 'en' : 'ar';
   const t = i18n[currentLang];
@@ -629,6 +696,10 @@ function toggleLanguage() {
   document.getElementById('headerSub').innerText = t.headerSub;
   document.getElementById('lblVisitors').innerText = t.lblVisitors;
   document.getElementById('formTitle').innerText = t.formTitle;
+  document.getElementById('lblCalcMode').innerText = t.lblCalcMode;
+  document.getElementById('optBoth').innerText = t.optBoth;
+  document.getElementById('optEosbOnly').innerText = t.optEosbOnly;
+  document.getElementById('optVacationOnly').innerText = t.optVacationOnly;
   document.getElementById('lblEmpName').innerText = t.lblEmpName;
   document.getElementById('empName').placeholder = t.phEmpName;
   document.getElementById('lblStartDate').innerText = t.lblStartDate;
@@ -668,10 +739,13 @@ function toggleLanguage() {
 // دالة الحساب التلقائي لرصيد الإجازات
 function autoCalcVacation() {
   const t = i18n[currentLang];
+  const mode = document.getElementById('calcMode').value;
   const lastReturnVal = document.getElementById('lastVacationReturn').value;
   const endDateVal = document.getElementById('endDate').value;
   const vacationInput = document.getElementById('vacationDays');
   const vacationHint = document.getElementById('vacationHint');
+
+  if (mode === 'eosb') return;
 
   if (lastReturnVal && endDateVal) {
     const calcFromDate = new Date(lastReturnVal);
@@ -697,13 +771,12 @@ function autoCalcVacation() {
 function calculate(e) {
   e.preventDefault();
   const t = i18n[currentLang];
+  const mode = document.getElementById('calcMode').value;
 
   const empName = document.getElementById('empName').value.trim();
   const startDateVal = document.getElementById('startDate').value;
   const endDateVal = document.getElementById('endDate').value;
   const lastVacationReturnVal = document.getElementById('lastVacationReturn').value;
-  const startDate = new Date(startDateVal);
-  const endDate = new Date(endDateVal);
   const salary = parseFloat(document.getElementById('salary').value) || 0;
   const reasonSelect = document.getElementById('reason');
   const reason = reasonSelect.value;
@@ -711,93 +784,131 @@ function calculate(e) {
   const vacationDays = parseFloat(document.getElementById('vacationDays').value) || 0;
   const unpaidSalary = parseFloat(document.getElementById('unpaidSalary').value) || 0;
 
-  if (endDate <= startDate) {
-    alert(t.dateAlert);
-    return;
+  let years = 0;
+  let serviceText = t.notSpecified;
+
+  if (mode !== 'vacation') {
+    const startDate = new Date(startDateVal);
+    const endDate = new Date(endDateVal);
+
+    if (endDate <= startDate) {
+      alert(t.dateAlert);
+      return;
+    }
+
+    // 1. حساب مدة الخدمة بالأيام والسنوات
+    const diffTime = Math.abs(endDate - startDate);
+    const totalDays = diffTime / (1000 * 60 * 60 * 24);
+    years = totalDays / 365.25;
+
+    const displayYears = Math.floor(years);
+    const remainingMonths = Math.floor((years - displayYears) * 12);
+    const remainingDays = Math.floor(totalDays % 30.4375);
+
+    serviceText = `${displayYears} ${t.yearText} ${t.andText} ${remainingMonths} ${t.monthText} ${t.andText} ${remainingDays} ${t.dayText}`;
+    document.getElementById('servicePeriodText').style.display = 'inline';
+    document.getElementById('servicePeriodText').innerText = `${t.servicePeriodText}${serviceText}`;
+  } else {
+    document.getElementById('servicePeriodText').style.display = 'none';
   }
 
-  // 1. حساب مدة الخدمة بالأيام والسنوات
-  const diffTime = Math.abs(endDate - startDate);
-  const totalDays = diffTime / (1000 * 60 * 60 * 24);
-  const years = totalDays / 365.25;
-
-  const displayYears = Math.floor(years);
-  const remainingMonths = Math.floor((years - displayYears) * 12);
-  const remainingDays = Math.floor(totalDays % 30.4375);
-
-  const serviceText = `${displayYears} ${t.yearText} ${t.andText} ${remainingMonths} ${t.monthText} ${t.andText} ${remainingDays} ${t.dayText}`;
-  document.getElementById('servicePeriodText').innerText = `${t.servicePeriodText}${serviceText}`;
   document.getElementById('resEmpName').innerText = `${t.resEmpName}${empName}`;
 
   // 2. حساب قيمة أجر اليوم
   const dailySalary = salary / 26; 
 
-  // 3. حساب عدد أيام نهاية الخدمة الإجمالية
+  // 3. حساب مكافأة نهاية الخدمة
   let rawEOSBDays = 0;
-  if (years <= 5) {
-    rawEOSBDays = years * 15;
-  } else {
-    const first5YearsDays = 5 * 15;
-    const restYearsDays = (years - 5) * 30;
-    rawEOSBDays = first5YearsDays + restYearsDays;
-  }
-
-  const maxCapDays = 18 * 26; 
-  if (rawEOSBDays > maxCapDays) {
-    rawEOSBDays = maxCapDays;
-  }
-
-  let rawEOSB = rawEOSBDays * dailySalary;
-
-  // 4. تطبيق نسبة الاستحقاق حسب سبب انتهاء الخدمة
   let ratio = 1.0;
-  if (reason === 'resignation') {
-    if (years < 2) {
-      ratio = 0;
-    } else if (years >= 2 && years < 5) {
-      ratio = 0.5;
-    } else if (years >= 5 && years < 10) {
-      ratio = 2 / 3;
+  let rawEOSB = 0;
+  let netEOSBDays = 0;
+  let finalEOSB = 0;
+
+  if (mode === 'both' || mode === 'eosb') {
+    if (years <= 5) {
+      rawEOSBDays = years * 15;
     } else {
-      ratio = 1.0;
+      const first5YearsDays = 5 * 15;
+      const restYearsDays = (years - 5) * 30;
+      rawEOSBDays = first5YearsDays + restYearsDays;
     }
+
+    const maxCapDays = 18 * 26; 
+    if (rawEOSBDays > maxCapDays) {
+      rawEOSBDays = maxCapDays;
+    }
+
+    rawEOSB = rawEOSBDays * dailySalary;
+
+    if (reason === 'resignation') {
+      if (years < 2) {
+        ratio = 0;
+      } else if (years >= 2 && years < 5) {
+        ratio = 0.5;
+      } else if (years >= 5 && years < 10) {
+        ratio = 2 / 3;
+      } else {
+        ratio = 1.0;
+      }
+    }
+
+    netEOSBDays = rawEOSBDays * ratio;
+    finalEOSB = rawEOSB * ratio;
   }
 
-  const netEOSBDays = rawEOSBDays * ratio;
-  const finalEOSB = rawEOSB * ratio;
+  // 4. حساب بدل رصيد الإجازات
+  let vacationAmount = 0;
+  if (mode === 'both' || mode === 'vacation') {
+    vacationAmount = vacationDays * dailySalary;
+  }
 
-  // 5. حساب بدل رصيد الإجازات
-  const vacationAmount = vacationDays * dailySalary;
-
-  // 6. الإجمالي النهائي
+  // 5. الإجمالي النهائي
   const grandTotal = finalEOSB + vacationAmount + unpaidSalary;
 
   lastCalculationData = {
+    mode,
     empName,
-    startDateVal,
-    endDateVal,
+    startDateVal: mode !== 'vacation' ? startDateVal : t.notSpecified,
+    endDateVal: mode !== 'vacation' ? endDateVal : (endDateVal || t.notSpecified),
     lastVacationReturnVal: lastVacationReturnVal || t.notSpecified,
     salary,
-    reasonText,
-    vacationDays: vacationDays.toFixed(2),
-    rawEOSBDays: rawEOSBDays.toFixed(2),
-    netEOSBDays: netEOSBDays.toFixed(2),
+    reasonText: mode !== 'vacation' ? reasonText : t.notSpecified,
+    vacationDays: (mode === 'both' || mode === 'vacation') ? vacationDays.toFixed(2) : t.notCalculated,
+    rawEOSBDays: (mode === 'both' || mode === 'eosb') ? rawEOSBDays.toFixed(2) : t.notCalculated,
+    netEOSBDays: (mode === 'both' || mode === 'eosb') ? netEOSBDays.toFixed(2) : t.notCalculated,
     unpaidSalary,
     serviceText,
     rawEOSB,
-    ratioText: (ratio * 100).toFixed(1).replace('.0', '') + '%',
+    ratioText: (mode === 'both' || mode === 'eosb') ? ((ratio * 100).toFixed(1).replace('.0', '') + '%') : t.notCalculated,
     finalEOSB,
     vacationAmount,
     grandTotal
   };
 
+  // التحكم في ظهور الصفوف حسب نوع الحساب
+  const showEOSB = mode === 'both' || mode === 'eosb';
+  const showVacation = mode === 'both' || mode === 'vacation';
+
+  document.getElementById('rowRawEOSBDays').style.display = showEOSB ? 'flex' : 'none';
+  document.getElementById('rowEntitlementRatio').style.display = showEOSB ? 'flex' : 'none';
+  document.getElementById('rowNetEOSBDays').style.display = showEOSB ? 'flex' : 'none';
+  document.getElementById('rowRawEOSB').style.display = showEOSB ? 'flex' : 'none';
+  document.getElementById('rowFinalEOSB').style.display = showEOSB ? 'flex' : 'none';
+  document.getElementById('rowVacationAmount').style.display = showVacation ? 'flex' : 'none';
+
   // عرض النتائج
-  document.getElementById('rawEOSBDays').innerText = rawEOSBDays.toFixed(2) + t.unitDays;
-  document.getElementById('netEOSBDays').innerText = netEOSBDays.toFixed(2) + t.unitDays;
-  document.getElementById('entitlementRatio').innerText = lastCalculationData.ratioText;
-  document.getElementById('rawEOSB').innerText = formatKWD(rawEOSB);
-  document.getElementById('finalEOSB').innerText = formatKWD(finalEOSB);
-  document.getElementById('vacationAmount').innerText = formatKWD(vacationAmount);
+  if (showEOSB) {
+    document.getElementById('rawEOSBDays').innerText = rawEOSBDays.toFixed(2) + t.unitDays;
+    document.getElementById('netEOSBDays').innerText = netEOSBDays.toFixed(2) + t.unitDays;
+    document.getElementById('entitlementRatio').innerText = lastCalculationData.ratioText;
+    document.getElementById('rawEOSB').innerText = formatKWD(rawEOSB);
+    document.getElementById('finalEOSB').innerText = formatKWD(finalEOSB);
+  }
+
+  if (showVacation) {
+    document.getElementById('vacationAmount').innerText = formatKWD(vacationAmount);
+  }
+
   document.getElementById('unpaidSalaryAmount').innerText = formatKWD(unpaidSalary);
   document.getElementById('grandTotal').innerText = formatKWD(grandTotal);
 
@@ -814,7 +925,6 @@ function exportToExcel() {
   const d = lastCalculationData;
   const t = i18n[currentLang];
 
-  // تنسيق التواريخ بشكل قصير (DD-MM-YY) ليتطابق مع الصورة
   const formatDateShort = (dateStr) => {
     if (!dateStr || dateStr === t.notSpecified) return dateStr;
     const date = new Date(dateStr);
@@ -825,22 +935,40 @@ function exportToExcel() {
     return `${dd}-${mm}-${yy}`;
   };
 
-  const fields = [
-    { label: t.lblStartDate, value: formatDateShort(d.startDateVal) },
-    { label: t.lblEndDate, value: formatDateShort(d.endDateVal) },
-    { label: t.lblLastVacation, value: formatDateShort(d.lastVacationReturnVal) },
-    { label: t.servicePeriodText.replace(': ', ''), value: d.serviceText },
-    { label: t.lblSalary, value: d.salary.toFixed(0) },
-    { label: t.lblReason, value: d.reasonText },
-    { label: t.lblRawEOSBDays, value: d.rawEOSBDays + t.unitDays },
-    { label: t.lblEntitlementRatio, value: d.ratioText },
-    { label: t.lblNetEOSBDays, value: d.netEOSBDays + t.unitDays },
-    { label: t.lblRawEOSB, value: d.rawEOSB.toFixed(3) },
-    { label: t.lblFinalEOSB, value: d.finalEOSB.toFixed(3) },
-    { label: t.lblVacationDays, value: d.vacationDays + t.unitDays },
-    { label: t.lblVacationAmount, value: d.vacationAmount.toFixed(3) },
-    { label: t.lblUnpaidSalary, value: d.unpaidSalary.toFixed(0) }
-  ];
+  const fields = [];
+
+  if (d.mode !== 'vacation') {
+    fields.push({ label: t.lblStartDate, value: formatDateShort(d.startDateVal) });
+    fields.push({ label: t.lblEndDate, value: formatDateShort(d.endDateVal) });
+    fields.push({ label: t.servicePeriodText.replace(': ', ''), value: d.serviceText });
+  } else {
+    fields.push({ label: t.lblEndDate, value: formatDateShort(d.endDateVal) });
+  }
+
+  if (d.mode !== 'eosb') {
+    fields.push({ label: t.lblLastVacation, value: formatDateShort(d.lastVacationReturnVal) });
+  }
+
+  fields.push({ label: t.lblSalary, value: d.salary.toFixed(0) });
+
+  if (d.mode !== 'vacation') {
+    fields.push({ label: t.lblReason, value: d.reasonText });
+  }
+
+  if (d.mode === 'both' || d.mode === 'eosb') {
+    fields.push({ label: t.lblRawEOSBDays, value: d.rawEOSBDays + t.unitDays });
+    fields.push({ label: t.lblEntitlementRatio, value: d.ratioText });
+    fields.push({ label: t.lblNetEOSBDays, value: d.netEOSBDays + t.unitDays });
+    fields.push({ label: t.lblRawEOSB, value: d.rawEOSB.toFixed(3) });
+    fields.push({ label: t.lblFinalEOSB, value: d.finalEOSB.toFixed(3) });
+  }
+
+  if (d.mode === 'both' || d.mode === 'vacation') {
+    fields.push({ label: t.lblVacationDays, value: d.vacationDays + t.unitDays });
+    fields.push({ label: t.lblVacationAmount, value: d.vacationAmount.toFixed(3) });
+  }
+
+  fields.push({ label: t.lblUnpaidSalary, value: d.unpaidSalary.toFixed(0) });
 
   let rowsHtml = fields.map(f => `
     <tr>
@@ -860,7 +988,6 @@ function exportToExcel() {
           border-collapse: collapse;
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        /* ترويسة الجدول السطر الأول */
         .header-label {
           background-color: #002060 !important;
           color: #FFFFFF !important;
@@ -881,7 +1008,6 @@ function exportToExcel() {
           text-align: center;
           width: 250px;
         }
-        /* الخلايا العادية */
         .label-cell {
           background-color: #FFFFFF !important;
           color: #002060 !important;
@@ -900,7 +1026,6 @@ function exportToExcel() {
           padding: 6px 12px;
           text-align: center;
         }
-        /* السطر الأخير - الإجمالي الصافي */
         .total-label {
           background-color: #92D050 !important;
           color: #000000 !important;
