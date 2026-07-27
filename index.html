@@ -134,6 +134,11 @@
     border-color: var(--brass);
     background: #fff;
   }
+  input:disabled {
+    background: #e2e8de;
+    color: #555;
+    cursor: not-allowed;
+  }
   .hint {
     font-size: 12px;
     color: #6b756b;
@@ -316,12 +321,24 @@
 
         <div class="form-group">
           <label for="startDate">تاريخ بداية العمل</label>
-          <input type="date" id="startDate" required>
+          <input type="date" id="startDate" onchange="autoCalcVacation()" required>
         </div>
 
         <div class="form-group">
           <label for="endDate">تاريخ نهاية العمل</label>
-          <input type="date" id="endDate" required>
+          <input type="date" id="endDate" onchange="autoCalcVacation()" required>
+        </div>
+
+        <div class="form-group">
+          <label for="lastVacationReturn">تاريخ آخر عودة من إجازة (اختياري)</label>
+          <input type="date" id="lastVacationReturn" onchange="autoCalcVacation()">
+          <span class="hint">لحساب رصيد الإجازات تلقائياً، اتركه فارغاً للإدخال اليدوي</span>
+        </div>
+
+        <div class="form-group">
+          <label for="vacationDays">رصيد الإجازات المتبقي (بالأيام)</label>
+          <input type="number" id="vacationDays" min="0" step="0.01" value="0">
+          <span class="hint" id="vacationHint">عدد الأيام المستحقة للموظف</span>
         </div>
 
         <div class="form-group">
@@ -336,12 +353,6 @@
             <option value="termination">إنهاء خدمات (فصل / تسريح من الشركة)</option>
             <option value="resignation">استقالة الموظف</option>
           </select>
-        </div>
-
-        <div class="form-group">
-          <label for="vacationDays">رصيد الإجازات المتبقي (بالأيام)</label>
-          <input type="number" id="vacationDays" min="0" step="0.5" value="0">
-          <span class="hint">عدد الأيام المستحقة التي لم يستغلها الموظف</span>
         </div>
 
         <div class="form-group">
@@ -418,12 +429,44 @@
 <script>
 let lastCalculationData = null;
 
+// دالة الحساب التلقائي لرصيد الإجازات بناءً على تاريخ العودة وتاريخ النهاية
+function autoCalcVacation() {
+  const lastReturnVal = document.getElementById('lastVacationReturn').value;
+  const startDateVal = document.getElementById('startDate').value;
+  const endDateVal = document.getElementById('endDate').value;
+  const vacationInput = document.getElementById('vacationDays');
+  const vacationHint = document.getElementById('vacationHint');
+
+  if (lastReturnVal && endDateVal) {
+    const calcFromDate = new Date(lastReturnVal);
+    const endDate = new Date(endDateVal);
+
+    if (endDate > calcFromDate) {
+      const diffTime = Math.abs(endDate - calcFromDate);
+      const totalDays = diffTime / (1000 * 60 * 60 * 24);
+      
+      // القانون الكويتي: 30 يوم إجازة سنوية في السنة (30 / 365.25 = 0.082136 يوم لكل يوم عمل)
+      const calculatedVacation = totalDays * (30 / 365.25);
+      
+      vacationInput.value = calculatedVacation.toFixed(2);
+      vacationInput.disabled = true;
+      vacationHint.innerText = "تم حساب الأيام تلقائياً بناءً على تاريخ آخر عودة (30 يوم/سنة)";
+      return;
+    }
+  }
+  
+  // إعادة تفعيل التعديل اليدوي إن لم يُدخل تاريخ آخر عودة
+  vacationInput.disabled = false;
+  vacationHint.innerText = "عدد الأيام المستحقة التي لم يستغلها الموظف";
+}
+
 function calculate(e) {
   e.preventDefault();
 
   const empName = document.getElementById('empName').value.trim();
   const startDateVal = document.getElementById('startDate').value;
   const endDateVal = document.getElementById('endDate').value;
+  const lastVacationReturnVal = document.getElementById('lastVacationReturn').value;
   const startDate = new Date(startDateVal);
   const endDate = new Date(endDateVal);
   const salary = parseFloat(document.getElementById('salary').value) || 0;
@@ -497,9 +540,10 @@ function calculate(e) {
     empName,
     startDateVal,
     endDateVal,
+    lastVacationReturnVal: lastVacationReturnVal || "لم يحدد",
     salary,
     reasonText,
-    vacationDays,
+    vacationDays: vacationDays.toFixed(2),
     unpaidSalary,
     serviceText,
     rawEOSB,
@@ -530,11 +574,12 @@ function exportToExcel() {
 
   const d = lastCalculationData;
 
-  // التنسيق الرأسي: العمود الأول أزرق غامق (أناوين البيانات) والعمود الثاني أخضر فاتح (القيم)
+  // التنسيق الرأسي لإكسل
   const fields = [
     { label: "اسم الموظف", value: d.empName },
     { label: "تاريخ بداية العمل", value: d.startDateVal },
     { label: "تاريخ نهاية العمل", value: d.endDateVal },
+    { label: "تاريخ آخر عودة من إجازة", value: d.lastVacationReturnVal },
     { label: "مدة الخدمة", value: d.serviceText },
     { label: "الأجر الأخير الشامل (د.ك)", value: d.salary.toFixed(3) },
     { label: "سبب ترك العمل", value: d.reasonText },
