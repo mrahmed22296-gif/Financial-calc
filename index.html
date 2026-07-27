@@ -75,6 +75,25 @@
     font-size: 15px;
     font-weight: 500;
   }
+
+  /* Visitor Counter Badge */
+  .visitor-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--brass);
+    padding: 4px 14px;
+    border-radius: 15px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--white);
+  }
+  .visitor-count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700;
+    color: var(--brass-light);
+  }
   
   /* Lang Switcher */
   .lang-switcher {
@@ -339,8 +358,13 @@
   <div class="lang-switcher">
     <button class="lang-btn" onclick="toggleLanguage()" id="langBtn">English 🌐</button>
   </div>
-  <h1 id="headerTitle">حاسبة مستحقات نهاية الخدمة بالإجازات</h1>
+  <h1 id="headerTitle">حاسبة مستحقات نهاية الخدمة ورصيد الاجازات</h1>
   <p id="headerSub">وفقاً لقانون العمل الكويتي في القطاع الأهلي (رقم 6 لسنة 2010)</p>
+  
+  <div class="visitor-badge">
+    <span id="lblVisitors">👥 عدد زوار الموقع:</span>
+    <span class="visitor-count" id="visitorCount">...</span>
+  </div>
 </header>
 
 <main>
@@ -481,6 +505,7 @@ const i18n = {
     langBtn: "English 🌐",
     headerTitle: "حاسبة مستحقات نهاية الخدمة بالإجازات",
     headerSub: "وفقاً لقانون العمل الكويتي في القطاع الأهلي (رقم 6 لسنة 2010)",
+    lblVisitors: "👥 عدد زوار الموقع:",
     formTitle: "📋 بيانات الموظف والعقد",
     lblEmpName: "اسم الموظف بالكامل",
     phEmpName: "أدخل اسم الموظف",
@@ -527,6 +552,7 @@ const i18n = {
     langBtn: "عربي 🌐",
     headerTitle: "End of Service & Vacation Calculator",
     headerSub: "According to Kuwait Labor Law in Private Sector (No. 6 of 2010)",
+    lblVisitors: "👥 Total Visitors:",
     formTitle: "📋 Employee & Contract Details",
     lblEmpName: "Full Employee Name",
     phEmpName: "Enter employee name",
@@ -570,6 +596,24 @@ const i18n = {
   }
 };
 
+// جلب وتحديث عداد الزوار تلقائياً
+async function initVisitorCounter() {
+  try {
+    const response = await fetch('https://api.counterapi.dev/v1/kuwait-indemnity-calc-ahmed/visits/up');
+    if (response.ok) {
+      const data = await response.json();
+      document.getElementById('visitorCount').innerText = data.count.toLocaleString('en-US');
+    } else {
+      document.getElementById('visitorCount').innerText = '1';
+    }
+  } catch (error) {
+    document.getElementById('visitorCount').innerText = '1';
+  }
+}
+
+// تشغيل العداد عند فتح الصفحة
+initVisitorCounter();
+
 function toggleLanguage() {
   currentLang = currentLang === 'ar' ? 'en' : 'ar';
   const t = i18n[currentLang];
@@ -583,6 +627,7 @@ function toggleLanguage() {
   document.getElementById('langBtn').innerText = t.langBtn;
   document.getElementById('headerTitle').innerText = t.headerTitle;
   document.getElementById('headerSub').innerText = t.headerSub;
+  document.getElementById('lblVisitors').innerText = t.lblVisitors;
   document.getElementById('formTitle').innerText = t.formTitle;
   document.getElementById('lblEmpName').innerText = t.lblEmpName;
   document.getElementById('empName').placeholder = t.phEmpName;
