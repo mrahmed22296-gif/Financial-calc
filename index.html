@@ -437,6 +437,12 @@
           <span class="hint" id="hintLastVacation">لحساب رصيد الإجازات تلقائياً، اتركه فارغاً للإدخال اليدوي</span>
         </div>
 
+        <div class="form-group" id="grpUnpaidLeave">
+          <label for="unpaidLeaveDays" id="lblUnpaidLeave">أيام الإجازة بدون أجر (إن وجدت)</label>
+          <input type="number" id="unpaidLeaveDays" min="0" value="0" step="1" onchange="autoCalcVacation()">
+          <span class="hint" id="hintUnpaidLeave">سيتم استبعادها من مدة استحقاق الإجازات</span>
+        </div>
+
         <div class="form-group" id="grpVacationDays">
           <label for="vacationDays" id="lblVacationDays">رصيد الإجازات المتبقي (بالأيام)</label>
           <input type="number" id="vacationDays" min="0" step="0.01" value="0">
@@ -560,9 +566,11 @@ const i18n = {
     lblEndDate: "تاريخ نهاية العمل",
     lblLastVacation: "تاريخ آخر عودة من إجازة (اختياري)",
     hintLastVacation: "لحساب رصيد الإجازات تلقائياً، اتركه فارغاً للإدخال اليدوي",
+    lblUnpaidLeave: "أيام الإجازة بدون أجر (إن وجدت)",
+    hintUnpaidLeave: "سيتم استبعادها من مدة استحقاق الإجازات",
     lblVacationDays: "رصيد الإجازات المتبقي (بالأيام)",
     vacationHintDefault: "عدد الأيام المستحقة للموظف",
-    vacationHintAuto: "تم حساب الأيام تلقائياً بناءً على تاريخ آخر عودة (30 يوم/سنة)",
+    vacationHintAuto: "تم حساب الأيام تلقائياً بناءً على تاريخ آخر عودة بعد خصم الإجازة بدون أجر (30 يوم/سنة)",
     lblSalary: "الأجر الأخير الشامل (د.ك)",
     phSalary: "مثال: 750",
     hintSalary: "يشمل الراتب الأساسي + جميع البدلات الثابتة",
@@ -612,9 +620,11 @@ const i18n = {
     lblEndDate: "End Date",
     lblLastVacation: "Last Return Date from Vacation (Optional)",
     hintLastVacation: "Leave blank for manual entry to calculate vacation balance automatically",
+    lblUnpaidLeave: "Unpaid Leave Days (if any)",
+    hintUnpaidLeave: "Will be excluded from vacation accrual period",
     lblVacationDays: "Remaining Vacation Days",
     vacationHintDefault: "Number of accrued vacation days",
-    vacationHintAuto: "Calculated automatically based on last return date (30 days/year)",
+    vacationHintAuto: "Calculated automatically after deducting unpaid leave (30 days/year)",
     lblSalary: "Last Total Salary (KWD)",
     phSalary: "e.g. 750",
     hintSalary: "Includes basic salary + all fixed allowances",
@@ -673,6 +683,7 @@ function handleCalcModeChange() {
   const grpEndDate = document.getElementById('grpEndDate');
   const grpReason = document.getElementById('grpReason');
   const grpLastVacation = document.getElementById('grpLastVacation');
+  const grpUnpaidLeave = document.getElementById('grpUnpaidLeave');
   const grpVacationDays = document.getElementById('grpVacationDays');
 
   const startDate = document.getElementById('startDate');
@@ -684,6 +695,7 @@ function handleCalcModeChange() {
     grpEndDate.style.display = 'flex';
     grpReason.style.display = 'flex';
     grpLastVacation.style.display = 'flex';
+    grpUnpaidLeave.style.display = 'flex';
     grpVacationDays.style.display = 'flex';
 
     startDate.required = true;
@@ -694,6 +706,7 @@ function handleCalcModeChange() {
     grpEndDate.style.display = 'flex';
     grpReason.style.display = 'flex';
     grpLastVacation.style.display = 'none';
+    grpUnpaidLeave.style.display = 'none';
     grpVacationDays.style.display = 'none';
 
     startDate.required = true;
@@ -704,6 +717,7 @@ function handleCalcModeChange() {
     grpEndDate.style.display = 'flex';
     grpReason.style.display = 'none';
     grpLastVacation.style.display = 'flex';
+    grpUnpaidLeave.style.display = 'flex';
     grpVacationDays.style.display = 'flex';
 
     startDate.required = false;
@@ -737,6 +751,8 @@ function toggleLanguage() {
   document.getElementById('lblEndDate').innerText = t.lblEndDate;
   document.getElementById('lblLastVacation').innerText = t.lblLastVacation;
   document.getElementById('hintLastVacation').innerText = t.hintLastVacation;
+  document.getElementById('lblUnpaidLeave').innerText = t.lblUnpaidLeave;
+  document.getElementById('hintUnpaidLeave').innerText = t.hintUnpaidLeave;
   document.getElementById('lblVacationDays').innerText = t.lblVacationDays;
   document.getElementById('lblSalary').innerText = t.lblSalary;
   document.getElementById('salary').placeholder = t.phSalary;
@@ -771,6 +787,7 @@ function autoCalcVacation() {
   const mode = document.getElementById('calcMode').value;
   const lastReturnVal = document.getElementById('lastVacationReturn').value;
   const endDateVal = document.getElementById('endDate').value;
+  const unpaidLeaveDays = parseFloat(document.getElementById('unpaidLeaveDays').value) || 0;
   const vacationInput = document.getElementById('vacationDays');
   const vacationHint = document.getElementById('vacationHint');
 
@@ -782,7 +799,10 @@ function autoCalcVacation() {
 
     if (endDate > calcFromDate) {
       const diffTime = Math.abs(endDate - calcFromDate);
-      const totalDays = diffTime / (1000 * 60 * 60 * 24);
+      let totalDays = diffTime / (1000 * 60 * 60 * 24);
+      
+      // خصم أيام الإجازة بدون أجر من المدة الفعلية المستحقة
+      totalDays = Math.max(0, totalDays - unpaidLeaveDays);
       
       const calculatedVacation = totalDays * (30 / 365.25);
       
@@ -806,6 +826,7 @@ function calculate(e) {
   const startDateVal = document.getElementById('startDate').value;
   const endDateVal = document.getElementById('endDate').value;
   const lastVacationReturnVal = document.getElementById('lastVacationReturn').value;
+  const unpaidLeaveDays = parseFloat(document.getElementById('unpaidLeaveDays').value) || 0;
   const salary = parseFloat(document.getElementById('salary').value) || 0;
   const reasonSelect = document.getElementById('reason');
   const reason = reasonSelect.value;
@@ -895,6 +916,7 @@ function calculate(e) {
     startDateVal: mode !== 'vacation' ? startDateVal : t.notSpecified,
     endDateVal: mode !== 'vacation' ? endDateVal : (endDateVal || t.notSpecified),
     lastVacationReturnVal: lastVacationReturnVal || t.notSpecified,
+    unpaidLeaveDays,
     salary,
     reasonText: mode !== 'vacation' ? reasonText : t.notSpecified,
     vacationDays: (mode === 'both' || mode === 'vacation') ? vacationDays.toFixed(2) : t.notCalculated,
@@ -969,6 +991,7 @@ function exportToExcel() {
 
   if (d.mode !== 'eosb') {
     fields.push({ label: t.lblLastVacation, value: formatDateShort(d.lastVacationReturnVal) });
+    fields.push({ label: t.lblUnpaidLeave, value: d.unpaidLeaveDays + t.unitDays });
   }
 
   fields.push({ label: t.lblSalary, value: d.salary.toFixed(0) });
