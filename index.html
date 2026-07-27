@@ -1,957 +1,304 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title id="docTitle">حاسبة مستحقات نهاية الخدمة ورصيد الإجازات - الكويت</title>
-<meta name="google-site-verification" content="FXZ-FC-GjUusN1XRGb26hz2nm7OJjgYketoHVOgJi2Y" />
-  <meta name="description" content="حاسبة دقيقة لاحتساب مستحقات نهاية الخدمة ورصيد الإجازات في الكويت وفقاً لقانون العمل الكويتي.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-<!-- مكتبة تصدير الإكسل -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="docTitle">حاسبة مستحقات نهاية الخدمة ورصيد الإجازات - الكويت</title>
+    <meta name="google-site-verification" content="FXZ-FC-GjUusN1XRGb26hz2nm7OJjgYketoHVOgJi2Y" />
+    <meta name="description" content="حاسبة دقيقة لاحتساب مستحقات نهاية الخدمة ورصيد الإجازات في الكويت وفقاً لقانون العمل الكويتي.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- مكتبة تصدير الإكسل -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-<style>
-  :root {
-    --paper: #EDF1E6;
-    --paper-line: #C7D6C4;
-    --ink: #1C2620;
-    --green: #2F5233;
-    --green-dark: #1B3320;
-    --brass: #B08D57;
-    --brass-light: #DCC79A;
-    --red: #A63D40;
-    --white: #FAFAF7;
-    --navy: #1A2B4C;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: 'Tajawal', sans-serif;
-    color: var(--ink);
-    background:
-      repeating-linear-gradient(to bottom, transparent, transparent 30px, var(--paper-line) 31px),
-      var(--paper);
-    min-height: 100vh;
-    padding-bottom: 0;
-    display: flex;
-    flex-direction: column;
-  }
-  .margin-line {
-    position: fixed;
-    top: 0; bottom: 0; right: 64px;
-    width: 1px;
-    background: rgba(166,61,64,0.35);
-    pointer-events: none;
-    z-index: 0;
-  }
-  html[dir="ltr"] .margin-line {
-    right: auto;
-    left: 64px;
-  }
-  header {
-    background: linear-gradient(180deg, var(--green-dark), var(--green));
-    padding: 38px 24px 20px;
-    text-align: center;
-    position: relative;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
-  }
-  header::after {
-    content: "";
-    position: absolute;
-    right: 0; left: 0; bottom: 0;
-    height: 3px;
-    background: repeating-linear-gradient(90deg, var(--brass) 0 10px, transparent 10px 16px);
-    opacity: 0.8;
-  }
-  header h1 {
-    color: var(--white);
-    font-weight: 900;
-    font-size: clamp(22px, 5vw, 34px);
-    margin: 0;
-    letter-spacing: 0.5px;
-  }
-  header p {
-    color: var(--brass-light);
-    margin: 8px 0 0;
-    font-size: 15px;
-    font-weight: 500;
-  }
+    <style>
+        :root {
+            --paper: #EDF1E6;
+            --paper-line: #C7D6C4;
+            --ink: #1C2620;
+            --green: #2F5233;
+            --accent: #D96B27;
+            --card-bg: #F4F7F2;
+        }
 
-  /* Visitor Counter Badge */
-  .visitor-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid var(--brass);
-    padding: 4px 14px;
-    border-radius: 15px;
-    margin-top: 12px;
-    font-size: 13px;
-    color: var(--white);
-  }
-  .visitor-count {
-    font-family: 'IBM Plex Mono', monospace;
-    font-weight: 700;
-    color: var(--brass-light);
-  }
-  
-  /* Lang Switcher */
-  .lang-switcher {
-    position: absolute;
-    top: 15px;
-    left: 20px;
-  }
-  html[dir="ltr"] .lang-switcher {
-    left: auto;
-    right: 20px;
-  }
-  .lang-btn {
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid var(--brass-light);
-    color: var(--white);
-    padding: 6px 14px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-family: 'Tajawal', sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    transition: all 0.2s;
-  }
-  .lang-btn:hover {
-    background: var(--brass);
-    color: var(--green-dark);
-  }
+        * {
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
 
-  main {
-    max-width: 840px;
-    margin: 0 auto;
-    padding: 28px 20px 0;
-    position: relative;
-    z-index: 1;
-    flex: 1;
-    width: 100%;
-  }
-  .card {
-    background: var(--white);
-    border: 1px solid var(--paper-line);
-    border-radius: 8px;
-    padding: 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-  }
-  .card-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--green-dark);
-    margin-top: 0;
-    margin-bottom: 18px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid var(--paper-line);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 16px;
-  }
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .form-group.full-width {
-    grid-column: 1 / -1;
-  }
-  label {
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--ink);
-  }
-  input, select {
-    width: 100%;
-    padding: 10px 12px;
-    font-family: 'Tajawal', sans-serif;
-    font-size: 14.5px;
-    border: 1px solid var(--paper-line);
-    border-radius: 5px;
-    background: var(--paper);
-    color: var(--ink);
-    outline: none;
-    transition: border-color 0.2s, background 0.2s;
-  }
-  input:focus, select:focus {
-    border-color: var(--brass);
-    background: #fff;
-  }
-  input:disabled {
-    background: #e2e8de;
-    color: #555;
-    cursor: not-allowed;
-  }
-  .hint {
-    font-size: 12px;
-    color: #6b756b;
-  }
-  .btn-calc {
-    width: 100%;
-    background: var(--brass);
-    color: var(--green-dark);
-    border: none;
-    font-family: 'Tajawal', sans-serif;
-    font-weight: 900;
-    font-size: 17px;
-    padding: 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    transition: transform 0.15s, background 0.15s;
-    margin-top: 10px;
-  }
-  .btn-calc:hover {
-    background: var(--brass-light);
-    transform: translateY(-1px);
-  }
+        body {
+            background-color: var(--paper);
+            color: var(--ink);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-  /* Results section */
-  .results {
-    display: none;
-    animation: fadeIn 0.4s ease-out forwards;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  .result-header {
-    background: var(--green-dark);
-    color: var(--white);
-    padding: 16px 20px;
-    border-radius: 6px 6px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .result-header h3 { margin: 0; font-size: 16px; }
-  .result-header .service-period {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13.5px;
-    color: var(--brass-light);
-  }
-  
-  .result-body {
-    border: 1px solid var(--paper-line);
-    border-top: none;
-    border-radius: 0 0 6px 6px;
-    background: var(--white);
-    padding: 20px;
-  }
-  
-  .result-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px dashed var(--paper-line);
-    font-size: 14.5px;
-  }
-  .result-row:last-child { border-bottom: none; }
-  .result-row.total {
-    background: rgba(176, 141, 87, 0.12);
-    margin: 12px -20px -20px;
-    padding: 16px 20px;
-    border-radius: 0 0 6px 6px;
-    border-top: 2px solid var(--brass);
-    font-weight: 700;
-    font-size: 17px;
-    color: var(--green-dark);
-  }
-  .amount {
-    font-family: 'IBM Plex Mono', monospace;
-    font-weight: 700;
-    font-size: 16px;
-    direction: ltr;
-  }
-  .total .amount {
-    font-size: 20px;
-    color: var(--green-dark);
-  }
-  
-  .action-bar {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
-  }
-  .btn-export {
-    background: var(--navy);
-    color: var(--white);
-    border: none;
-    font-family: 'Tajawal', sans-serif;
-    font-weight: 700;
-    font-size: 15px;
-    padding: 12px 24px;
-    border-radius: 6px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-    transition: background 0.2s, transform 0.15s;
-  }
-  .btn-export:hover {
-    background: #0f1c33;
-    transform: translateY(-1px);
-  }
+        .container {
+            background-color: #ffffff;
+            border: 2px solid var(--paper-line);
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+        }
 
-  /* Footer Style */
-  footer {
-    position: relative;
-    z-index: 1;
-    background: var(--green-dark);
-    color: var(--white);
-    padding: 24px 20px;
-    margin-top: 40px;
-    border-top: 3px solid var(--brass);
-    text-align: center;
-    font-size: 14px;
-    line-height: 1.6;
-  }
-  .developer-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(220, 199, 154, 0.2);
-    display: inline-block;
-    padding: 12px 24px;
-    border-radius: 8px;
-    margin-top: 10px;
-  }
-  .developer-card h4 {
-    margin: 0 0 6px 0;
-    color: var(--brass-light);
-    font-size: 15px;
-  }
-  .developer-contacts {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    flex-wrap: wrap;
-    font-size: 13.5px;
-    direction: ltr;
-  }
-  .developer-contacts a {
-    color: var(--white);
-    text-decoration: none;
-    transition: color 0.2s;
-  }
-  .developer-contacts a:hover {
-    color: var(--brass-light);
-  }
-</style>
+        h2 {
+            color: var(--green);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .note {
+            background-color: #E8F0E6;
+            border-right: 4px solid var(--green);
+            padding: 10px 15px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--paper-line);
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            background-color: var(--card-bg);
+        }
+
+        input:focus, select:focus {
+            border-color: var(--green);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--green);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: #233e26;
+        }
+
+        .result-card {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--paper-line);
+            display: none;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 1.05rem;
+        }
+
+        .result-item.total {
+            border-top: 2px dashed var(--paper-line);
+            padding-top: 12px;
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+
+        .btn-export {
+            background-color: var(--accent);
+            margin-top: 15px;
+        }
+
+        .btn-export:hover {
+            background-color: #b5541a;
+        }
+    </style>
 </head>
 <body>
 
-<div class="margin-line"></div>
+<div class="container">
+    <h2>حاسبة المستحقات (الكويت)</h2>
+    
+    <div class="note">
+        💡 يمكنك حساب <b>رصيد الإجازات فقط</b> بإدخال الراتب والأيام، أو حساب <b>نهاية الخدمة فقط</b> بإدخال التواريخ والراتب، أو حسابهما معاً.
+    </div>
 
-<header>
-  <div class="lang-switcher">
-    <button class="lang-btn" onclick="toggleLanguage()" id="langBtn">English 🌐</button>
-  </div>
-  <h1 id="headerTitle">حاسبة مستحقات نهاية الخدمة ورصيد الاجازات</h1>
-  <p id="headerSub">وفقاً لقانون العمل الكويتي في القطاع الأهلي (رقم 6 لسنة 2010)</p>
-  
-  <div class="visitor-badge">
-    <span id="lblVisitors">👥 عدد زوار الموقع:</span>
-    <span class="visitor-count" id="visitorCount">...</span>
-  </div>
-</header>
-
-<main>
-  <div class="card">
-    <div class="card-title" id="formTitle">📋 بيانات الموظف والعقد</div>
-    <form id="calcForm" onsubmit="calculate(event)">
-      <div class="grid">
-        
-        <div class="form-group full-width">
-          <label for="empName" id="lblEmpName">اسم الموظف بالكامل</label>
-          <input type="text" id="empName" placeholder="أدخل اسم الموظف" required>
+    <form id="calcForm">
+        <div class="form-group">
+            <label for="salary">الراتب الاجمالي (دينار كويتي) *</label>
+            <input type="number" id="salary" placeholder="أدخل الراتب الإجمالي" step="any" required>
         </div>
 
         <div class="form-group">
-          <label for="startDate" id="lblStartDate">تاريخ بداية العمل</label>
-          <input type="date" id="startDate" onchange="autoCalcVacation()" required>
+            <label for="reason">سبب انتهاء الخدمة</label>
+            <select id="reason">
+                <option value="resignation">استقالة</option>
+                <option value="termination">إنهاء خدمة (تأفيض/إقالة)</option>
+            </select>
         </div>
 
         <div class="form-group">
-          <label for="endDate" id="lblEndDate">تاريخ نهاية العمل</label>
-          <input type="date" id="endDate" onchange="autoCalcVacation()" required>
+            <label for="startDate">تاريخ بداية الخدمة (اختياري لحساب مكافأة نهاية الخدمة)</label>
+            <input type="date" id="startDate">
         </div>
 
         <div class="form-group">
-          <label for="lastVacationReturn" id="lblLastVacation">تاريخ آخر عودة من إجازة (اختياري)</label>
-          <input type="date" id="lastVacationReturn" onchange="autoCalcVacation()">
-          <span class="hint" id="hintLastVacation">لحساب رصيد الإجازات تلقائياً، اتركه فارغاً للإدخال اليدوي</span>
+            <label for="endDate">تاريخ نهاية الخدمة (اختياري لحساب مكافأة نهاية الخدمة)</label>
+            <input type="date" id="endDate">
         </div>
 
         <div class="form-group">
-          <label for="vacationDays" id="lblVacationDays">رصيد الإجازات المتبقي (بالأيام)</label>
-          <input type="number" id="vacationDays" min="0" step="0.01" value="0">
-          <span class="hint" id="vacationHint">عدد الأيام المستحقة للموظف</span>
+            <label for="leaveDays">رصيد الإجازات المتبقي بالأيام (اختياري)</label>
+            <input type="number" id="leaveDays" placeholder="أدخل عدد الأيام" min="0" step="any">
         </div>
 
-        <div class="form-group">
-          <label for="salary" id="lblSalary">الأجر الأخير الشامل (د.ك)</label>
-          <input type="number" id="salary" step="0.001" min="0" placeholder="مثال: 750" required>
-          <span class="hint" id="hintSalary">يشمل الراتب الأساسي + جميع البدلات الثابتة</span>
-        </div>
-
-        <div class="form-group">
-          <label for="reason" id="lblReason">سبب ترك العمل</label>
-          <select id="reason" required>
-            <option value="termination" id="optTermination">إنهاء خدمات (فصل / تسريح من الشركة)</option>
-            <option value="resignation" id="optResignation">استقالة الموظف</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="unpaidSalary" id="lblUnpaidSalary">الراتب المتأخر / المتبقي (د.ك)</label>
-          <input type="number" id="unpaidSalary" step="0.001" min="0" value="0" placeholder="0.000">
-          <span class="hint" id="hintUnpaidSalary">أي رواتب أو مستحقات شهرية سابقة لم يتسلمها الموظف</span>
-        </div>
-
-      </div>
-
-      <button type="submit" class="btn-calc" id="btnCalc">احسب المستحقات الآن</button>
+        <button type="button" class="btn" onclick="calculate()">احسب الآن</button>
     </form>
-  </div>
 
-  <div class="results" id="resultsBox">
-    <div class="card" style="padding: 0; overflow: hidden;">
-      <div class="result-header">
-        <h3 id="resEmpName">📊 تفاصيل المستحقات المالية: -</h3>
-        <span class="service-period" id="servicePeriodText">مدة الخدمة: -</span>
-      </div>
-      <div class="result-body">
-        
-        <div class="result-row">
-          <span id="lblRawEOSBDays">عدد أيام نهاية الخدمة المستحقة (الإجمالي):</span>
-          <span class="amount" id="rawEOSBDays">0.00 يوم</span>
+    <div class="result-card" id="resultCard">
+        <div class="result-item" id="eosRow">
+            <span>مكافأة نهاية الخدمة:</span>
+            <span id="eosAmount">0 د.ك</span>
+        </div>
+        <div class="result-item" id="leaveRow">
+            <span>بدل رصيد الإجازات:</span>
+            <span id="leaveAmount">0 د.ك</span>
+        </div>
+        <div class="result-item total">
+            <span>إجمالي المستحقات:</span>
+            <span id="totalAmount">0 د.ك</span>
         </div>
 
-        <div class="result-row">
-          <span id="lblEntitlementRatio">نسبة الاستحقاق القانونية:</span>
-          <span class="amount" id="entitlementRatio">100%</span>
-        </div>
-
-        <div class="result-row">
-          <span id="lblNetEOSBDays">عدد أيام نهاية الخدمة الصافية (بعد النسبة):</span>
-          <span class="amount" id="netEOSBDays">0.00 يوم</span>
-        </div>
-
-        <div class="result-row">
-          <span id="lblRawEOSB">مكافأة نهاية الخدمة الإجمالية (قبل النسبة):</span>
-          <span class="amount" id="rawEOSB">0.000 د.ك</span>
-        </div>
-
-        <div class="result-row">
-          <span id="lblFinalEOSB">صافي مكافأة نهاية الخدمة المستحقة:</span>
-          <span class="amount" id="finalEOSB">0.000 د.ك</span>
-        </div>
-
-        <div class="result-row">
-          <span id="lblVacationAmount">بدل رصيد الإجازات السنوية:</span>
-          <span class="amount" id="vacationAmount">0.000 د.ك</span>
-        </div>
-
-        <div class="result-row">
-          <span id="lblUnpaidSalaryAmount">الراتب المتبقي / المتأخرات:</span>
-          <span class="amount" id="unpaidSalaryAmount">0.000 د.ك</span>
-        </div>
-
-        <div class="result-row total">
-          <span id="lblGrandTotal">إجمالي الصافي المستحق للصرف:</span>
-          <span class="amount" id="grandTotal">0.000 د.ك</span>
-        </div>
-
-      </div>
+        <button type="button" class="btn btn-export" onclick="exportToExcel()">تصدير النتيجة إلى Excel 📊</button>
     </div>
-
-    <div class="action-bar">
-      <button type="button" class="btn-export" onclick="exportToExcel()" id="btnExport">📊 تصدير النتائج إلى إكسل</button>
-    </div>
-  </div>
-</main>
-
-<footer>
-  <div id="footerLaw">برمجية حساب المستحقات وفق قانون العمل الكويتي رقم 6/2010</div>
-  
-  <div class="developer-card">
-    <h4 id="footerDev">💻 تطوير وتصميم: أحمد عبدالكريم</h4>
-    <div class="developer-contacts">
-      <span>✉️ <a href="mailto:mr.ahmed22296@gmail.com">mr.ahmed22296@gmail.com</a></span>
-      <span>📱 <a href="tel:60085043">60085043</a> / <a href="tel:01201487209">01201487209</a></span>
-    </div>
-  </div>
-</footer>
+</div>
 
 <script>
-let currentLang = 'ar';
-let lastCalculationData = null;
+    function calculate() {
+        const salary = parseFloat(document.getElementById('salary').value);
+        const reason = document.getElementById('reason').value;
+        const startDateVal = document.getElementById('startDate').value;
+        const endDateVal = document.getElementById('endDate').value;
+        const leaveDays = parseFloat(document.getElementById('leaveDays').value) || 0;
 
-const i18n = {
-  ar: {
-    docTitle: "حاسبة مستحقات نهاية الخدمة ورصيد الإجازات - الكويت",
-    langBtn: "English 🌐",
-    headerTitle: "حاسبة مستحقات نهاية الخدمة بالإجازات",
-    headerSub: "وفقاً لقانون العمل الكويتي في القطاع الأهلي (رقم 6 لسنة 2010)",
-    lblVisitors: "👥 عدد زوار الموقع:",
-    formTitle: "📋 بيانات الموظف والعقد",
-    lblEmpName: "اسم الموظف بالكامل",
-    phEmpName: "أدخل اسم الموظف",
-    lblStartDate: "تاريخ بداية العمل",
-    lblEndDate: "تاريخ نهاية العمل",
-    lblLastVacation: "تاريخ آخر عودة من إجازة (اختياري)",
-    hintLastVacation: "لحساب رصيد الإجازات تلقائياً، اتركه فارغاً للإدخال اليدوي",
-    lblVacationDays: "رصيد الإجازات المتبقي (بالأيام)",
-    vacationHintDefault: "عدد الأيام المستحقة للموظف",
-    vacationHintAuto: "تم حساب الأيام تلقائياً بناءً على تاريخ آخر عودة (30 يوم/سنة)",
-    lblSalary: "الأجر الأخير الشامل (د.ك)",
-    phSalary: "مثال: 750",
-    hintSalary: "يشمل الراتب الأساسي + جميع البدلات الثابتة",
-    lblReason: "سبب ترك العمل",
-    optTermination: "إنهاء خدمات (فصل / تسريح من الشركة)",
-    optResignation: "استقالة الموظف",
-    lblUnpaidSalary: "الراتب المتأخر / المتبقي (د.ك)",
-    hintUnpaidSalary: "أي رواتب أو مستحقات شهرية سابقة لم يتسلمها الموظف",
-    btnCalc: "احسب المستحقات الآن",
-    resEmpName: "📊 تفاصيل المستحقات المالية: ",
-    servicePeriodText: "مدة الخدمة: ",
-    lblRawEOSBDays: "عدد أيام نهاية الخدمة المستحقة (الإجمالي):",
-    lblEntitlementRatio: "نسبة الاستحقاق القانونية:",
-    lblNetEOSBDays: "عدد أيام نهاية الخدمة الصافية (بعد النسبة):",
-    lblRawEOSB: "مكافأة نهاية الخدمة الإجمالية (قبل النسبة):",
-    lblFinalEOSB: "صافي مكافأة نهاية الخدمة المستحقة:",
-    lblVacationAmount: "بدل رصيد الإجازات السنوية:",
-    lblUnpaidSalaryAmount: "الراتب المتبقي / المتأخرات:",
-    lblGrandTotal: "إجمالي الصافي المستحق للصرف:",
-    btnExport: "📊 تصدير النتائج إلى إكسل",
-    footerLaw: "برمجية حساب المستحقات وفق قانون العمل الكويتي رقم 6/2010",
-    footerDev: "💻 تطوير وتصميم: أحمد عبدالكريم",
-    unitDays: " يوم",
-    unitKWD: " د.ك",
-    yearText: "سنة",
-    monthText: "شهر",
-    dayText: "يوم",
-    andText: "و",
-    dateAlert: "تاريخ نهاية العمل يجب أن يكون بعد تاريخ البداية!",
-    notSpecified: "لم يحدد"
-  },
-  en: {
-    docTitle: "Indemnity & Vacation Calculator - Kuwait",
-    langBtn: "عربي 🌐",
-    headerTitle: "End of Service & Vacation Calculator",
-    headerSub: "According to Kuwait Labor Law in Private Sector (No. 6 of 2010)",
-    lblVisitors: "👥 Total Visitors:",
-    formTitle: "📋 Employee & Contract Details",
-    lblEmpName: "Full Employee Name",
-    phEmpName: "Enter employee name",
-    lblStartDate: "Start Date",
-    lblEndDate: "End Date",
-    lblLastVacation: "Last Return Date from Vacation (Optional)",
-    hintLastVacation: "Leave blank for manual entry to calculate vacation balance automatically",
-    lblVacationDays: "Remaining Vacation Days",
-    vacationHintDefault: "Number of accrued vacation days",
-    vacationHintAuto: "Calculated automatically based on last return date (30 days/year)",
-    lblSalary: "Last Total Salary (KWD)",
-    phSalary: "e.g. 750",
-    hintSalary: "Includes basic salary + all fixed allowances",
-    lblReason: "Reason for Termination",
-    optTermination: "Termination (Fired / Laid off by company)",
-    optResignation: "Resignation",
-    lblUnpaidSalary: "Unpaid / Remaining Salary (KWD)",
-    hintUnpaidSalary: "Any unpaid monthly salaries or previous dues",
-    btnCalc: "Calculate Entitlements Now",
-    resEmpName: "📊 Entitlement Details for: ",
-    servicePeriodText: "Service Period: ",
-    lblRawEOSBDays: "Gross End of Service Days:",
-    lblEntitlementRatio: "Legal Entitlement Ratio:",
-    lblNetEOSBDays: "Net End of Service Days (After Ratio):",
-    lblRawEOSB: "Gross Indemnity (Before Ratio):",
-    lblFinalEOSB: "Net Indemnity Amount:",
-    lblVacationAmount: "Annual Leave Pay:",
-    lblUnpaidSalaryAmount: "Unpaid Salary / Arrears:",
-    lblGrandTotal: "Grand Net Payable Amount:",
-    btnExport: "📊 Export Results to Excel",
-    footerLaw: "Indemnity Calculation Tool according to Kuwait Labor Law No. 6/2010",
-    footerDev: "💻 Developed & Designed by: Ahmed Abdelkarim",
-    unitDays: " days",
-    unitKWD: " KWD",
-    yearText: "Year(s)",
-    monthText: "Month(s)",
-    dayText: "Day(s)",
-    andText: "and",
-    dateAlert: "End date must be after the start date!",
-    notSpecified: "Not Specified"
-  }
-};
+        if (!salary || salary <= 0) {
+            alert('يرجى إدخال الراتب الإجمالي بشكل صحيح.');
+            return;
+        }
 
-// جلب وتحديث عداد الزوار تلقائياً
-async function initVisitorCounter() {
-  try {
-    const response = await fetch('https://api.counterapi.dev/v1/kuwait-indemnity-calc-ahmed/visits/up');
-    if (response.ok) {
-      const data = await response.json();
-      document.getElementById('visitorCount').innerText = data.count.toLocaleString('en-US');
-    } else {
-      document.getElementById('visitorCount').innerText = '1';
+        let eosAmount = 0;
+        let leaveAmount = 0;
+        const dailyRate = salary / 26; // الأجر اليومي وفق قانون العمل الكويتي
+
+        // 1. حساب بدل رصيد الإجازات
+        if (leaveDays > 0) {
+            leaveAmount = leaveDays * dailyRate;
+        }
+
+        // 2. حساب مكافأة نهاية الخدمة (إذا أدخل التواريخ)
+        if (startDateVal && endDateVal) {
+            const startDate = new Date(startDateVal);
+            const endDate = new Date(endDateVal);
+
+            if (endDate <= startDate) {
+                alert('تاريخ نهاية الخدمة يجب أن يكون بعد تاريخ البداية.');
+                return;
+            }
+
+            // حساب أمد الخدمة بالسنوات
+            const diffTime = Math.abs(endDate - startDate);
+            const totalDays = diffTime / (1000 * 60 * 60 * 24);
+            const totalYears = totalDays / 365.25;
+
+            // حساب المستحق الأساسي (15 يوماً للـ 5 سنوات الأولى، وشهر لما بعد ذلك)
+            let baseReward = 0;
+            if (totalYears <= 5) {
+                baseReward = totalYears * (15 * dailyRate);
+            } else {
+                const first5Years = 5 * (15 * dailyRate);
+                const remainingYears = (totalYears - 5) * (30 * dailyRate);
+                baseReward = first5Years + remainingYears;
+            }
+
+            // الحد الأقصى للمكافأة هو راتب 18 شهراً
+            const maxReward = salary * 18;
+            if (baseReward > maxReward) {
+                baseReward = maxReward;
+            }
+
+            // تطبيق نسبة الاستقالة إن وجدت
+            if (reason === 'resignation') {
+                if (totalYears < 3) {
+                    eosAmount = 0; // أقل من 3 سنوات لا يستحق مكافأة عند الاستقالة
+                } else if (totalYears >= 3 && totalYears < 5) {
+                    eosAmount = baseReward * (1 / 3); // يستحق ثلث المكافأة
+                } else if (totalYears >= 5 && totalYears < 10) {
+                    eosAmount = baseReward * (2 / 3); // يستحق ثلثي المكافأة
+                } else {
+                    eosAmount = baseReward; // 10 سنوات فأكثر يستحق المكافأة كاملة
+                }
+            } else {
+                // إنهاء الخدمة يستحق المكافأة كاملة
+                eosAmount = baseReward;
+            }
+        }
+
+        // عرض النتائج
+        document.getElementById('eosAmount').innerText = eosAmount.toFixed(3) + ' د.ك';
+        document.getElementById('leaveAmount').innerText = leaveAmount.toFixed(3) + ' د.ك';
+        document.getElementById('totalAmount').innerText = (eosAmount + leaveAmount).toFixed(3) + ' د.ك';
+
+        document.getElementById('resultCard').style.display = 'block';
     }
-  } catch (error) {
-    document.getElementById('visitorCount').innerText = '1';
-  }
-}
 
-// تشغيل العداد عند فتح الصفحة
-initVisitorCounter();
+    function exportToExcel() {
+        const salary = document.getElementById('salary').value;
+        const eos = document.getElementById('eosAmount').innerText;
+        const leave = document.getElementById('leaveAmount').innerText;
+        const total = document.getElementById('totalAmount').innerText;
 
-function toggleLanguage() {
-  currentLang = currentLang === 'ar' ? 'en' : 'ar';
-  const t = i18n[currentLang];
+        const data = [
+            ["البيان", "القيمة"],
+            ["الراتب الإجمالي", salary + " د.ك"],
+            ["مكافأة نهاية الخدمة", eos],
+            ["بدل رصيد الإجازات", leave],
+            ["إجمالي المستحقات", total]
+        ];
 
-  // Change HTML dir and lang
-  document.documentElement.lang = currentLang;
-  document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "تفاصيل المستحقات");
 
-  // Translate Texts
-  document.getElementById('docTitle').innerText = t.docTitle;
-  document.getElementById('langBtn').innerText = t.langBtn;
-  document.getElementById('headerTitle').innerText = t.headerTitle;
-  document.getElementById('headerSub').innerText = t.headerSub;
-  document.getElementById('lblVisitors').innerText = t.lblVisitors;
-  document.getElementById('formTitle').innerText = t.formTitle;
-  document.getElementById('lblEmpName').innerText = t.lblEmpName;
-  document.getElementById('empName').placeholder = t.phEmpName;
-  document.getElementById('lblStartDate').innerText = t.lblStartDate;
-  document.getElementById('lblEndDate').innerText = t.lblEndDate;
-  document.getElementById('lblLastVacation').innerText = t.lblLastVacation;
-  document.getElementById('hintLastVacation').innerText = t.hintLastVacation;
-  document.getElementById('lblVacationDays').innerText = t.lblVacationDays;
-  document.getElementById('lblSalary').innerText = t.lblSalary;
-  document.getElementById('salary').placeholder = t.phSalary;
-  document.getElementById('hintSalary').innerText = t.hintSalary;
-  document.getElementById('lblReason').innerText = t.lblReason;
-  document.getElementById('optTermination').innerText = t.optTermination;
-  document.getElementById('optResignation').innerText = t.optResignation;
-  document.getElementById('lblUnpaidSalary').innerText = t.lblUnpaidSalary;
-  document.getElementById('hintUnpaidSalary').innerText = t.hintUnpaidSalary;
-  document.getElementById('btnCalc').innerText = t.btnCalc;
-  document.getElementById('lblRawEOSBDays').innerText = t.lblRawEOSBDays;
-  document.getElementById('lblEntitlementRatio').innerText = t.lblEntitlementRatio;
-  document.getElementById('lblNetEOSBDays').innerText = t.lblNetEOSBDays;
-  document.getElementById('lblRawEOSB').innerText = t.lblRawEOSB;
-  document.getElementById('lblFinalEOSB').innerText = t.lblFinalEOSB;
-  document.getElementById('lblVacationAmount').innerText = t.lblVacationAmount;
-  document.getElementById('lblUnpaidSalaryAmount').innerText = t.lblUnpaidSalaryAmount;
-  document.getElementById('lblGrandTotal').innerText = t.lblGrandTotal;
-  document.getElementById('btnExport').innerText = t.btnExport;
-  document.getElementById('footerLaw').innerText = t.footerLaw;
-  document.getElementById('footerDev').innerText = t.footerDev;
-
-  autoCalcVacation();
-
-  // Re-calculate if results are already open
-  if (document.getElementById('resultsBox').style.display === 'block') {
-    document.getElementById('calcForm').dispatchEvent(new Event('submit'));
-  }
-}
-
-// دالة الحساب التلقائي لرصيد الإجازات
-function autoCalcVacation() {
-  const t = i18n[currentLang];
-  const lastReturnVal = document.getElementById('lastVacationReturn').value;
-  const endDateVal = document.getElementById('endDate').value;
-  const vacationInput = document.getElementById('vacationDays');
-  const vacationHint = document.getElementById('vacationHint');
-
-  if (lastReturnVal && endDateVal) {
-    const calcFromDate = new Date(lastReturnVal);
-    const endDate = new Date(endDateVal);
-
-    if (endDate > calcFromDate) {
-      const diffTime = Math.abs(endDate - calcFromDate);
-      const totalDays = diffTime / (1000 * 60 * 60 * 24);
-      
-      const calculatedVacation = totalDays * (30 / 365.25);
-      
-      vacationInput.value = calculatedVacation.toFixed(2);
-      vacationInput.disabled = true;
-      vacationHint.innerText = t.vacationHintAuto;
-      return;
+        XLSX.writeFile(wb, "حساب_المستحقات_الكويت.xlsx");
     }
-  }
-  
-  vacationInput.disabled = false;
-  vacationHint.innerText = t.vacationHintDefault;
-}
-
-function calculate(e) {
-  e.preventDefault();
-  const t = i18n[currentLang];
-
-  const empName = document.getElementById('empName').value.trim();
-  const startDateVal = document.getElementById('startDate').value;
-  const endDateVal = document.getElementById('endDate').value;
-  const lastVacationReturnVal = document.getElementById('lastVacationReturn').value;
-  const startDate = new Date(startDateVal);
-  const endDate = new Date(endDateVal);
-  const salary = parseFloat(document.getElementById('salary').value) || 0;
-  const reasonSelect = document.getElementById('reason');
-  const reason = reasonSelect.value;
-  const reasonText = reasonSelect.options[reasonSelect.selectedIndex].text;
-  const vacationDays = parseFloat(document.getElementById('vacationDays').value) || 0;
-  const unpaidSalary = parseFloat(document.getElementById('unpaidSalary').value) || 0;
-
-  if (endDate <= startDate) {
-    alert(t.dateAlert);
-    return;
-  }
-
-  // 1. حساب مدة الخدمة بالأيام والسنوات
-  const diffTime = Math.abs(endDate - startDate);
-  const totalDays = diffTime / (1000 * 60 * 60 * 24);
-  const years = totalDays / 365.25;
-
-  const displayYears = Math.floor(years);
-  const remainingMonths = Math.floor((years - displayYears) * 12);
-  const remainingDays = Math.floor(totalDays % 30.4375);
-
-  const serviceText = `${displayYears} ${t.yearText} ${t.andText} ${remainingMonths} ${t.monthText} ${t.andText} ${remainingDays} ${t.dayText}`;
-  document.getElementById('servicePeriodText').innerText = `${t.servicePeriodText}${serviceText}`;
-  document.getElementById('resEmpName').innerText = `${t.resEmpName}${empName}`;
-
-  // 2. حساب قيمة أجر اليوم
-  const dailySalary = salary / 26; 
-
-  // 3. حساب عدد أيام نهاية الخدمة الإجمالية
-  let rawEOSBDays = 0;
-  if (years <= 5) {
-    rawEOSBDays = years * 15;
-  } else {
-    const first5YearsDays = 5 * 15;
-    const restYearsDays = (years - 5) * 30;
-    rawEOSBDays = first5YearsDays + restYearsDays;
-  }
-
-  const maxCapDays = 18 * 26; 
-  if (rawEOSBDays > maxCapDays) {
-    rawEOSBDays = maxCapDays;
-  }
-
-  let rawEOSB = rawEOSBDays * dailySalary;
-
-  // 4. تطبيق نسبة الاستحقاق حسب سبب انتهاء الخدمة
-  let ratio = 1.0;
-  if (reason === 'resignation') {
-    if (years < 2) {
-      ratio = 0;
-    } else if (years >= 2 && years < 5) {
-      ratio = 0.5;
-    } else if (years >= 5 && years < 10) {
-      ratio = 2 / 3;
-    } else {
-      ratio = 1.0;
-    }
-  }
-
-  const netEOSBDays = rawEOSBDays * ratio;
-  const finalEOSB = rawEOSB * ratio;
-
-  // 5. حساب بدل رصيد الإجازات
-  const vacationAmount = vacationDays * dailySalary;
-
-  // 6. الإجمالي النهائي
-  const grandTotal = finalEOSB + vacationAmount + unpaidSalary;
-
-  lastCalculationData = {
-    empName,
-    startDateVal,
-    endDateVal,
-    lastVacationReturnVal: lastVacationReturnVal || t.notSpecified,
-    salary,
-    reasonText,
-    vacationDays: vacationDays.toFixed(2),
-    rawEOSBDays: rawEOSBDays.toFixed(2),
-    netEOSBDays: netEOSBDays.toFixed(2),
-    unpaidSalary,
-    serviceText,
-    rawEOSB,
-    ratioText: (ratio * 100).toFixed(1).replace('.0', '') + '%',
-    finalEOSB,
-    vacationAmount,
-    grandTotal
-  };
-
-  // عرض النتائج
-  document.getElementById('rawEOSBDays').innerText = rawEOSBDays.toFixed(2) + t.unitDays;
-  document.getElementById('netEOSBDays').innerText = netEOSBDays.toFixed(2) + t.unitDays;
-  document.getElementById('entitlementRatio').innerText = lastCalculationData.ratioText;
-  document.getElementById('rawEOSB').innerText = formatKWD(rawEOSB);
-  document.getElementById('finalEOSB').innerText = formatKWD(finalEOSB);
-  document.getElementById('vacationAmount').innerText = formatKWD(vacationAmount);
-  document.getElementById('unpaidSalaryAmount').innerText = formatKWD(unpaidSalary);
-  document.getElementById('grandTotal').innerText = formatKWD(grandTotal);
-
-  document.getElementById('resultsBox').style.display = 'block';
-  document.getElementById('resultsBox').scrollIntoView({ behavior: 'smooth' });
-}
-
-function formatKWD(amount) {
-  return amount.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + i18n[currentLang].unitKWD;
-}
-
-function exportToExcel() {
-  if (!lastCalculationData) return;
-  const d = lastCalculationData;
-  const t = i18n[currentLang];
-
-  // تنسيق التواريخ بشكل قصير (DD-MM-YY) ليتطابق مع الصورة
-  const formatDateShort = (dateStr) => {
-    if (!dateStr || dateStr === t.notSpecified) return dateStr;
-    const date = new Date(dateStr);
-    if (isNaN(date)) return dateStr;
-    const yy = String(date.getFullYear()).slice(-2);
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    return `${dd}-${mm}-${yy}`;
-  };
-
-  const fields = [
-    { label: t.lblStartDate, value: formatDateShort(d.startDateVal) },
-    { label: t.lblEndDate, value: formatDateShort(d.endDateVal) },
-    { label: t.lblLastVacation, value: formatDateShort(d.lastVacationReturnVal) },
-    { label: t.servicePeriodText.replace(': ', ''), value: d.serviceText },
-    { label: t.lblSalary, value: d.salary.toFixed(0) },
-    { label: t.lblReason, value: d.reasonText },
-    { label: t.lblRawEOSBDays, value: d.rawEOSBDays + t.unitDays },
-    { label: t.lblEntitlementRatio, value: d.ratioText },
-    { label: t.lblNetEOSBDays, value: d.netEOSBDays + t.unitDays },
-    { label: t.lblRawEOSB, value: d.rawEOSB.toFixed(3) },
-    { label: t.lblFinalEOSB, value: d.finalEOSB.toFixed(3) },
-    { label: t.lblVacationDays, value: d.vacationDays + t.unitDays },
-    { label: t.lblVacationAmount, value: d.vacationAmount.toFixed(3) },
-    { label: t.lblUnpaidSalary, value: d.unpaidSalary.toFixed(0) }
-  ];
-
-  let rowsHtml = fields.map(f => `
-    <tr>
-      <td class="data-cell">${f.value}</td>
-      <td class="label-cell">${f.label}</td>
-    </tr>
-  `).join('');
-
-  const dirAttr = currentLang === 'ar' ? 'dir="rtl"' : 'dir="ltr"';
-
-  const tableHtml = `
-    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-    <head>
-      <meta charset="utf-8">
-      <style>
-        table {
-          border-collapse: collapse;
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        /* ترويسة الجدول السطر الأول */
-        .header-label {
-          background-color: #002060 !important;
-          color: #FFFFFF !important;
-          font-weight: bold;
-          font-size: 14px;
-          border: 1px solid #7F7F7F;
-          padding: 8px 15px;
-          text-align: center;
-          width: 280px;
-        }
-        .header-value {
-          background-color: #002060 !important;
-          color: #FFFFFF !important;
-          font-weight: bold;
-          font-size: 14px;
-          border: 1px solid #7F7F7F;
-          padding: 8px 15px;
-          text-align: center;
-          width: 250px;
-        }
-        /* الخلايا العادية */
-        .label-cell {
-          background-color: #FFFFFF !important;
-          color: #002060 !important;
-          font-weight: bold;
-          font-size: 13px;
-          border: 1px solid #D9D9D9;
-          padding: 6px 12px;
-          text-align: center;
-        }
-        .data-cell {
-          background-color: #FFFFFF !important;
-          color: #000000 !important;
-          font-weight: bold;
-          font-size: 13px;
-          border: 1px solid #D9D9D9;
-          padding: 6px 12px;
-          text-align: center;
-        }
-        /* السطر الأخير - الإجمالي الصافي */
-        .total-label {
-          background-color: #92D050 !important;
-          color: #000000 !important;
-          font-weight: bold;
-          font-size: 14px;
-          border: 1px solid #7F7F7F;
-          padding: 8px 12px;
-          text-align: center;
-        }
-        .total-value {
-          background-color: #92D050 !important;
-          color: #000000 !important;
-          font-weight: bold;
-          font-size: 14px;
-          border: 1px solid #7F7F7F;
-          padding: 8px 12px;
-          text-align: center;
-        }
-      </style>
-    </head>
-    <body ${dirAttr}>
-      <table>
-        <thead>
-          <tr>
-            <th class="header-value">${d.empName}</th>
-            <th class="header-label">${t.lblEmpName}</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rowsHtml}
-          <tr>
-            <td class="total-value">${d.grandTotal.toFixed(3)}</td>
-            <td class="total-label">${t.lblGrandTotal}</td>
-          </tr>
-        </tbody>
-      </table>
-    </body>
-    </html>
-  `;
-
-  const blob = new Blob(['\ufeff' + tableHtml], { type: 'application/vnd.ms-excel;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `تقرير_مستحقات_${d.empName.replace(/\s+/g, '_')}.xls`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
 </script>
 
 </body>
