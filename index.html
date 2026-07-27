@@ -339,7 +339,7 @@
   <div class="lang-switcher">
     <button class="lang-btn" onclick="toggleLanguage()" id="langBtn">English 🌐</button>
   </div>
-  <h1 id="headerTitle">حاسبة مستحقات نهاية الخدمة ورصيد الاجازات</h1>
+  <h1 id="headerTitle">حاسبة مستحقات نهاية الخدمة بالإجازات</h1>
   <p id="headerSub">وفقاً لقانون العمل الكويتي في القطاع الأهلي (رقم 6 لسنة 2010)</p>
 </header>
 
@@ -769,13 +769,23 @@ function exportToExcel() {
   const d = lastCalculationData;
   const t = i18n[currentLang];
 
+  // تنسيق التواريخ بشكل قصير (DD-MM-YY) ليتطابق مع الصورة
+  const formatDateShort = (dateStr) => {
+    if (!dateStr || dateStr === t.notSpecified) return dateStr;
+    const date = new Date(dateStr);
+    if (isNaN(date)) return dateStr;
+    const yy = String(date.getFullYear()).slice(-2);
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${dd}-${mm}-${yy}`;
+  };
+
   const fields = [
-    { label: t.lblEmpName, value: d.empName },
-    { label: t.lblStartDate, value: d.startDateVal },
-    { label: t.lblEndDate, value: d.endDateVal },
-    { label: t.lblLastVacation, value: d.lastVacationReturnVal },
+    { label: t.lblStartDate, value: formatDateShort(d.startDateVal) },
+    { label: t.lblEndDate, value: formatDateShort(d.endDateVal) },
+    { label: t.lblLastVacation, value: formatDateShort(d.lastVacationReturnVal) },
     { label: t.servicePeriodText.replace(': ', ''), value: d.serviceText },
-    { label: t.lblSalary, value: d.salary.toFixed(3) },
+    { label: t.lblSalary, value: d.salary.toFixed(0) },
     { label: t.lblReason, value: d.reasonText },
     { label: t.lblRawEOSBDays, value: d.rawEOSBDays + t.unitDays },
     { label: t.lblEntitlementRatio, value: d.ratioText },
@@ -784,51 +794,102 @@ function exportToExcel() {
     { label: t.lblFinalEOSB, value: d.finalEOSB.toFixed(3) },
     { label: t.lblVacationDays, value: d.vacationDays + t.unitDays },
     { label: t.lblVacationAmount, value: d.vacationAmount.toFixed(3) },
-    { label: t.lblUnpaidSalary, value: d.unpaidSalary.toFixed(3) },
-    { label: t.lblGrandTotal, value: d.grandTotal.toFixed(3) }
+    { label: t.lblUnpaidSalary, value: d.unpaidSalary.toFixed(0) }
   ];
 
   let rowsHtml = fields.map(f => `
     <tr>
-      <th>${f.label}</th>
-      <td>${f.value}</td>
+      <td class="data-cell">${f.value}</td>
+      <td class="label-cell">${f.label}</td>
     </tr>
   `).join('');
 
   const dirAttr = currentLang === 'ar' ? 'dir="rtl"' : 'dir="ltr"';
-  const textAlign = currentLang === 'ar' ? 'right' : 'left';
 
   const tableHtml = `
     <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
     <head>
       <meta charset="utf-8">
       <style>
-        th {
+        table {
+          border-collapse: collapse;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        /* ترويسة الجدول السطر الأول */
+        .header-label {
           background-color: #002060 !important;
           color: #FFFFFF !important;
           font-weight: bold;
           font-size: 14px;
-          border: 1px solid #000000;
-          padding: 10px;
-          text-align: ${textAlign};
+          border: 1px solid #7F7F7F;
+          padding: 8px 15px;
+          text-align: center;
           width: 280px;
         }
-        td {
-          background-color: #C6EFCE !important;
+        .header-value {
+          background-color: #002060 !important;
+          color: #FFFFFF !important;
+          font-weight: bold;
+          font-size: 14px;
+          border: 1px solid #7F7F7F;
+          padding: 8px 15px;
+          text-align: center;
+          width: 250px;
+        }
+        /* الخلايا العادية */
+        .label-cell {
+          background-color: #FFFFFF !important;
           color: #002060 !important;
           font-weight: bold;
           font-size: 13px;
-          border: 1px solid #000000;
-          padding: 8px 15px;
-          text-align: ${textAlign};
-          width: 250px;
+          border: 1px solid #D9D9D9;
+          padding: 6px 12px;
+          text-align: center;
+        }
+        .data-cell {
+          background-color: #FFFFFF !important;
+          color: #000000 !important;
+          font-weight: bold;
+          font-size: 13px;
+          border: 1px solid #D9D9D9;
+          padding: 6px 12px;
+          text-align: center;
+        }
+        /* السطر الأخير - الإجمالي الصافي */
+        .total-label {
+          background-color: #92D050 !important;
+          color: #000000 !important;
+          font-weight: bold;
+          font-size: 14px;
+          border: 1px solid #7F7F7F;
+          padding: 8px 12px;
+          text-align: center;
+        }
+        .total-value {
+          background-color: #92D050 !important;
+          color: #000000 !important;
+          font-weight: bold;
+          font-size: 14px;
+          border: 1px solid #7F7F7F;
+          padding: 8px 12px;
+          text-align: center;
         }
       </style>
     </head>
     <body ${dirAttr}>
       <table>
+        <thead>
+          <tr>
+            <th class="header-value">${d.empName}</th>
+            <th class="header-label">${t.lblEmpName}</th>
+          </tr>
+        </thead>
         <tbody>
           ${rowsHtml}
+          <tr>
+            <td class="total-value">${d.grandTotal.toFixed(3)}</td>
+            <td class="total-label">${t.lblGrandTotal}</td>
+          </tr>
         </tbody>
       </table>
     </body>
@@ -839,7 +900,7 @@ function exportToExcel() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `Indemnity_Report_${d.empName.replace(/\s+/g, '_')}.xls`;
+  a.download = `تقرير_مستحقات_${d.empName.replace(/\s+/g, '_')}.xls`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
