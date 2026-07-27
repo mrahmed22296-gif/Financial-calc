@@ -964,6 +964,7 @@ function formatKWD(amount) {
   return amount.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + i18n[currentLang].unitKWD;
 }
 
+// دالة التصدير المحدثة للتوافق الكامل مع الهواتف الذكية (Android / iOS)
 function exportToExcel() {
   if (!lastCalculationData) return;
   const d = lastCalculationData;
@@ -979,146 +980,65 @@ function exportToExcel() {
     return `${dd}-${mm}-${yy}`;
   };
 
-  const fields = [];
+  // إعداد البيانات كمنظومة صفوف
+  const excelData = [];
+  excelData.push([t.lblEmpName, d.empName]);
 
   if (d.mode !== 'vacation') {
-    fields.push({ label: t.lblStartDate, value: formatDateShort(d.startDateVal) });
-    fields.push({ label: t.lblEndDate, value: formatDateShort(d.endDateVal) });
-    fields.push({ label: t.servicePeriodText.replace(': ', ''), value: d.serviceText });
+    excelData.push([t.lblStartDate, formatDateShort(d.startDateVal)]);
+    excelData.push([t.lblEndDate, formatDateShort(d.endDateVal)]);
+    excelData.push([t.servicePeriodText.replace(': ', ''), d.serviceText]);
   } else {
-    fields.push({ label: t.lblEndDate, value: formatDateShort(d.endDateVal) });
+    excelData.push([t.lblEndDate, formatDateShort(d.endDateVal)]);
   }
 
   if (d.mode !== 'eosb') {
-    fields.push({ label: t.lblLastVacation, value: formatDateShort(d.lastVacationReturnVal) });
-    fields.push({ label: t.lblUnpaidLeave, value: d.unpaidLeaveDays + t.unitDays });
+    excelData.push([t.lblLastVacation, formatDateShort(d.lastVacationReturnVal)]);
+    excelData.push([t.lblUnpaidLeave, d.unpaidLeaveDays + t.unitDays]);
   }
 
-  fields.push({ label: t.lblSalary, value: d.salary.toFixed(0) });
+  excelData.push([t.lblSalary, d.salary.toFixed(3) + t.unitKWD]);
 
   if (d.mode !== 'vacation') {
-    fields.push({ label: t.lblReason, value: d.reasonText });
+    excelData.push([t.lblReason, d.reasonText]);
   }
 
   if (d.mode === 'both' || d.mode === 'eosb') {
-    fields.push({ label: t.lblRawEOSBDays, value: d.rawEOSBDays + t.unitDays });
-    fields.push({ label: t.lblEntitlementRatio, value: d.ratioText });
-    fields.push({ label: t.lblNetEOSBDays, value: d.netEOSBDays + t.unitDays });
-    fields.push({ label: t.lblRawEOSB, value: d.rawEOSB.toFixed(3) });
-    fields.push({ label: t.lblFinalEOSB, value: d.finalEOSB.toFixed(3) });
+    excelData.push([t.lblRawEOSBDays, d.rawEOSBDays + t.unitDays]);
+    excelData.push([t.lblEntitlementRatio, d.ratioText]);
+    excelData.push([t.lblNetEOSBDays, d.netEOSBDays + t.unitDays]);
+    excelData.push([t.lblRawEOSB, d.rawEOSB.toFixed(3) + t.unitKWD]);
+    excelData.push([t.lblFinalEOSB, d.finalEOSB.toFixed(3) + t.unitKWD]);
   }
 
   if (d.mode === 'both' || d.mode === 'vacation') {
-    fields.push({ label: t.lblVacationDays, value: d.vacationDays + t.unitDays });
-    fields.push({ label: t.lblVacationAmount, value: d.vacationAmount.toFixed(3) });
+    excelData.push([t.lblVacationDays, d.vacationDays + t.unitDays]);
+    excelData.push([t.lblVacationAmount, d.vacationAmount.toFixed(3) + t.unitKWD]);
   }
 
-  fields.push({ label: t.lblUnpaidSalary, value: d.unpaidSalary.toFixed(0) });
+  excelData.push([t.lblUnpaidSalary, d.unpaidSalary.toFixed(3) + t.unitKWD]);
+  excelData.push([t.lblGrandTotal, d.grandTotal.toFixed(3) + t.unitKWD]);
 
-  let rowsHtml = fields.map(f => `
-    <tr>
-      <td class="data-cell">${f.value}</td>
-      <td class="label-cell">${f.label}</td>
-    </tr>
-  `).join('');
+  // إنشاء ورقة عمل SheetJS
+  const worksheet = XLSX.utils.aoa_to_sheet(excelData);
 
-  const dirAttr = currentLang === 'ar' ? 'dir="rtl"' : 'dir="ltr"';
+  // ضبط عرض الأعمدة ليتناسب مع شاشة الهاتف
+  worksheet['!cols'] = [
+    { wch: 35 }, // العمود الأول (الوصف)
+    { wch: 30 }  // العمود الثاني (القيمة)
+  ];
 
-  const tableHtml = `
-    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-    <head>
-      <meta charset="utf-8">
-      <style>
-        table {
-          border-collapse: collapse;
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .header-label {
-          background-color: #002060 !important;
-          color: #FFFFFF !important;
-          font-weight: bold;
-          font-size: 14px;
-          border: 1px solid #7F7F7F;
-          padding: 8px 15px;
-          text-align: center;
-          width: 280px;
-        }
-        .header-value {
-          background-color: #002060 !important;
-          color: #FFFFFF !important;
-          font-weight: bold;
-          font-size: 14px;
-          border: 1px solid #7F7F7F;
-          padding: 8px 15px;
-          text-align: center;
-          width: 250px;
-        }
-        .label-cell {
-          background-color: #FFFFFF !important;
-          color: #002060 !important;
-          font-weight: bold;
-          font-size: 13px;
-          border: 1px solid #D9D9D9;
-          padding: 6px 12px;
-          text-align: center;
-        }
-        .data-cell {
-          background-color: #FFFFFF !important;
-          color: #000000 !important;
-          font-weight: bold;
-          font-size: 13px;
-          border: 1px solid #D9D9D9;
-          padding: 6px 12px;
-          text-align: center;
-        }
-        .total-label {
-          background-color: #92D050 !important;
-          color: #000000 !important;
-          font-weight: bold;
-          font-size: 14px;
-          border: 1px solid #7F7F7F;
-          padding: 8px 12px;
-          text-align: center;
-        }
-        .total-value {
-          background-color: #92D050 !important;
-          color: #000000 !important;
-          font-weight: bold;
-          font-size: 14px;
-          border: 1px solid #7F7F7F;
-          padding: 8px 12px;
-          text-align: center;
-        }
-      </style>
-    </head>
-    <body ${dirAttr}>
-      <table>
-        <thead>
-          <tr>
-            <th class="header-value">${d.empName}</th>
-            <th class="header-label">${t.lblEmpName}</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rowsHtml}
-          <tr>
-            <td class="total-value">${d.grandTotal.toFixed(3)}</td>
-            <td class="total-label">${t.lblGrandTotal}</td>
-          </tr>
-        </tbody>
-      </table>
-    </body>
-    </html>
-  `;
+  // تفعيل خيار اليمين لليسار عند التصدير باللغة العربية
+  if (currentLang === 'ar') {
+    worksheet['!views'] = [{ RTL: true }];
+  }
 
-  const blob = new Blob(['\ufeff' + tableHtml], { type: 'application/vnd.ms-excel;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `تقرير_مستحقات_${d.empName.replace(/\s+/g, '_')}.xls`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "التقرير");
+
+  // التصدير المباشر بصيغة .xlsx متوافقة 100% مع الأجهزة المحمولة
+  const fileName = `تقرير_مستحقات_${d.empName.replace(/\s+/g, '_')}.xlsx`;
+  XLSX.writeFile(workbook, fileName);
 }
 </script>
 
