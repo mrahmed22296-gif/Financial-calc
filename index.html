@@ -1644,29 +1644,6 @@
     <div class="history-list" id="historyList"></div>
   </div>
 
-  <!-- Daily rate mini -->
-  <div class="card info-section">
-    <div class="card-title" id="rateTitle">💵 حاسبة أجر اليوم والساعة</div>
-    <div class="form-group" style="max-width:280px;">
-      <label for="miniSalary" id="lblMiniSalary">الراتب الشامل (د.ك)</label>
-      <input type="number" id="miniSalary" step="0.001" min="0" placeholder="750" oninput="updateMiniRates()">
-    </div>
-    <div class="rate-mini">
-      <div class="rate-out">
-        <div class="rl" id="lblDailyOut">أجر اليوم (÷26)</div>
-        <div class="rv" id="dailyOut">0.000 د.ك</div>
-      </div>
-      <div class="rate-out">
-        <div class="rl" id="lblHourlyOut">أجر الساعة (÷208)</div>
-        <div class="rv" id="hourlyOut">0.000 د.ك</div>
-      </div>
-      <div class="rate-out">
-        <div class="rl" id="lblMonthDays">مكافأة يوم خدمة (تقريبي)</div>
-        <div class="rv" id="eosbDayOut">0.000 د.ك</div>
-      </div>
-    </div>
-  </div>
-
   <!-- How it works -->
   <div class="card info-section">
     <div class="card-title"><span id="howTitle">📘 كيف يُحسب؟</span> <span class="section-badge" id="howBadge">قانون 6/2010</span></div>
@@ -1690,30 +1667,6 @@
     </div>
   </div>
 
-  <!-- FAQ -->
-  <div class="card info-section">
-    <div class="card-title" id="faqTitle">❓ أسئلة شائعة</div>
-    <details class="faq-item">
-      <summary id="faq1q">ما الحد الأقصى لمكافأة نهاية الخدمة؟</summary>
-      <div class="faq-body" id="faq1a">لا تتجاوز المكافأة أجر ثمانية عشر شهراً (المادة 51). أي ما يعادل 18 × 26 = 468 يوم عمل كحد أقصى لأيام الاستحقاق.</div>
-    </details>
-    <details class="faq-item">
-      <summary id="faq2q">هل تُحسب فترة التجربة؟</summary>
-      <div class="faq-body" id="faq2a">مدة التجربة وفق المادة 32 لا تتجاوز 100 يوم عمل. المستحقات خلالها قد تخضع لشرط التجربة في العقد؛ تظهر الحاسبة تنبيهاً إذا كانت المدة أقل من 100 يوم.</div>
-    </details>
-    <details class="faq-item">
-      <summary id="faq3q">ماذا عن الإجازة بدون أجر؟</summary>
-      <div class="faq-body" id="faq3a">أيام الإجازة بدون أجر تُستبعد من فترة استحقاق رصيد الإجازات عند استخدام الحساب التلقائي من تاريخ آخر عودة.</div>
-    </details>
-    <details class="faq-item">
-      <summary id="faq4q">هل تُرسل بياناتي لأي خادم؟</summary>
-      <div class="faq-body" id="faq4a">لا. كل الحسابات تتم داخل متصفحك محلياً. لا تُرفع بيانات الراتب أو الاسم إلى أي خادم. المسودة تُحفظ اختيارياً في التخزين المحلي لجهازك فقط.</div>
-    </details>
-    <details class="faq-item">
-      <summary id="faq5q">ما الفرق بين الفصل والاستقالة في المكافأة؟</summary>
-      <div class="faq-body" id="faq5a">عند إنهاء الخدمات من الشركة تُصرف المكافأة كاملة (100%). عند الاستقالة تُطبَّق نسب المادة 53 حسب مدة الخدمة. استخدم زر «مقارنة سيناريوهين» لرؤية الفرق فوراً.</div>
-    </details>
-  </div>
 </main>
 
 
@@ -2389,11 +2342,6 @@ function toggleLanguage() {
   setTxt('historyTitle', 'historyTitle');
   setTxt('btnClearHistory', 'historyClear');
   setTxt('btnExportHistory', 'historyExport');
-  setTxt('rateTitle', 'rateTitle');
-  setTxt('lblMiniSalary', 'lblMiniSalary');
-  setTxt('lblDailyOut', 'lblDailyOut');
-  setTxt('lblHourlyOut', 'lblHourlyOut');
-  setTxt('lblMonthDays', 'lblMonthDays');
   setTxt('howTitle', 'howTitle');
   setTxt('howBadge', 'howBadge');
   setTxt('howEosbTitle', 'howEosbTitle');
@@ -2404,12 +2352,6 @@ function toggleLanguage() {
   setTxt('howVacBody', 'howVacBody');
   setTxt('howOtTitle', 'howOtTitle');
   setTxt('howOtBody', 'howOtBody');
-  setTxt('faqTitle', 'faqTitle');
-  setTxt('faq1q', 'faq1q'); setTxt('faq1a', 'faq1a');
-  setTxt('faq2q', 'faq2q'); setTxt('faq2a', 'faq2a');
-  setTxt('faq3q', 'faq3q'); setTxt('faq3a', 'faq3a');
-  setTxt('faq4q', 'faq4q'); setTxt('faq4a', 'faq4a');
-  setTxt('faq5q', 'faq5q'); setTxt('faq5a', 'faq5a');
   setTxt('compareTitle', 'compareTitle');
   setTxt('compareTermLbl', 'compareTermLbl');
   setTxt('compareResLbl', 'compareResLbl');
@@ -2417,7 +2359,6 @@ function toggleLanguage() {
   setTxt('footerPrivacy', 'footerPrivacy');
   setTxt('footerNote', 'footerNote');
 
-  updateMiniRates();
   renderHistory();
   autoCalcVacation();
 
@@ -2980,16 +2921,6 @@ function formatKWD(amount) {
   return amount.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + i18n[currentLang].unitKWD;
 }
 
-/* ===== Mini rates ===== */
-function updateMiniRates() {
-  const s = parseFloat(document.getElementById('miniSalary').value) || 0;
-  const daily = s / 26;
-  const hourly = s / 208;
-  document.getElementById('dailyOut').innerText = formatKWD(daily);
-  document.getElementById('hourlyOut').innerText = formatKWD(hourly);
-  document.getElementById('eosbDayOut').innerText = formatKWD(daily);
-}
-
 /* ===== History ===== */
 const HISTORY_KEY = 'kw_calc_history_v1';
 
@@ -3249,7 +3180,6 @@ document.addEventListener('keydown', (e) => {
 /* ===== Init extras ===== */
 window.addEventListener('DOMContentLoaded', () => {
   renderHistory();
-  updateMiniRates();
 });
 </script>
 
