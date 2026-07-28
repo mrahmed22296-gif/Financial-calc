@@ -1614,10 +1614,6 @@
       <p style="margin:12px 0 0;font-size:0.8rem;color:var(--ink-muted);" id="compareNote"></p>
     </div>
 
-    <div class="disclaimer-box" id="disclaimerBox">
-      <strong id="disclaimerTitle">⚠️ إخلاء مسؤولية:</strong>
-      <span id="disclaimerText"> النتائج استرشادية وفق قانون العمل الكويتي رقم 6 لسنة 2010 في القطاع الأهلي، ولا تُعد استشارة قانونية أو بديلاً عن محامٍ مختص. يُرجى التحقق من بنود عقد العمل وأي اتفاقيات خاصة.</span>
-    </div>
   </div>
 
   <!-- History -->
@@ -2339,8 +2335,6 @@ function toggleLanguage() {
   const setTxt = (id, key) => { const el = document.getElementById(id); if (el && t[key] != null) el.innerText = t[key]; };
   setTxt('btnEmail', 'btnEmail');
   setTxt('btnCompare', 'btnCompare');
-  setTxt('disclaimerTitle', 'disclaimerTitle');
-  setTxt('disclaimerText', 'disclaimerText');
   setTxt('historyTitle', 'historyTitle');
   setTxt('btnClearHistory', 'historyClear');
   setTxt('btnExportHistory', 'historyExport');
