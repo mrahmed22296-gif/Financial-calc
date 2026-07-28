@@ -228,8 +228,13 @@
     font-size: 12px;
     color: #6b756b;
   }
+  .button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
   .btn-calc {
-    width: 100%;
+    flex: 2;
     background: var(--brass);
     color: var(--green-dark);
     border: none;
@@ -241,10 +246,27 @@
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     transition: transform 0.15s, background 0.15s;
-    margin-top: 10px;
   }
   .btn-calc:hover {
     background: var(--brass-light);
+    transform: translateY(-1px);
+  }
+  .btn-reset {
+    flex: 1;
+    background: var(--red);
+    color: var(--white);
+    border: none;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: transform 0.15s, background 0.15s;
+  }
+  .btn-reset:hover {
+    background: #8b2f32;
     transform: translateY(-1px);
   }
 
@@ -317,28 +339,36 @@
   .action-bar {
     margin-top: 20px;
     display: flex;
+    gap: 10px;
     justify-content: flex-end;
+    flex-wrap: wrap;
   }
-  .btn-export {
-    background: var(--navy);
+  .btn-action {
     color: var(--white);
     border: none;
     font-family: 'Tajawal', sans-serif;
     font-weight: 700;
-    font-size: 15px;
-    padding: 12px 24px;
+    font-size: 14px;
+    padding: 10px 18px;
     border-radius: 6px;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
     transition: background 0.2s, transform 0.15s;
   }
-  .btn-export:hover {
-    background: #0f1c33;
-    transform: translateY(-1px);
-  }
+  .btn-export { background: var(--navy); }
+  .btn-export:hover { background: #0f1c33; transform: translateY(-1px); }
+
+  .btn-print { background: var(--green-dark); }
+  .btn-print:hover { background: #112215; transform: translateY(-1px); }
+
+  .btn-share { background: #25D366; color: #fff; }
+  .btn-share:hover { background: #1da851; transform: translateY(-1px); }
+
+  .btn-copy { background: var(--brass); color: var(--green-dark); }
+  .btn-copy:hover { background: var(--brass-light); transform: translateY(-1px); }
 
   /* Footer Style */
   footer {
@@ -381,6 +411,41 @@
   }
   .developer-contacts a:hover {
     color: var(--brass-light);
+  }
+
+  /* التنسيق الخاص بالطباعة Direct Print Styles */
+  @media print {
+    body {
+      background: #fff !important;
+      color: #000 !important;
+    }
+    header, .margin-line, .card:has(#calcForm), .action-bar, footer, .visitor-badge, .lang-switcher {
+      display: none !important;
+    }
+    main {
+      padding: 0 !important;
+      margin: 0 !important;
+      max-width: 100% !important;
+    }
+    .results {
+      display: block !important;
+    }
+    .card {
+      border: 1px solid #000 !important;
+      box-shadow: none !important;
+    }
+    .result-header {
+      background: #eee !important;
+      color: #000 !important;
+    }
+    .service-period {
+      color: #000 !important;
+    }
+    .result-row.total {
+      background: #ddd !important;
+      border-top: 2px solid #000 !important;
+      color: #000 !important;
+    }
   }
 </style>
 </head>
@@ -430,6 +495,14 @@
         <div class="form-group" id="grpEndDate">
           <label for="endDate" id="lblEndDate">تاريخ نهاية العمل</label>
           <input type="date" id="endDate" onchange="autoCalcVacation()" required>
+        </div>
+
+        <div class="form-group" id="grpVacationPolicy">
+          <label for="vacationPolicy" id="lblVacationPolicy">سياسة إجازات الشركة</label>
+          <select id="vacationPolicy" onchange="autoCalcVacation()">
+            <option value="calendar" id="optPolicyCalendar">30 يوم تقويمي سنوياً (حسب القانون الكويتي الأساسي)</option>
+            <option value="working" id="optPolicyWorking">30 يوم عمل وليس تقويمياً (إجازة برواتب كاملة باستثناء العطل)</option>
+          </select>
         </div>
 
         <div class="form-group" id="grpLastVacation">
@@ -491,7 +564,10 @@
 
       </div>
 
-      <button type="submit" class="btn-calc" id="btnCalc">احسب المستحقات الآن</button>
+      <div class="button-group">
+        <button type="submit" class="btn-calc" id="btnCalc">احسب المستحقات الآن</button>
+        <button type="button" class="btn-reset" id="btnReset" onclick="resetForm()">🔄 إعادة تعيين</button>
+      </div>
     </form>
   </div>
 
@@ -552,7 +628,10 @@
     </div>
 
     <div class="action-bar">
-      <button type="button" class="btn-export" onclick="exportToExcel()" id="btnExport">📊 تصدير النتائج إلى إكسل</button>
+      <button type="button" class="btn-action btn-export" onclick="exportToExcel()" id="btnExport">📊 تصدير إكسل</button>
+      <button type="button" class="btn-action btn-print" onclick="window.print()" id="btnPrint">🖨️ طباعة / PDF</button>
+      <button type="button" class="btn-action btn-copy" onclick="copySummaryText()" id="btnCopy">📋 نسخ الملخص</button>
+      <button type="button" class="btn-action btn-share" onclick="shareWhatsApp()" id="btnShare">💬 واتساب</button>
     </div>
   </div>
 </main>
@@ -590,13 +669,16 @@ const i18n = {
     phEmpName: "أدخل اسم الموظف",
     lblStartDate: "تاريخ بداية العمل",
     lblEndDate: "تاريخ نهاية العمل",
+    lblVacationPolicy: "سياسة إجازات الشركة",
+    optPolicyCalendar: "30 يوم تقويمي سنوياً (حسب القانون الكويتي الأساسي)",
+    optPolicyWorking: "30 يوم عمل وليس تقويمياً (إجازة برواتب كاملة باستثناء العطل)",
     lblLastVacation: "تاريخ آخر عودة من إجازة (اختياري)",
     hintLastVacation: "لحساب رصيد الإجازات تلقائياً، اتركه فارغاً للإدخال اليدوي",
     lblUnpaidLeave: "أيام الإجازة بدون أجر (إن وجدت)",
     hintUnpaidLeave: "سيتم استبعادها من مدة استحقاق الإجازات",
     lblVacationDays: "رصيد الإجازات المتبقي (بالأيام)",
     vacationHintDefault: "عدد الأيام المستحقة للموظف",
-    vacationHintAuto: "تم حساب الأيام تلقائياً بناءً على تاريخ آخر عودة بعد خصم الإجازة بدون أجر (30 يوم/سنة)",
+    vacationHintAuto: "تم حساب الأيام تلقائياً بناءً على تاريخ آخر عودة بعد خصم الإجازة بدون أجر",
     lblSalary: "الأجر الأخير الشامل (د.ك)",
     phSalary: "مثال: 750",
     hintSalary: "يشمل الراتب الأساسي + جميع البدلات الثابتة",
@@ -612,6 +694,7 @@ const i18n = {
     lblUnpaidSalary: "الراتب المتأخر / المتبقي (د.ك)",
     hintUnpaidSalary: "أي رواتب أو مستحقات شهرية سابقة لم يتسلمها الموظف",
     btnCalc: "احسب المستحقات الآن",
+    btnReset: "🔄 إعادة تعيين",
     resEmpName: "📊 تفاصيل المستحقات المالية: ",
     servicePeriodText: "مدة الخدمة: ",
     lblRawEOSBDays: "عدد أيام نهاية الخدمة المستحقة (الإجمالي):",
@@ -623,7 +706,10 @@ const i18n = {
     lblOvertimeAmount: "بدل العمل الإضافي (الأوفر تايم):",
     lblUnpaidSalaryAmount: "الراتب المتبقي / المتأخرات:",
     lblGrandTotal: "إجمالي الصافي المستحق للصرف:",
-    btnExport: "📊 تصدير النتائج إلى إكسل",
+    btnExport: "📊 تصدير إكسل",
+    btnPrint: "🖨️ طباعة / PDF",
+    btnCopy: "📋 نسخ الملخص",
+    btnShare: "💬 واتساب",
     footerLaw: "برمجية حساب المستحقات وفق قانون العمل الكويتي رقم 6/2010",
     footerDev: "💻 تطوير وتصميم: أحمد عبدالكريم",
     unitDays: " يوم",
@@ -640,8 +726,9 @@ const i18n = {
     noteHourlyRate: "أجر الساعة = الراتب الشامل ÷ (26 × 8) = الراتب ÷ 208 ساعة",
     noteEOSBRule: "حساب نهاية الخدمة: 15 يوماً عن كل سنة من الـ 5 سنوات الأولى، و30 يوماً عن كل سنة تالية (بحد أقصى 18 شهراً).",
     noteResignationRule: "نسبة الاستحقاق في الاستقالة: أقل من سنتين (0%)، من 2-5 سنوات (50%)، من 5-10 سنوات (66.67%)، أكثر من 10 سنوات (100%).",
-    noteVacationRule: "بدل الإجازات = رصيد الأيام × أجر اليوم (معدل الاستحقاق السنوي 30 يوماً).",
-    noteOvertimeRule: "العمل الإضافي: عادي (125%)، عطلة أسبوعية (150%)، عطل رسمية (200%)."
+    noteVacationRule: "بدل الإجازات = رصيد الأيام × أجر اليوم.",
+    noteOvertimeRule: "العمل الإضافي: عادي (125%)، عطلة أسبوعية (150%)، عطل رسمية (200%).",
+    copiedMsg: "تم نسخ ملخص حساب المستحقات بنجاح!"
   },
   en: {
     docTitle: "Indemnity & Vacation Calculator - Kuwait Labor Law 6/2010",
@@ -659,13 +746,16 @@ const i18n = {
     phEmpName: "Enter employee name",
     lblStartDate: "Start Date",
     lblEndDate: "End Date",
+    lblVacationPolicy: "Company Vacation Policy",
+    optPolicyCalendar: "30 Calendar Days/Year (Standard Kuwait Law)",
+    optPolicyWorking: "30 Working Days (Excluding Weekends)",
     lblLastVacation: "Last Return Date from Vacation (Optional)",
     hintLastVacation: "Leave blank for manual entry to calculate vacation balance automatically",
     lblUnpaidLeave: "Unpaid Leave Days (if any)",
     hintUnpaidLeave: "Will be excluded from vacation accrual period",
     lblVacationDays: "Remaining Vacation Days",
     vacationHintDefault: "Number of accrued vacation days",
-    vacationHintAuto: "Calculated automatically after deducting unpaid leave (30 days/year)",
+    vacationHintAuto: "Calculated automatically after deducting unpaid leave",
     lblSalary: "Last Total Salary (KWD)",
     phSalary: "e.g. 750",
     hintSalary: "Includes basic salary + all fixed allowances",
@@ -681,6 +771,7 @@ const i18n = {
     lblUnpaidSalary: "Unpaid / Remaining Salary (KWD)",
     hintUnpaidSalary: "Any unpaid monthly salaries or previous dues",
     btnCalc: "Calculate Entitlements Now",
+    btnReset: "🔄 Reset",
     resEmpName: "📊 Entitlement Details for: ",
     servicePeriodText: "Service Period: ",
     lblRawEOSBDays: "Gross End of Service Days:",
@@ -692,7 +783,10 @@ const i18n = {
     lblOvertimeAmount: "Overtime Compensation:",
     lblUnpaidSalaryAmount: "Unpaid Salary / Arrears:",
     lblGrandTotal: "Grand Net Payable Amount:",
-    btnExport: "📊 Export Results to Excel",
+    btnExport: "📊 Export Excel",
+    btnPrint: "🖨️ Print / PDF",
+    btnCopy: "📋 Copy Summary",
+    btnShare: "💬 WhatsApp",
     footerLaw: "Indemnity Calculation Tool according to Kuwait Labor Law No. 6/2010",
     footerDev: "💻 Developed & Designed by: Ahmed Abdelkarim",
     unitDays: " days",
@@ -709,8 +803,9 @@ const i18n = {
     noteHourlyRate: "Hourly Rate = Total Salary ÷ (26 × 8) = Total Salary ÷ 208 hours",
     noteEOSBRule: "Indemnity Rule: 15 days per year for first 5 years, 30 days per year for subsequent years (Max 18 months cap).",
     noteResignationRule: "Resignation Entitlement: <2 yrs (0%), 2-5 yrs (50%), 5-10 yrs (66.67%), >10 yrs (100%).",
-    noteVacationRule: "Vacation Pay = Remaining Days × Daily Rate (Accrual rate 30 days/year).",
-    noteOvertimeRule: "Overtime Rates: Normal (125%), Weekends (150%), Public Holidays (200%)."
+    noteVacationRule: "Vacation Pay = Remaining Days × Daily Rate.",
+    noteOvertimeRule: "Overtime Rates: Normal (125%), Weekends (150%), Public Holidays (200%).",
+    copiedMsg: "Summary text copied successfully!"
   }
 };
 
@@ -737,6 +832,7 @@ function handleCalcModeChange() {
   const grpStartDate = document.getElementById('grpStartDate');
   const grpEndDate = document.getElementById('grpEndDate');
   const grpReason = document.getElementById('grpReason');
+  const grpVacationPolicy = document.getElementById('grpVacationPolicy');
   const grpLastVacation = document.getElementById('grpLastVacation');
   const grpUnpaidLeave = document.getElementById('grpUnpaidLeave');
   const grpVacationDays = document.getElementById('grpVacationDays');
@@ -753,6 +849,7 @@ function handleCalcModeChange() {
     grpStartDate.style.display = 'flex';
     grpEndDate.style.display = 'flex';
     grpReason.style.display = 'flex';
+    grpVacationPolicy.style.display = 'flex';
     grpLastVacation.style.display = 'flex';
     grpUnpaidLeave.style.display = 'flex';
     grpVacationDays.style.display = 'flex';
@@ -767,6 +864,7 @@ function handleCalcModeChange() {
     grpStartDate.style.display = 'flex';
     grpEndDate.style.display = 'flex';
     grpReason.style.display = 'flex';
+    grpVacationPolicy.style.display = 'none';
     grpLastVacation.style.display = 'none';
     grpUnpaidLeave.style.display = 'none';
     grpVacationDays.style.display = 'none';
@@ -781,6 +879,7 @@ function handleCalcModeChange() {
     grpStartDate.style.display = 'none';
     grpEndDate.style.display = 'flex';
     grpReason.style.display = 'none';
+    grpVacationPolicy.style.display = 'flex';
     grpLastVacation.style.display = 'flex';
     grpUnpaidLeave.style.display = 'flex';
     grpVacationDays.style.display = 'flex';
@@ -795,6 +894,7 @@ function handleCalcModeChange() {
     grpStartDate.style.display = 'none';
     grpEndDate.style.display = 'none';
     grpReason.style.display = 'none';
+    grpVacationPolicy.style.display = 'none';
     grpLastVacation.style.display = 'none';
     grpUnpaidLeave.style.display = 'none';
     grpVacationDays.style.display = 'none';
@@ -833,6 +933,9 @@ function toggleLanguage() {
   document.getElementById('empName').placeholder = t.phEmpName;
   document.getElementById('lblStartDate').innerText = t.lblStartDate;
   document.getElementById('lblEndDate').innerText = t.lblEndDate;
+  document.getElementById('lblVacationPolicy').innerText = t.lblVacationPolicy;
+  document.getElementById('optPolicyCalendar').innerText = t.optPolicyCalendar;
+  document.getElementById('optPolicyWorking').innerText = t.optPolicyWorking;
   document.getElementById('lblLastVacation').innerText = t.lblLastVacation;
   document.getElementById('hintLastVacation').innerText = t.hintLastVacation;
   document.getElementById('lblUnpaidLeave').innerText = t.lblUnpaidLeave;
@@ -853,6 +956,7 @@ function toggleLanguage() {
   document.getElementById('lblUnpaidSalary').innerText = t.lblUnpaidSalary;
   document.getElementById('hintUnpaidSalary').innerText = t.hintUnpaidSalary;
   document.getElementById('btnCalc').innerText = t.btnCalc;
+  document.getElementById('btnReset').innerText = t.btnReset;
   document.getElementById('lblRawEOSBDays').innerText = t.lblRawEOSBDays;
   document.getElementById('lblEntitlementRatio').innerText = t.lblEntitlementRatio;
   document.getElementById('lblNetEOSBDays').innerText = t.lblNetEOSBDays;
@@ -863,6 +967,9 @@ function toggleLanguage() {
   document.getElementById('lblUnpaidSalaryAmount').innerText = t.lblUnpaidSalaryAmount;
   document.getElementById('lblGrandTotal').innerText = t.lblGrandTotal;
   document.getElementById('btnExport').innerText = t.btnExport;
+  document.getElementById('btnPrint').innerText = t.btnPrint;
+  document.getElementById('btnCopy').innerText = t.btnCopy;
+  document.getElementById('btnShare').innerText = t.btnShare;
   document.getElementById('footerLaw').innerText = t.footerLaw;
   document.getElementById('footerDev').innerText = t.footerDev;
 
@@ -878,6 +985,7 @@ function autoCalcVacation() {
   const mode = document.getElementById('calcMode').value;
   const lastReturnVal = document.getElementById('lastVacationReturn').value;
   const endDateVal = document.getElementById('endDate').value;
+  const policy = document.getElementById('vacationPolicy').value;
   const unpaidLeaveDays = parseFloat(document.getElementById('unpaidLeaveDays').value) || 0;
   const vacationInput = document.getElementById('vacationDays');
   const vacationHint = document.getElementById('vacationHint');
@@ -894,7 +1002,9 @@ function autoCalcVacation() {
       
       totalDays = Math.max(0, totalDays - unpaidLeaveDays);
       
-      const calculatedVacation = totalDays * (30 / 365.25);
+      // إذا كانت السياسة 30 يوم عمل وليس تقويمياً، تحسب النسبة بـ (30 يوم عمل × 7 / 5) = 42 يوم تقويمي
+      const annualVacationRate = (policy === 'working') ? (30 * (7 / 5)) : 30;
+      const calculatedVacation = totalDays * (annualVacationRate / 365.25);
       
       vacationInput.value = calculatedVacation.toFixed(2);
       vacationInput.disabled = true;
@@ -905,6 +1015,13 @@ function autoCalcVacation() {
   
   vacationInput.disabled = false;
   vacationHint.innerText = t.vacationHintDefault;
+}
+
+function resetForm() {
+  document.getElementById('calcForm').reset();
+  document.getElementById('resultsBox').style.display = 'none';
+  document.getElementById('vacationDays').disabled = false;
+  handleCalcModeChange();
 }
 
 function calculate(e) {
@@ -1073,6 +1190,62 @@ function calculate(e) {
 
   document.getElementById('resultsBox').style.display = 'block';
   document.getElementById('resultsBox').scrollIntoView({ behavior: 'smooth' });
+}
+
+function generateSummaryText() {
+  if (!lastCalculationData) return '';
+  const d = lastCalculationData;
+  const t = i18n[currentLang];
+
+  let text = `📄 *${t.headerTitle}*\n`;
+  text += `👤 ${t.lblEmpName}: ${d.empName}\n`;
+  if (d.serviceText && d.serviceText !== t.notSpecified) {
+    text += `⏱️ ${t.servicePeriodText}${d.serviceText}\n`;
+  }
+  text += `💰 ${t.lblSalary}: ${d.salary.toFixed(3)}${t.unitKWD}\n`;
+  text += `-----------------------------------\n`;
+
+  if (d.mode === 'both' || d.mode === 'eosb') {
+    text += `🔹 ${t.lblFinalEOSB}: ${d.finalEOSB.toFixed(3)}${t.unitKWD}\n`;
+  }
+  if (d.mode === 'both' || d.mode === 'vacation') {
+    text += `🔹 ${t.lblVacationAmount} (${d.vacationDays}${t.unitDays}): ${d.vacationAmount.toFixed(3)}${t.unitKWD}\n`;
+  }
+  if (d.mode === 'overtime') {
+    text += `🔹 ${t.lblOvertimeAmount}: ${d.overtimeAmount.toFixed(3)}${t.unitKWD}\n`;
+  }
+  if (d.unpaidSalary > 0) {
+    text += `🔹 ${t.lblUnpaidSalaryAmount}: ${d.unpaidSalary.toFixed(3)}${t.unitKWD}\n`;
+  }
+
+  text += `-----------------------------------\n`;
+  text += `✅ *${t.lblGrandTotal}: ${d.grandTotal.toFixed(3)}${t.unitKWD}*`;
+
+  return text;
+}
+
+function copySummaryText() {
+  const text = generateSummaryText();
+  if (!text) return;
+
+  navigator.clipboard.writeText(text).then(() => {
+    alert(i18n[currentLang].copiedMsg);
+  }).catch(() => {
+    const area = document.createElement('textarea');
+    area.value = text;
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand('copy');
+    document.body.removeChild(area);
+    alert(i18n[currentLang].copiedMsg);
+  });
+}
+
+function shareWhatsApp() {
+  const text = generateSummaryText();
+  if (!text) return;
+  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
 }
 
 function formatKWD(amount) {
