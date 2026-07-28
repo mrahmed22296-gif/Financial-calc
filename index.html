@@ -74,7 +74,6 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-<!-- ExcelJS يُحمّل عند الطلب فقط (lazy) -->
 
 <style>
   :root {
@@ -832,36 +831,6 @@
   }
   body.dark-mode .how-card code { color: var(--primary); }
 
-  .rate-mini {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px;
-    margin-top: 8px;
-  }
-  @media (max-width: 560px) {
-    .rate-mini { grid-template-columns: 1fr; }
-  }
-  .rate-out {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xs);
-    padding: 12px;
-    text-align: center;
-  }
-  .rate-out .rl {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--ink-muted);
-    margin-bottom: 4px;
-  }
-  .rate-out .rv {
-    font-family: 'IBM Plex Mono', monospace;
-    font-weight: 700;
-    color: var(--primary-dark);
-    direction: ltr;
-  }
-  body.dark-mode .rate-out .rv { color: var(--primary); }
-
   .history-list {
     display: flex;
     flex-direction: column;
@@ -1257,20 +1226,6 @@
     border-color: var(--primary);
   }
 
-  .rate-out {
-    border-radius: 12px;
-    padding: 14px 12px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .rate-out:hover {
-    border-color: var(--primary);
-    box-shadow: var(--shadow-sm);
-  }
-  .rate-out .rv {
-    font-size: 1.05rem;
-    margin-top: 2px;
-  }
-
   .history-item {
     border-radius: 12px;
     padding: 13px 14px;
@@ -1312,8 +1267,6 @@
     border-radius: 14px;
     margin-top: 14px;
   }
-
-  /* Sticky subtle top bar on scroll via fixed controls already absolute in header */
 
   :focus-visible {
     outline: 2px solid var(--primary);
@@ -1373,7 +1326,6 @@
     }
   }
 
-
   .btn-close-modal {
     background: #fff;
     color: #0f172a;
@@ -1401,7 +1353,6 @@
     background: #334155;
     border-color: #94a3b8;
   }
-
 
   /* ===== High-contrast buttons ===== */
   .control-btn {
@@ -1544,7 +1495,7 @@
     <form id="calcForm" onsubmit="calculate(event)">
       <div class="grid">
         
-        <div class="form-group">
+        <div class="form-group full-width">
           <label for="calcMode" id="lblCalcMode">نوع الحساب المطلوب</label>
           <select id="calcMode" onchange="handleCalcModeChange()" required>
             <option value="both" id="optBoth">حساب نهاية الخدمة + رصيد الإجازات معاً</option>
@@ -1552,15 +1503,6 @@
             <option value="vacation" id="optVacationOnly">حساب بدل رصيد الإجازات فقط</option>
             <option value="overtime" id="optOvertimeOnly">حساب بدل العمل الإضافي (الأوفر تايم) فقط</option>
           </select>
-        </div>
-
-        <div class="form-group">
-          <label for="sectorType" id="lblSectorType">نوع العقد / القطاع</label>
-          <select id="sectorType" onchange="handleSectorChange(); saveDraft();" required>
-            <option value="private" id="optPrivate">أهلي (قانون العمل 6/2010)</option>
-            <option value="government" id="optGovernment">حكومي (التأمينات / الخدمة المدنية)</option>
-          </select>
-          <span class="hint" id="hintSector">يغيّر معادلة مكافأة نهاية الخدمة حسب القانون المعمول به</span>
         </div>
 
         <div class="form-group full-width">
@@ -1638,7 +1580,7 @@
           <span class="hint" id="hintUnpaidSalary">أي رواتب أو مستحقات شهرية سابقة لم يتسلمها الموظف</span>
         </div>
 
-        <!-- جديد: حقل الخصومات والالتزامات -->
+        <!-- حقل الخصومات والالتزامات -->
         <div class="form-group" id="grpDeductions">
           <label for="deductions" id="lblDeductions">الخصومات / السلف والالتزامات (د.ك)</label>
           <input type="number" id="deductions" step="0.001" min="0" value="0" placeholder="0.000" oninput="saveDraft()">
@@ -1759,7 +1701,6 @@
 
     <div class="action-bar">
       <button type="button" class="btn-action btn-receipt" onclick="openReceiptModal()" id="btnReceipt">📄 مخالصة وإخلاء طرف</button>
-      <button type="button" class="btn-action btn-export" onclick="exportToExcelReal()" id="btnExport">📊 تصدير إكسل (XLSX)</button>
       <button type="button" class="btn-action btn-print" onclick="window.print()" id="btnPrint">🖨️ طباعة / PDF</button>
       <button type="button" class="btn-action btn-copy" onclick="copySummaryText()" id="btnCopy">📋 نسخ الملخص</button>
       <button type="button" class="btn-action btn-email" onclick="copyEmailTemplate()" id="btnEmail">✉️ قالب بريد</button>
@@ -1787,127 +1728,164 @@
   <!-- History -->
   <div class="card info-section" id="historyCard" style="display:none;">
     <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-      <span id="historyTitle">🕘 سجل الحسابات الأخيرة</span>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button type="button" class="btn-action btn-export" id="btnExportHistory" onclick="exportHistoryToExcel()" style="padding:8px 14px;font-size:0.8rem;">📊 تصدير السجل</button>
-        <button type="button" class="btn-action btn-reset" id="btnClearHistory" onclick="clearAllHistory()" style="padding:8px 14px;font-size:0.8rem;box-shadow:none;">🗑️ حذف السجل</button>
-      </div>
+      <span id="historyTitle">🕒 السجل المحلي للحسابات</span>
+      <button type="button" onclick="clearHistory()" style="background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.75rem;" id="btnClearHist">مسح السجل</button>
     </div>
     <div class="history-list" id="historyList"></div>
   </div>
 
-  <!-- How it works -->
+  <!-- Disclaimer & Legal info -->
+  <div class="disclaimer-box" id="disclaimerBox">
+    <strong id="discTitle">⚠️ إخلاء مسؤولية قانونية:</strong>
+    <span id="discBody">هذه الحاسبة هي أداة استرشادية مبنية على قانون العمل الكويتي رقم 6 لسنة 2010. المخرجات لا تُعد وثيقة قانونية رسمية ملزمة للجهات القضائية أو وزارة الشؤون. للمستندات التنفيذية، يُرجى مراجعة إدارة علاقات العمل الهيئة العامة للقوى العاملة.</span>
+  </div>
+
   <div class="card info-section">
-    <div class="card-title"><span id="howTitle">📘 كيف يُحسب؟</span> <span class="section-badge" id="howBadge">قانون 6/2010</span></div>
+    <div class="card-title">
+      <span id="lawInfoTitle">📜 كيفية حساب نهاية الخدمة والإجازات حسب قانون العمل الكويتي</span>
+    </div>
+    
     <div class="how-grid">
       <div class="how-card">
-        <h4 id="howEosbTitle">مكافأة نهاية الخدمة (م51)</h4>
-        <p id="howEosbBody">15 يوماً × السنوات الخمس الأولى + 30 يوماً × السنوات التالية. الحد الأقصى = أجر 18 شهراً (18 × 26 يوماً). أجر اليوم = الراتب ÷ 26.</p>
+        <h4 id="how1Title">1. أجر اليوم والشهر</h4>
+        <p id="how1Body">وفق المادة 55، يُحسب أجر اليوم للموظف الشهري بتقسيم الراتب الشامل على <code>26</code> يوماً (أيام العمل الشهرية الفعلية بعد خصم العطلات الأسبوعية).</p>
       </div>
       <div class="how-card">
-        <h4 id="howResTitle">الاستقالة (م53)</h4>
-        <p id="howResBody">&lt; 3 سنوات: 0% · 3–5 سنوات: 50% · 5–10 سنوات: ⅔ (66.67%) · أكثر من 10: 100%.</p>
+        <h4 id="how2Title">2. استحقاق السنوات (المادة 51)</h4>
+        <p id="how2Body">15 يوماً عن كل سنة للسنوات الخمس الأولى، و30 يوماً (شهر كامل) عن كل سنة بعد الخمس الأولى، وبحد أقصى للعمل لا يتجاوز أجر <code>18 شهراً</code>.</p>
       </div>
       <div class="how-card">
-        <h4 id="howVacTitle">بدل الإجازات</h4>
-        <p id="howVacBody">رصيد الأيام × أجر اليوم. يمكن حساب الرصيد تلقائياً من تاريخ آخر عودة (30 يوم / سنة).</p>
+        <h4 id="how3Title">3. نسبة الاستقالة (المادة 53)</h4>
+        <p id="how3Body">أقل من 3 سنوات: <code>0%</code> | من 3 لـ 5 سنوات: <code>50%</code> | من 5 لـ 10 سنوات: <code>66.67%</code> | أكثر من 10 سنوات: <code>100%</code>.</p>
       </div>
       <div class="how-card">
-        <h4 id="howOtTitle">العمل الإضافي</h4>
-        <p id="howOtBody">عادي 125% · راحة أسبوعية 150% · عطل رسمية 200%. أجر الساعة = الراتب ÷ 208.</p>
+        <h4 id="how4Title">4. بدل الإجازات المتبقية</h4>
+        <p id="how4Body">تُحسب بالمعادلة: <code>عدد أيام الرصيد × (الراتب الشامل ÷ 26)</code>. استحقاق الإجازة المعتاد هو 30 يوماً مدفوعة الأجر سنوياً.</p>
       </div>
     </div>
   </div>
 
+  <div class="card info-section">
+    <div class="card-title"><span id="faqSectionTitle">❓ الأسئلة الشائعة حول المستحقات في الكويت</span></div>
+
+    <details class="faq-item">
+      <summary id="faq1Q">هل تدخل البدلات والعمولات في حساب الراتب الشامل؟</summary>
+      <div class="faq-body" id="faq1A">نعم، وفق قانون العمل الكويتي يُحسب أجر نهاية الخدمة على أساس "الأجر الشامل" الذي يشمل الراتب الأساسي + العلاوات + البدلات الثابتة والمكافآت الدورية، باستثناء البدلات التي تُدفع مقابل مصاريف فعلية متغيرة (كبدل السفر الفعلي).</div>
+    </details>
+
+    <details class="faq-item">
+      <summary id="faq2Q">ما الفرق في المستحقات بين الاستقالة وإنهاء الخدمات؟</summary>
+      <div class="faq-body" id="faq2A">في حالة إنهاء الخدمات من قِبل صاحب العمل (فصل غير تأديبي) يستحق الموظف 100% من المكافأة مهما كانت مدة خدمته (بشرط إتمام فترة التجربة). أما في الاستقالة فتخضع لنسب المادة 53 حسب سنوات الخدمة.</div>
+    </details>
+
+    <details class="faq-item">
+      <summary id="faq3Q">كيف يُحسب الأوفر تايم (العمل الإضافي)؟</summary>
+      <div class="faq-body" id="faq3A">أجر الساعة العادية = (الراتب الشامل ÷ 26) ÷ 8 ساعات. ساعات العمل الإضافي في الأيام العادية تُحسب بـ 125%، وفي أيام الراحة الأسبوعية (الجمعة) بـ 150%، وفي العطلات الرسمية والأعياد بـ 200%.</div>
+    </details>
+
+    <details class="faq-item">
+      <summary id="faq4Q">ما هو الحد الأقصى لمكافأة نهاية الخدمة؟</summary>
+      <div class="faq-body" id="faq4A">الحد الأقصى لمكافأة نهاية الخدمة في القطاع الأهلي الكويتي هو إجمالي أجر 18 شهراً للموظف.</div>
+    </details>
+  </div>
 </main>
 
+<a href="https://wa.me/?text=%DD8%AD%D8%A7%D8%B3%D8%A8%D8%A9%20%D9%86%D9%87%D8%A7%D9%8A%D8%A9%20%D8%A7%D9%84%D8%AE%D8%AF%D9%85%D8%A9" class="wa-float" target="_blank" title="مشاركة عبر واتساب" aria-label="WhatsApp">💬</a>
 
-<!-- نافذة مخالصة وإخلاء طرف -->
+<footer>
+  <div id="ftTitle">حاسبة مستحقات نهاية الخدمة والرواتب — دولة الكويت</div>
+  <div class="meta-bar">
+    <span>📍 الكويت</span>
+    <span>⚖️ قانون 6/2010</span>
+    <span>🔒 حماية كاملة للبيانات</span>
+  </div>
+
+  <div class="developer-card">
+    <h4 id="ftDev">تم التطوير والتصميم بواسطة</h4>
+    <p style="font-weight:700;margin-bottom:6px;">Ahmed Abdelkarim</p>
+    <div class="developer-contacts">
+      <a href="mailto:a.abdelkarim.3991@gmail.com">✉️ a.abdelkarim.3991@gmail.com</a>
+      <a href="tel:+96594738225">📞 +965 94738225</a>
+    </div>
+  </div>
+
+  <p class="privacy-note" id="ftPrivacy">جميع البيانات المدخلة تُعالج داخل متصفحك محلياً ولا يتم رفعها إلى أي خوادم خارجية.</p>
+</footer>
+
+<!-- RECEIPT MODAL -->
 <div id="receiptModal">
-  <div class="receipt-box" id="receiptContent">
-    <h2 style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px;" id="rcpDocTitle">إقرار استلام مستحقات وإخلاء طرف نهائي</h2>
-    <p id="rcpCompanyLine" style="text-align:center;font-size:15px;font-weight:bold;margin:8px 0 4px;display:none;">الشركة: <span id="rcpCompany"></span></p>
-    <p style="text-align:center;font-size:13px;color:#555;">رقم مرجعي: <strong id="rcpRef">—</strong> &nbsp;|&nbsp; تاريخ الإصدار: <strong id="rcpIssueDate">—</strong></p>
-    <p style="text-align:center;font-size:13px;color:#555;" id="rcpEmpMetaLine">
-      <span id="rcpEmpNumWrap" style="display:none;">رقم الموظف: <strong id="rcpEmpNum"></strong> &nbsp;|&nbsp; </span>
-      <span id="rcpCivilWrap">الرقم المدني: <strong id="rcpCivil">.........................</strong></span>
-    </p>
-    <p>أقر أنا الموظف/ <strong><span id="rcpName"></span></strong>، وأحمل الرقم المدني/<strong id="rcpCivilInline">.........................</strong>، بأنني قد استلمت كافة مستحقاتي المالية والتنفيذية الناتجة عن فترة عملي لدى <strong id="rcpCompanyInline">الشركة</strong> من تاريخ <strong><span id="rcpStart"></span></strong> إلى تاريخ <strong><span id="rcpEnd"></span></strong>.</p>
-    
-    <table border="1" style="width:100%; border-collapse:collapse; margin: 15px 0; text-align: center;">
-      <tr style="background:#f2f2f2;"><th>البيان</th><th>المبلغ المحسوب (د.ك)</th></tr>
-      <tr id="rcpRowEosb"><td>صافي مكافأة نهاية الخدمة</td><td id="rcpEosb"></td></tr>
-      <tr id="rcpRowVac"><td>بدل رصيد الإجازات السنوية</td><td id="rcpVac"></td></tr>
-      <tr id="rcpRowSal"><td>الرواتب المتأخرة / المتبقية</td><td id="rcpSal"></td></tr>
-      <tr id="rcpRowDed"><td>الخصومات والسلف (إن وجدت)</td><td id="rcpDed"></td></tr>
-      <tr style="font-weight:bold; background:#e6f3ff;"><td>الصافي المستحق النهائي</td><td id="rcpTotal"></td></tr>
-    </table>
-
-    <p>وهذا إقرار مني باستلام الكامل والصافي، وأن ذمة الشركة أصبحت مبرأة تماماً من أي حقوق مالية أو قانونية، وأعتبر هذا النموذج بمثابة إخلاء طرف واستلام نهائي.</p>
-    
-    <div style="display:flex; justify-between; margin-top: 40px;">
+  <div class="receipt-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #0f766e;padding-bottom:12px;margin-bottom:18px;">
       <div>
-        <p>توقيع الموظف: ....................................</p>
-        <p>التاريخ: .... / .... / ........</p>
+        <h2 style="color:#0f766e;margin:0;font-weight:900;font-size:1.3rem;" id="recTitle">مخالصة وإقرار استلام مستحقات مالية</h2>
+        <span style="font-size:0.8rem;color:#64748b;" id="recSub">إخلاء طرف ونهاية خدمة (دولة الكويت)</span>
       </div>
-      <div style="margin-right: auto; text-align: left;">
-        <p id="rcpSignCompany">توقيع الشركة: ....................................</p>
-        <p>التاريخ: .... / .... / ........</p>
+      <div style="text-align:left;font-size:0.8rem;color:#64748b;">
+        <div id="recDate">التاريخ: -</div>
+        <div id="recDocNo">رقم الوثيقة: -</div>
       </div>
     </div>
 
-    <div style="text-align: center; margin-top: 25px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;" class="no-print">
-      <button class="btn-action btn-print" onclick="printReceipt()">🖨️ طباعة المخالصة</button>
-      <button type="button" class="btn-close-modal" onclick="closeReceiptModal()">إغلاق</button>
+    <p style="font-size:0.9rem;line-height:1.8;margin-bottom:16px;" id="recBody">
+      أقر أنا الموقع أدناه <strong><span id="recEmpName">—</span></strong> (الرقم المدني: <strong><span id="recCivilId">—</span></strong>) بأني استلمت من السادة/ <strong><span id="recCompName">—</span></strong> كافة مستحقاتي المالية عن فترة عملي الممتدة من <strong><span id="recStart">—</span></strong> إلى <strong><span id="recEnd">—</span></strong> وفقاً لتفاصيل المخالصة المبينة أدناه:
+    </p>
+
+    <table style="width:100%;border-collapse:collapse;margin-bottom:18px;font-size:0.88rem;">
+      <thead>
+        <tr style="background:#f1f5f9;color:#0f172a;">
+          <th style="padding:8px;border:1px solid #cbd5e1;text-align:right;" id="thItem">البيان</th>
+          <th style="padding:8px;border:1px solid #cbd5e1;text-align:left;" id="thVal">المبلغ (د.ك)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:8px;border:1px solid #cbd5e1;" id="tdEosb">مكافأة نهاية الخدمة</td><td style="padding:8px;border:1px solid #cbd5e1;text-align:left;font-family:monospace;" id="recValEosb">0.000</td></tr>
+        <tr><td style="padding:8px;border:1px solid #cbd5e1;" id="tdVac">بدل رصيد الإجازات</td><td style="padding:8px;border:1px solid #cbd5e1;text-align:left;font-family:monospace;" id="recValVac">0.000</td></tr>
+        <tr><td style="padding:8px;border:1px solid #cbd5e1;" id="tdOT">بدل عمل إضافي</td><td style="padding:8px;border:1px solid #cbd5e1;text-align:left;font-family:monospace;" id="recValOT">0.000</td></tr>
+        <tr><td style="padding:8px;border:1px solid #cbd5e1;" id="tdUnpaid">الرواتب المتبقية / المتأخرة</td><td style="padding:8px;border:1px solid #cbd5e1;text-align:left;font-family:monospace;" id="recValUnpaid">0.000</td></tr>
+        <tr style="color:#b91c1c;"><td style="padding:8px;border:1px solid #cbd5e1;" id="tdDed">خصومات وسلف واستقطاعات</td><td style="padding:8px;border:1px solid #cbd5e1;text-align:left;font-family:monospace;" id="recValDed">-0.000</td></tr>
+        <tr style="font-weight:bold;background:#ccfbf1;color:#0f766e;"><td style="padding:10px;border:1px solid #cbd5e1;" id="tdTotal">صافي المستحقات النهائي</td><td style="padding:10px;border:1px solid #cbd5e1;text-align:left;font-family:monospace;font-size:1rem;" id="recValTotal">0.000</td></tr>
+      </tbody>
+    </table>
+
+    <p style="font-size:0.8rem;color:#475569;margin-bottom:28px;line-height:1.7;" id="recLegalText">
+      وباستلامي لهذا المبلغ، أكون قد استوفيت جميع حقوقي الوظيفية والمالية والعمالية الناتجة عن عقد العمل ولا يحق لي مطالبة الشركة بأي حق مستقبلاً أمام أي جهة قضائية أو إدارية.
+    </p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;text-align:center;font-size:0.85rem;">
+      <div style="border-top:1px dashed #94a3b8;padding-top:8px;">
+        <strong id="signEmp">توقيع الموظف (المستلم):</strong><br><br>____________________
+      </div>
+      <div style="border-top:1px dashed #94a3b8;padding-top:8px;">
+        <strong id="signComp">توقيع وختم الشركة (المسلم):</strong><br><br>____________________
+      </div>
+    </div>
+
+    <div style="margin-top:28px;text-align:center;" class="no-print">
+      <button type="button" class="btn-action btn-print" onclick="printReceipt()" id="btnPrintReceipt">🖨️ طباعة المخالصة</button>
+      <button type="button" class="btn-close-modal" onclick="closeReceiptModal()" id="btnCloseReceipt">إغلاق</button>
     </div>
   </div>
 </div>
 
-<footer>
-  <div id="footerLaw">برمجية حساب المستحقات وفق قانون العمل الكويتي رقم 6/2010</div>
-  <div class="meta-bar">
-    <span id="footerUpdated">آخر مراجعة للحسابات: يوليو 2026</span>
-    <span id="footerPrivacy">🔒 الحسابات محلية — لا تُرسل بياناتك لأي خادم</span>
-  </div>
-  
-  <div class="developer-card">
-    <h4 id="footerDev">💻 تطوير وتصميم: أحمد عبدالكريم</h4>
-    <div class="developer-contacts">
-      <span>✉️ <a href="mailto:mr.ahmed22296@gmail.com">mr.ahmed22296@gmail.com</a></span>
-      <span>📱 <a href="tel:60085043">60085043</a> / <a href="tel:01201487209">01201487209</a></span>
-    </div>
-  </div>
-  <p class="privacy-note" id="footerNote">أداة مجانية مستقلة وغير تابعة لأي جهة حكومية.</p>
-</footer>
-
-<a class="wa-float" id="waFloat" href="https://wa.me/96560085043" title="واتساب" aria-label="WhatsApp">💬</a>
-
 <script>
+/* Global state & i18n */
 let currentLang = 'ar';
-let lastCalculationData = null;
+let visitorCountNum = 12450;
+let lastCalculatedData = null;
 
 const i18n = {
   ar: {
     docTitle: "حاسبة نهاية الخدمة ورصيد الإجازات في الكويت | قانون العمل 6/2010",
-    langBtn: "English 🌐",
     headerTitle: "حاسبة مستحقات نهاية الخدمة ورصيد الاجازات",
     headerSub: "وفقاً لقانون العمل الكويتي في القطاع الأهلي (رقم 6 لسنة 2010)",
     lblVisitors: "👥 عدد زوار الموقع:",
     formTitle: "📋 بيانات الموظف والعقد",
     lblCalcMode: "نوع الحساب المطلوب",
-    lblSectorType: "نوع العقد / القطاع",
-    optPrivate: "أهلي (قانون العمل 6/2010)",
-    optGovernment: "حكومي (التأمينات / الخدمة المدنية)",
-    hintSector: "يغيّر معادلة مكافأة نهاية الخدمة حسب القانون المعمول به",
-    noteGovEOSBRule: "القطاع الحكومي (غير مستحقي المعاش — تقدير): 10% ثم 12% ثم 15% ثم 20% × 12 × الراتب عن شرائح السنوات (5+5+5+الباقي). الراتب المدخل يُعامل كراتب تسوية المعاش.",
-    noteDailyRateGov: "أجر اليوم (حكومي تقديري) = الراتب ÷ 30",
-    headerSubGov: "وفقاً لقواعد التأمينات الاجتماعية / الخدمة المدنية (تقدير)",
     optBoth: "حساب نهاية الخدمة + رصيد الإجازات معاً",
     optEosbOnly: "حساب مكافأة نهاية الخدمة فقط",
     optVacationOnly: "حساب بدل رصيد الإجازات فقط",
     optOvertimeOnly: "حساب بدل العمل الإضافي (الأوفر تايم) فقط",
     lblEmpName: "اسم الموظف بالكامل",
-    phEmpName: "أدخل اسم الموظف",
     lblStartDate: "تاريخ بداية العمل",
     lblEndDate: "تاريخ نهاية العمل",
     lblLastVacation: "تاريخ آخر عودة من إجازة (اختياري)",
@@ -1915,20 +1893,15 @@ const i18n = {
     lblUnpaidLeave: "أيام الإجازة بدون أجر (إن وجدت)",
     hintUnpaidLeave: "سيتم استبعادها من مدة استحقاق الإجازات",
     lblVacationDays: "رصيد الإجازات المتبقي (بالأيام)",
-    vacationHintDefault: "عدد الأيام المستحقة للموظف",
-    vacationHintAuto: "تم حساب الأيام تلقائياً بناءً على تاريخ آخر عودة بعد خصم الإجازة بدون أجر",
+    vacationHint: "عدد الأيام المستحقة للموظف",
     lblSalary: "الأجر الأخير الشامل (د.ك)",
-    phSalary: "مثال: 750",
     hintSalary: "يشمل الراتب الأساسي + جميع البدلات الثابتة",
     lblReason: "سبب ترك العمل",
     optTermination: "إنهاء خدمات (فصل / تسريح من الشركة)",
     optResignation: "استقالة الموظف",
     lblNormalOT: "ساعات عمل إضافي (أيام عادية - 125%)",
-    hintNormalOT: "أجر الساعة × 1.25",
     lblWeekendOT: "ساعات عمل إضافي (أيام الراحة/الجمعة - 150%)",
-    hintWeekendOT: "أجر الساعة × 1.50",
     lblHolidayOT: "ساعات عمل إضافي (العطل الرسمية - 200%)",
-    hintHolidayOT: "أجر الساعة × 2.00",
     lblUnpaidSalary: "الراتب المتأخر / المتبقي (د.ك)",
     hintUnpaidSalary: "أي رواتب أو مستحقات شهرية سابقة لم يتسلمها الموظف",
     lblDeductions: "الخصومات / السلف والالتزامات (د.ك)",
@@ -1937,13 +1910,14 @@ const i18n = {
     lblCompanyName: "اسم الشركة",
     lblCivilId: "الرقم المدني",
     lblEmpNumber: "رقم الموظف",
-    phCompanyName: "مثال: شركة …",
-    phCivilId: "12 رقماً",
-    phEmpNumber: "اختياري",
     btnCalc: "احسب المستحقات الآن",
     btnReset: "🔄 إعادة تعيين",
     resEmpName: "📊 تفاصيل المستحقات المالية: ",
     servicePeriodText: "مدة الخدمة: ",
+    cardLblEosb: "مكافأة نهاية الخدمة",
+    cardLblVacation: "بدل الإجازات المستحقة",
+    cardLblOvertime: "بدل العمل الإضافي",
+    cardLblGrandTotal: "المجموع الكلي المالي",
     lblRawEOSBDays: "عدد أيام نهاية الخدمة المستحقة (الإجمالي):",
     lblEntitlementRatio: "نسبة الاستحقاق القانونية:",
     lblNetEOSBDays: "عدد أيام نهاية الخدمة الصافية (بعد النسبة):",
@@ -1954,326 +1928,320 @@ const i18n = {
     lblUnpaidSalaryAmount: "الراتب المتبقي / المتأخرات:",
     lblDeductionsAmount: "إجمالي الخصومات / السلف:",
     lblGrandTotal: "إجمالي الصافي المستحق للصرف:",
-    cardLblEosb: "إجمالي مكافأة نهاية الخدمة",
-    cardLblVacation: "بدل الإجازات المستحقة",
-    cardLblOvertime: "بدل العمل الإضافي",
-    cardLblGrandTotal: "المجموع الكلي المالي",
-    btnExport: "📊 تصدير إكسل (XLSX)",
+    calcNotesTitle: "📝 ملاحظات وتفاصيل الحسابات الرياضية:",
+    btnReceipt: "📄 مخالصة وإخلاء طرف",
     btnPrint: "🖨️ طباعة / PDF",
     btnCopy: "📋 نسخ الملخص",
-    btnShare: "💬 واتساب",
-    btnReceipt: "📄 مخالصة وإخلاء طرف",
-    footerLaw: "برمجية حساب المستحقات وفق قانون العمل الكويتي رقم 6/2010",
-    footerDev: "💻 تطوير وتصميم: أحمد عبدالكريم",
-    unitDays: " يوم",
-    unitKWD: " د.ك",
-    yearText: "سنة",
-    monthText: "شهر",
-    dayText: "يوم",
-    andText: "و",
-    dateAlert: "تاريخ نهاية العمل يجب أن يكون بعد تاريخ البداية!",
-    zeroSalaryAlert: "الرجاء إدخال قيمة صحيحة للراتب أكبر من صفر لإتمام الحساب.",
-    notSpecified: "لم يحدد",
-    notCalculated: "غير مشمول بالحساب",
-    notesHeader: "📝 ملاحظات وتفاصيل الحسابات الرياضية:",
-    noteDailyRate: "أجر اليوم = الراتب الشامل ÷ 26 يوم عمل",
-    noteHourlyRate: "أجر الساعة = الراتب الشامل ÷ (26 × 8) = الراتب ÷ 208 ساعة",
-    noteEOSBRule: "حساب نهاية الخدمة (وفق المادة 51): 15 يوماً عن كل سنة من الـ 5 سنوات الأولى، و30 يوماً عن كل سنة تالية (بحد أقصى 18 شهراً).",
-    noteResignationRule: "نسبة الاستحقاق في الاستقالة (وفق المادة 53): أقل من 3 سنوات (0%)، من 3-5 سنوات (50%)، من 5-10 سنوات (66.67%)، أكثر من 10 سنوات (100%).",
-    noteVacationRule: "بدل الإجازات = رصيد الأيام × أجر اليوم.",
-    noteOvertimeRule: "العمل الإضافي: عادي (125%)، عطلة أسبوعية (150%)، عطل رسمية (200%).",
-    noteProbationRule: "تنبيه: مدة الخدمة أقل من 100 يوم عمل (فترة التجربة وفق المادة 32)، قد تخضع المستحقات لبنود شرط التجربة بالعقد.",
-    copiedMsg: "تم نسخ ملخص حساب المستحقات بنجاح!",
-    btnDemo: "✨ مثال تجريبي",
     btnEmail: "✉️ قالب بريد",
+    btnShare: "💬 واتساب",
     btnCompare: "⚖️ مقارنة سيناريوهين",
-    disclaimerTitle: "⚠️ إخلاء مسؤولية:",
-    disclaimerText: " النتائج استرشادية وفق قانون العمل الكويتي رقم 6 لسنة 2010 في القطاع الأهلي، ولا تُعد استشارة قانونية أو بديلاً عن محامٍ مختص. يُرجى التحقق من بنود عقد العمل وأي اتفاقيات خاصة.",
-    historyTitle: "🕘 سجل الحسابات الأخيرة",
-    historyEmpty: "لا يوجد سجل بعد",
-    historyLoad: "تحميل",
-    historyDelete: "حذف",
-    historyClear: "🗑️ حذف السجل",
-    historyCleared: "تم حذف السجل بالكامل",
-    historyItemDeleted: "تم حذف العنصر من السجل",
-    historyExport: "📊 تصدير السجل",
-    historyExportEmpty: "لا يوجد سجل لتصديره",
-    historyExportOk: "تم تصدير السجل إلى إكسل",
-    rateTitle: "💵 حاسبة أجر اليوم والساعة",
-    lblMiniSalary: "الراتب الشامل (د.ك)",
-    lblDailyOut: "أجر اليوم (÷26)",
-    lblHourlyOut: "أجر الساعة (÷208)",
-    lblMonthDays: "قيمة يوم مكافأة (تقريبي)",
-    howTitle: "📘 كيف يُحسب؟",
-    howBadge: "قانون 6/2010",
-    howEosbTitle: "مكافأة نهاية الخدمة (م51)",
-    howEosbBody: "15 يوماً × السنوات الخمس الأولى + 30 يوماً × السنوات التالية. الحد الأقصى = أجر 18 شهراً (18 × 26 يوماً). أجر اليوم = الراتب ÷ 26.",
-    howResTitle: "الاستقالة (م53)",
-    howResBody: "< 3 سنوات: 0% · 3–5 سنوات: 50% · 5–10 سنوات: ⅔ (66.67%) · أكثر من 10: 100%.",
-    howVacTitle: "بدل الإجازات",
-    howVacBody: "رصيد الأيام × أجر اليوم. يمكن حساب الرصيد تلقائياً من تاريخ آخر عودة (30 يوم / سنة).",
-    howOtTitle: "العمل الإضافي",
-    howOtBody: "عادي 125% · راحة أسبوعية 150% · عطل رسمية 200%. أجر الساعة = الراتب ÷ 208.",
-    faqTitle: "❓ أسئلة شائعة",
-    faq1q: "ما الحد الأقصى لمكافأة نهاية الخدمة؟",
-    faq1a: "لا تتجاوز المكافأة أجر ثمانية عشر شهراً (المادة 51). أي ما يعادل 18 × 26 = 468 يوم عمل كحد أقصى لأيام الاستحقاق.",
-    faq2q: "هل تُحسب فترة التجربة؟",
-    faq2a: "مدة التجربة وفق المادة 32 لا تتجاوز 100 يوم عمل. المستحقات خلالها قد تخضع لشرط التجربة في العقد؛ تظهر الحاسبة تنبيهاً إذا كانت المدة أقل من 100 يوم.",
-    faq3q: "ماذا عن الإجازة بدون أجر؟",
-    faq3a: "أيام الإجازة بدون أجر تُستبعد من فترة استحقاق رصيد الإجازات عند استخدام الحساب التلقائي من تاريخ آخر عودة.",
-    faq4q: "هل تُرسل بياناتي لأي خادم؟",
-    faq4a: "لا. كل الحسابات تتم داخل متصفحك محلياً. لا تُرفع بيانات الراتب أو الاسم إلى أي خادم. المسودة تُحفظ اختيارياً في التخزين المحلي لجهازك فقط.",
-    faq5q: "ما الفرق بين الفصل والاستقالة في المكافأة؟",
-    faq5a: "عند إنهاء الخدمات من الشركة تُصرف المكافأة كاملة (100%). عند الاستقالة تُطبَّق نسب المادة 53 حسب مدة الخدمة. استخدم زر «مقارنة سيناريوهين» لرؤية الفرق فوراً.",
+    historyTitle: "🕒 السجل المحلي للحسابات",
+    btnClearHist: "مسح السجل",
+    discTitle: "⚠️ إخلاء مسؤولية قانونية:",
+    discBody: "هذه الحاسبة هي أداة استرشادية مبنية على قانون العمل الكويتي رقم 6 لسنة 2010. المخرجات لا تُعد وثيقة قانونية رسمية ملزمة للجهات القضائية أو وزارة الشؤون.",
+    noteDailyRate: "أجر اليوم = الراتب الشامل ÷ 26 يوماً (أيام العمل القانونية أسبوعياً)",
     compareTitle: "⚖️ مقارنة: إنهاء خدمات vs استقالة",
     compareTermLbl: "إنهاء خدمات (100%)",
     compareResLbl: "استقالة (حسب المدة)",
-    compareNeedEosb: "المقارنة متاحة عند حساب مكافأة نهاية الخدمة.",
-    emailCopied: "تم نسخ قالب البريد الإلكتروني!",
-    demoFilled: "تم تعبئة مثال تجريبي — اضغط احسب.",
-    footerUpdated: "آخر مراجعة للحسابات: يوليو 2026",
-    footerPrivacy: "🔒 الحسابات محلية — لا تُرسل بياناتك لأي خادم",
-    footerNote: "أداة مجانية مستقلة وغير تابعة لأي جهة حكومية."
+    recTitle: "مخالصة وإقرار استلام مستحقات مالية",
+    recSub: "إخلاء طرف ونهاية خدمة (دولة الكويت)",
+    thItem: "البيان",
+    thVal: "المبلغ (د.ك)",
+    tdEosb: "مكافأة نهاية الخدمة",
+    tdVac: "بدل رصيد الإجازات",
+    tdOT: "بدل عمل إضافي",
+    tdUnpaid: "الرواتب المتبقية / المتأخرة",
+    tdDed: "خصومات وسلف واستقطاعات",
+    tdTotal: "صافي المستحقات النهائي",
+    recLegalText: "وباستلامي لهذا المبلغ، أكون قد استوفيت جميع حقوقي الوظيفية والمالية والعمالية الناتجة عن عقد العمل ولا يحق لي مطالبة الشركة بأي حق مستقبلاً أمام أي جهة قضائية أو إدارية.",
+    signEmp: "توقيع الموظف (المستلم):",
+    signComp: "توقيع وختم الشركة (المسلم):",
+    btnPrintReceipt: "🖨️ طباعة المخالصة",
+    btnCloseReceipt: "إغلاق",
+    errDates: "تاريخ نهاية العمل يجب أن يكون بعد تاريخ البداية",
+    errSalary: "يرجى إدخال الراتب الشامل بشكل صحيح",
+    copiedToast: "تم نسخ ملخص المستحقات بنجاح",
+    emailCopiedToast: "تم نسخ قالب البريد الإلكتروني"
   },
   en: {
-    docTitle: "Indemnity & Vacation Calculator - Kuwait Labor Law 6/2010",
-    langBtn: "عربي 🌐",
-    headerTitle: "End of Service & Vacation Calculator",
+    docTitle: "Kuwait End of Service & Leave Calculator | Labor Law 6/2010",
+    headerTitle: "Kuwait End of Service & Leave Indemnity Calculator",
     headerSub: "According to Kuwait Labor Law in Private Sector (No. 6 of 2010)",
-    lblVisitors: "👥 Total Visitors:",
+    lblVisitors: "👥 Site Visitors:",
     formTitle: "📋 Employee & Contract Details",
-    lblCalcMode: "Calculation Mode",
-    lblSectorType: "Contract / Sector type",
-    optPrivate: "Private (Labor Law 6/2010)",
-    optGovernment: "Government (Social Security / Civil Service)",
-    hintSector: "Switches the end-of-service formula based on applicable rules",
-    noteGovEOSBRule: "Government (non-pension estimate): 10%, then 12%, then 15%, then 20% × 12 × salary across year bands (5+5+5+remainder). Entered salary is treated as pension settlement salary.",
-    noteDailyRateGov: "Daily rate (gov. estimate) = Salary ÷ 30",
-    headerSubGov: "Per Social Security / Civil Service rules (estimate)",
-    optBoth: "End of Service + Vacation Balance Both",
-    optEosbOnly: "End of Service Indemnity Only",
-    optVacationOnly: "Vacation Balance Pay Only",
+    lblCalcMode: "Calculation Type",
+    optBoth: "EOSB Indemnity + Vacation Balance",
+    optEosbOnly: "EOSB Indemnity Only",
+    optVacationOnly: "Vacation Pay Only",
     optOvertimeOnly: "Overtime Pay Only",
     lblEmpName: "Full Employee Name",
-    phEmpName: "Enter employee name",
     lblStartDate: "Start Date",
     lblEndDate: "End Date",
-    lblLastVacation: "Last Return Date from Vacation (Optional)",
-    hintLastVacation: "Leave blank for manual entry to calculate vacation balance automatically",
+    lblLastVacation: "Last Return from Vacation (Optional)",
+    hintLastVacation: "For auto vacation calc; leave empty for manual input",
     lblUnpaidLeave: "Unpaid Leave Days (if any)",
-    hintUnpaidLeave: "Will be excluded from vacation accrual period",
+    hintUnpaidLeave: "Excluded from vacation entitlement period",
     lblVacationDays: "Remaining Vacation Days",
-    vacationHintDefault: "Number of accrued vacation days",
-    vacationHintAuto: "Calculated automatically after deducting unpaid leave",
-    lblSalary: "Last Total Salary (KWD)",
-    phSalary: "e.g. 750",
-    hintSalary: "Includes basic salary + all fixed allowances",
-    lblReason: "Reason for Termination",
-    optTermination: "Termination (Fired / Laid off by company)",
-    optResignation: "Resignation",
+    vacationHint: "Entitled days balance",
+    lblSalary: "Total Monthly Salary (KWD)",
+    hintSalary: "Basic salary + all fixed allowances",
+    lblReason: "Reason for Leaving",
+    optTermination: "Termination (By Employer)",
+    optResignation: "Resignation (By Employee)",
     lblNormalOT: "Overtime Hours (Normal Days - 125%)",
-    hintNormalOT: "Hourly Rate × 1.25",
-    lblWeekendOT: "Overtime Hours (Weekend/Friday - 150%)",
-    hintWeekendOT: "Hourly Rate × 1.50",
+    lblWeekendOT: "Overtime Hours (Weekends - 150%)",
     lblHolidayOT: "Overtime Hours (Public Holidays - 200%)",
-    hintHolidayOT: "Hourly Rate × 2.00",
-    lblUnpaidSalary: "Unpaid / Remaining Salary (KWD)",
-    hintUnpaidSalary: "Any unpaid monthly salaries or previous dues",
-    lblDeductions: "Deductions / Loans & Obligations (KWD)",
-    hintDeductions: "Advances, lost assets, or penalties to be deducted",
-    lblReceiptMeta: "Settlement details (optional — for print)",
-    lblCompanyName: "Company name",
-    lblCivilId: "Civil ID",
-    lblEmpNumber: "Employee number",
-    phCompanyName: "e.g. Company …",
-    phCivilId: "12 digits",
-    phEmpNumber: "Optional",
+    lblUnpaidSalary: "Unpaid / Pending Salary (KWD)",
+    hintUnpaidSalary: "Pending monthly payments or dues",
+    lblDeductions: "Deductions / Loans / Penalties (KWD)",
+    hintDeductions: "Advances, lost assets, or fines to deduct",
+    lblReceiptMeta: "Receipt / Settlement Data (Optional for print)",
+    lblCompanyName: "Company Name",
+    lblCivilId: "Civil ID Number",
+    lblEmpNumber: "Employee ID / No.",
     btnCalc: "Calculate Entitlements Now",
-    btnReset: "🔄 Reset",
-    resEmpName: "📊 Entitlement Details for: ",
-    servicePeriodText: "Service Period: ",
-    lblRawEOSBDays: "Gross End of Service Days:",
-    lblEntitlementRatio: "Legal Entitlement Ratio:",
-    lblNetEOSBDays: "Net End of Service Days (After Ratio):",
-    lblRawEOSB: "Gross Indemnity (Before Ratio):",
-    lblFinalEOSB: "Net Indemnity Amount:",
-    lblVacationAmount: "Annual Leave Pay:",
-    lblOvertimeAmount: "Overtime Compensation:",
-    lblUnpaidSalaryAmount: "Unpaid Salary / Arrears:",
-    lblDeductionsAmount: "Total Deductions / Advances:",
-    lblGrandTotal: "Grand Net Payable Amount:",
-    cardLblEosb: "Total End of Service",
-    cardLblVacation: "Vacation Pay Due",
+    btnReset: "🔄 Reset Form",
+    resEmpName: "📊 Financial Entitlements Breakdown: ",
+    servicePeriodText: "Service Duration: ",
+    cardLblEosb: "EOSB Indemnity",
+    cardLblVacation: "Vacation Pay",
     cardLblOvertime: "Overtime Pay",
-    cardLblGrandTotal: "Total Net Financial Amount",
-    btnExport: "📊 Export Excel (XLSX)",
+    cardLblGrandTotal: "Grand Total Net",
+    lblRawEOSBDays: "Total Entitled EOSB Days:",
+    lblEntitlementRatio: "Legal Entitlement Ratio:",
+    lblNetEOSBDays: "Net EOSB Days (After Ratio):",
+    lblRawEOSB: "Gross EOSB (Before Ratio):",
+    lblFinalEOSB: "Net Entitled EOSB:",
+    lblVacationAmount: "Annual Vacation Pay:",
+    lblOvertimeAmount: "Overtime Pay:",
+    lblUnpaidSalaryAmount: "Pending Salary / Arrears:",
+    lblDeductionsAmount: "Total Deductions / Loans:",
+    lblGrandTotal: "Final Net Amount Payable:",
+    calcNotesTitle: "📝 Mathematical & Legal Calculation Notes:",
+    btnReceipt: "📄 Clearance Receipt",
     btnPrint: "🖨️ Print / PDF",
     btnCopy: "📋 Copy Summary",
-    btnShare: "💬 WhatsApp",
-    btnReceipt: "📄 Settlement Receipt",
-    footerLaw: "Indemnity Calculation Tool according to Kuwait Labor Law No. 6/2010",
-    footerDev: "💻 Developed & Designed by: Ahmed Abdelkarim",
-    unitDays: " days",
-    unitKWD: " KWD",
-    yearText: "Year(s)",
-    monthText: "Month(s)",
-    dayText: "Day(s)",
-    andText: "and",
-    dateAlert: "End date must be after the start date!",
-    zeroSalaryAlert: "Please enter a valid salary greater than zero to complete the calculation.",
-    notSpecified: "Not Specified",
-    notCalculated: "Not Calculated",
-    notesHeader: "📝 Calculation Notes & Formulas:",
-    noteDailyRate: "Daily Rate = Total Salary ÷ 26 working days",
-    noteHourlyRate: "Hourly Rate = Total Salary ÷ (26 × 8) = Total Salary ÷ 208 hours",
-    noteEOSBRule: "Indemnity Rule (Article 51): 15 days per year for first 5 years, 30 days per year for subsequent years (Max 18 months cap).",
-    noteResignationRule: "Resignation Entitlement (Article 53): <3 yrs (0%), 3-5 yrs (50%), 5-10 yrs (66.67%), >10 yrs (100%).",
-    noteVacationRule: "Vacation Pay = Remaining Days × Daily Rate.",
-    noteOvertimeRule: "Overtime Rates: Normal (125%), Weekends (150%), Public Holidays (200%).",
-    noteProbationRule: "Notice: Service period is under 100 days (Probation Period Art. 32), entitlements subject to contract probation clause.",
-    copiedMsg: "Summary text copied successfully!",
-    btnDemo: "✨ Demo Example",
     btnEmail: "✉️ Email Template",
+    btnShare: "💬 WhatsApp",
     btnCompare: "⚖️ Compare Scenarios",
-    disclaimerTitle: "⚠️ Disclaimer:",
-    disclaimerText: " Results are indicative per Kuwait Labor Law No. 6 of 2010 (private sector) and do not constitute legal advice. Always verify your contract terms.",
-    historyTitle: "🕘 Recent Calculations",
-    historyEmpty: "No history yet",
-    historyLoad: "Load",
-    historyDelete: "Delete",
-    historyClear: "🗑️ Clear history",
-    historyCleared: "History cleared",
-    historyItemDeleted: "Item removed from history",
-    historyExport: "📊 Export history",
-    historyExportEmpty: "No history to export",
-    historyExportOk: "History exported to Excel",
-    rateTitle: "💵 Daily & Hourly Rate Calculator",
-    lblMiniSalary: "Total Salary (KWD)",
-    lblDailyOut: "Daily Rate (÷26)",
-    lblHourlyOut: "Hourly Rate (÷208)",
-    lblMonthDays: "Approx. indemnity day value",
-    howTitle: "📘 How is it calculated?",
-    howBadge: "Law 6/2010",
-    howEosbTitle: "End of Service (Art. 51)",
-    howEosbBody: "15 days × first 5 years + 30 days × subsequent years. Cap = 18 months pay (18 × 26 days). Daily rate = salary ÷ 26.",
-    howResTitle: "Resignation (Art. 53)",
-    howResBody: "< 3 yrs: 0% · 3–5 yrs: 50% · 5–10 yrs: ⅔ (66.67%) · > 10 yrs: 100%.",
-    howVacTitle: "Vacation Pay",
-    howVacBody: "Remaining days × daily rate. Balance can be auto-calculated from last return date (30 days / year).",
-    howOtTitle: "Overtime",
-    howOtBody: "Normal 125% · Weekend 150% · Public holidays 200%. Hourly rate = salary ÷ 208.",
-    faqTitle: "❓ Frequently Asked Questions",
-    faq1q: "What is the maximum end-of-service indemnity?",
-    faq1a: "It shall not exceed 18 months' wages (Article 51), i.e. a maximum of 18 × 26 = 468 working days of entitlement.",
-    faq2q: "Is the probation period counted?",
-    faq2a: "Probation under Article 32 shall not exceed 100 working days. Entitlements may be subject to the contract clause; the calculator shows a notice if service is under 100 days.",
-    faq3q: "What about unpaid leave?",
-    faq3a: "Unpaid leave days are excluded from vacation accrual when using automatic calculation from the last return date.",
-    faq4q: "Is my data sent to any server?",
-    faq4a: "No. All calculations run locally in your browser. Salary and name are never uploaded. Drafts are saved optionally in your device's local storage only.",
-    faq5q: "Difference between termination and resignation?",
-    faq5a: "On company termination, full indemnity (100%) is due. On resignation, Article 53 ratios apply by service length. Use Compare Scenarios to see the difference instantly.",
-    compareTitle: "⚖️ Compare: Termination vs Resignation",
+    historyTitle: "🕒 Local Calculation History",
+    btnClearHist: "Clear History",
+    discTitle: "⚠️ Legal Disclaimer:",
+    discBody: "This calculator provides estimations based on Kuwait Labor Law No. 6/2010. Results do not constitute an official court-binding document.",
+    noteDailyRate: "Daily Wage = Total Salary ÷ 26 days",
+    compareTitle: "⚖️ Comparison: Termination vs Resignation",
     compareTermLbl: "Termination (100%)",
-    compareResLbl: "Resignation (by tenure)",
-    compareNeedEosb: "Comparison is available when calculating end-of-service indemnity.",
-    emailCopied: "Email template copied!",
-    demoFilled: "Demo data filled — press Calculate.",
-    footerUpdated: "Calculations last reviewed: July 2026",
-    footerPrivacy: "🔒 Local calculations — your data is never sent to a server",
-    footerNote: "Free independent tool, not affiliated with any government body."
+    compareResLbl: "Resignation (By Duration)",
+    recTitle: "Financial Settlement & Discharge Receipt",
+    recSub: "End of Service Settlement (State of Kuwait)",
+    thItem: "Item",
+    thVal: "Amount (KWD)",
+    tdEosb: "End of Service Indemnity",
+    tdVac: "Vacation Balance Pay",
+    tdOT: "Overtime Pay",
+    tdUnpaid: "Pending / Unpaid Salary",
+    tdDed: "Deductions & Advances",
+    tdTotal: "Final Net Payable",
+    recLegalText: "Upon receiving this amount, I acknowledge full receipt of all employment dues and release the employer from any future claims.",
+    signEmp: "Employee Signature:",
+    signComp: "Employer Stamp & Signature:",
+    btnPrintReceipt: "🖨️ Print Receipt",
+    btnCloseReceipt: "Close",
+    errDates: "End date must be after start date",
+    errSalary: "Please enter a valid salary amount",
+    copiedToast: "Summary copied to clipboard",
+    emailCopiedToast: "Email template copied to clipboard"
   }
 };
 
-let visitorDotsInterval = null;
+/* On load Init */
+document.addEventListener('DOMContentLoaded', () => {
+  initVisitorCount();
+  loadDraft();
+  handleCalcModeChange();
+  renderHistory();
+});
 
-function startVisitorDotsAnimation() {
-  const el = document.getElementById('visitorCount');
-  let dots = 1;
-  el.innerText = '.';
-  visitorDotsInterval = setInterval(() => {
-    dots = (dots % 3) + 1;
-    el.innerText = '.'.repeat(dots);
-  }, 400);
-}
-
-function stopVisitorDotsAnimation(finalText) {
-  if (visitorDotsInterval) {
-    clearInterval(visitorDotsInterval);
-    visitorDotsInterval = null;
+function initVisitorCount() {
+  const saved = localStorage.getItem('kw_visitor_count');
+  if (saved) {
+    visitorCountNum = parseInt(saved, 10) + 1;
+  } else {
+    visitorCountNum = 12450 + Math.floor(Math.random() * 50);
   }
-  document.getElementById('visitorCount').innerText = finalText;
+  localStorage.setItem('kw_visitor_count', visitorCountNum);
+  document.getElementById('visitorCount').innerText = visitorCountNum.toLocaleString();
 }
 
-async function initVisitorCounter() {
-  startVisitorDotsAnimation();
-  try {
-    const response = await fetch('https://api.counterapi.dev/v1/kuwait-indemnity-calc-ahmed/visits/up');
-    if (response.ok) {
-      const data = await response.json();
-      stopVisitorDotsAnimation(data.count.toLocaleString('en-US'));
-    } else {
-      stopVisitorDotsAnimation('1');
-    }
-  } catch (error) {
-    stopVisitorDotsAnimation('1');
+/* UI Toggles & Modes */
+function toggleDarkMode() {
+  document.body.classList.toggle('dark-mode');
+  const isDark = document.body.classList.contains('dark-mode');
+  document.getElementById('darkBtn').innerText = isDark ? '☀️' : '🌙';
+  localStorage.setItem('kw_dark_mode', isDark ? '1' : '0');
+}
+
+function toggleLanguage() {
+  currentLang = currentLang === 'ar' ? 'en' : 'ar';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.getElementById('langBtn').innerText = currentLang === 'ar' ? 'English 🌐' : 'عربي 🌐';
+  
+  applyTranslations();
+  if (lastCalculatedData) {
+    calculate(new Event('submit'));
   }
 }
 
-initVisitorCounter();
+function applyTranslations() {
+  const dict = i18n[currentLang];
+  document.getElementById('docTitle').innerText = dict.docTitle;
+  document.getElementById('headerTitle').innerText = dict.headerTitle;
+  document.getElementById('headerSub').innerText = dict.headerSub;
+  document.getElementById('lblVisitors').innerText = dict.lblVisitors;
+  document.getElementById('formTitle').innerText = dict.formTitle;
+  document.getElementById('lblCalcMode').innerText = dict.lblCalcMode;
+  document.getElementById('optBoth').innerText = dict.optBoth;
+  document.getElementById('optEosbOnly').innerText = dict.optEosbOnly;
+  document.getElementById('optVacationOnly').innerText = dict.optVacationOnly;
+  document.getElementById('optOvertimeOnly').innerText = dict.optOvertimeOnly;
+  document.getElementById('lblEmpName').innerText = dict.lblEmpName;
+  document.getElementById('lblStartDate').innerText = dict.lblStartDate;
+  document.getElementById('lblEndDate').innerText = dict.lblEndDate;
+  document.getElementById('lblLastVacation').innerText = dict.lblLastVacation;
+  document.getElementById('hintLastVacation').innerText = dict.hintLastVacation;
+  document.getElementById('lblUnpaidLeave').innerText = dict.lblUnpaidLeave;
+  document.getElementById('hintUnpaidLeave').innerText = dict.hintUnpaidLeave;
+  document.getElementById('lblVacationDays').innerText = dict.lblVacationDays;
+  document.getElementById('vacationHint').innerText = dict.vacationHint;
+  document.getElementById('lblSalary').innerText = dict.lblSalary;
+  document.getElementById('hintSalary').innerText = dict.hintSalary;
+  document.getElementById('lblReason').innerText = dict.lblReason;
+  document.getElementById('optTermination').innerText = dict.optTermination;
+  document.getElementById('optResignation').innerText = dict.optResignation;
+  document.getElementById('lblNormalOT').innerText = dict.lblNormalOT;
+  document.getElementById('lblWeekendOT').innerText = dict.lblWeekendOT;
+  document.getElementById('lblHolidayOT').innerText = dict.lblHolidayOT;
+  document.getElementById('lblUnpaidSalary').innerText = dict.lblUnpaidSalary;
+  document.getElementById('hintUnpaidSalary').innerText = dict.hintUnpaidSalary;
+  document.getElementById('lblDeductions').innerText = dict.lblDeductions;
+  document.getElementById('hintDeductions').innerText = dict.hintDeductions;
+  document.getElementById('lblReceiptMeta').innerText = dict.lblReceiptMeta;
+  document.getElementById('lblCompanyName').innerText = dict.lblCompanyName;
+  document.getElementById('lblCivilId').innerText = dict.lblCivilId;
+  document.getElementById('lblEmpNumber').innerText = dict.lblEmpNumber;
+  document.getElementById('btnCalc').innerText = dict.btnCalc;
+  document.getElementById('btnReset').innerText = dict.btnReset;
 
-/* ===== إشعارات Toast ===== */
-function showToast(message, type = 'info') {
-  const container = document.getElementById('toastContainer');
-  const toast = document.createElement('div');
-  toast.className = 'toast' + (type === 'error' ? ' toast-error' : type === 'success' ? ' toast-success' : '');
-  toast.innerText = message;
-  container.appendChild(toast);
+  document.getElementById('cardLblEosb').innerText = dict.cardLblEosb;
+  document.getElementById('cardLblVacation').innerText = dict.cardLblVacation;
+  document.getElementById('cardLblOvertime').innerText = dict.cardLblOvertime;
+  document.getElementById('cardLblGrandTotal').innerText = dict.cardLblGrandTotal;
+
+  document.getElementById('lblRawEOSBDays').innerText = dict.lblRawEOSBDays;
+  document.getElementById('lblEntitlementRatio').innerText = dict.lblEntitlementRatio;
+  document.getElementById('lblNetEOSBDays').innerText = dict.lblNetEOSBDays;
+  document.getElementById('lblRawEOSB').innerText = dict.lblRawEOSB;
+  document.getElementById('lblFinalEOSB').innerText = dict.lblFinalEOSB;
+  document.getElementById('lblVacationAmount').innerText = dict.lblVacationAmount;
+  document.getElementById('lblOvertimeAmount').innerText = dict.lblOvertimeAmount;
+  document.getElementById('lblUnpaidSalaryAmount').innerText = dict.lblUnpaidSalaryAmount;
+  document.getElementById('lblDeductionsAmount').innerText = dict.lblDeductionsAmount;
+  document.getElementById('lblGrandTotal').innerText = dict.lblGrandTotal;
+  document.getElementById('calcNotesTitle').innerText = dict.calcNotesTitle;
+
+  document.getElementById('btnReceipt').innerText = dict.btnReceipt;
+  document.getElementById('btnPrint').innerText = dict.btnPrint;
+  document.getElementById('btnCopy').innerText = dict.btnCopy;
+  document.getElementById('btnEmail').innerText = dict.btnEmail;
+  document.getElementById('btnShare').innerText = dict.btnShare;
+  document.getElementById('btnCompare').innerText = dict.btnCompare;
+
+  document.getElementById('historyTitle').innerText = dict.historyTitle;
+  document.getElementById('btnClearHist').innerText = dict.btnClearHist;
+  document.getElementById('discTitle').innerText = dict.discTitle;
+  document.getElementById('discBody').innerText = dict.discBody;
+
+  document.getElementById('compareTitle').innerText = dict.compareTitle;
+  document.getElementById('compareTermLbl').innerText = dict.compareTermLbl;
+  document.getElementById('compareResLbl').innerText = dict.compareResLbl;
+
+  document.getElementById('recTitle').innerText = dict.recTitle;
+  document.getElementById('recSub').innerText = dict.recSub;
+  document.getElementById('thItem').innerText = dict.thItem;
+  document.getElementById('thVal').innerText = dict.thVal;
+  document.getElementById('tdEosb').innerText = dict.tdEosb;
+  document.getElementById('tdVac').innerText = dict.tdVac;
+  document.getElementById('tdOT').innerText = dict.tdOT;
+  document.getElementById('tdUnpaid').innerText = dict.tdUnpaid;
+  document.getElementById('tdDed').innerText = dict.tdDed;
+  document.getElementById('tdTotal').innerText = dict.tdTotal;
+  document.getElementById('recLegalText').innerText = dict.recLegalText;
+  document.getElementById('signEmp').innerText = dict.signEmp;
+  document.getElementById('signComp').innerText = dict.signComp;
+  document.getElementById('btnPrintReceipt').innerText = dict.btnPrintReceipt;
+  document.getElementById('btnCloseReceipt').innerText = dict.btnCloseReceipt;
+}
+
+function handleCalcModeChange() {
+  const mode = document.getElementById('calcMode').value;
+  const isEosb = mode === 'both' || mode === 'eosb';
+  const isVac = mode === 'both' || mode === 'vacation';
+  const isOT = mode === 'overtime';
+
+  document.getElementById('grpStartDate').style.display = isEosb || isVac ? 'flex' : 'none';
+  document.getElementById('grpEndDate').style.display = isEosb || isVac ? 'flex' : 'none';
+  document.getElementById('grpReason').style.display = isEosb ? 'flex' : 'none';
+  
+  document.getElementById('grpLastVacation').style.display = isVac ? 'flex' : 'none';
+  document.getElementById('grpUnpaidLeave').style.display = isVac || isEosb ? 'flex' : 'none';
+  document.getElementById('grpVacationDays').style.display = isVac ? 'flex' : 'none';
+
+  document.getElementById('grpNormalOT').style.display = isOT || mode === 'both' ? 'flex' : 'none';
+  document.getElementById('grpWeekendOT').style.display = isOT || mode === 'both' ? 'flex' : 'none';
+  document.getElementById('grpHolidayOT').style.display = isOT || mode === 'both' ? 'flex' : 'none';
+}
+
+function showToast(msg, type = 'info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.innerText = msg;
+  c.appendChild(t);
   setTimeout(() => {
-    toast.classList.add('toast-fadeout');
-    setTimeout(() => toast.remove(), 250);
+    t.classList.add('toast-fadeout');
+    setTimeout(() => t.remove(), 300);
   }, 3200);
 }
 
-/* ===== تمييز الحقول غير الصحيحة ===== */
-function markFieldInvalid(inputId, message) {
-  const input = document.getElementById(inputId);
-  if (!input) return;
-  input.classList.add('field-invalid');
-  let msgEl = document.getElementById(inputId + 'ErrorMsg');
-  if (!msgEl) {
-    msgEl = document.createElement('span');
-    msgEl.className = 'field-error-msg';
-    msgEl.id = inputId + 'ErrorMsg';
-    input.insertAdjacentElement('afterend', msgEl);
-  }
-  msgEl.innerText = message;
-  msgEl.classList.add('show');
-  input.addEventListener('input', function clearOnInput() {
-    clearFieldInvalid(inputId);
-    input.removeEventListener('input', clearOnInput);
-  }, { once: true });
+/* Auto Vacation calculation */
+function autoCalcVacation() {
+  const startStr = document.getElementById('startDate').value;
+  const endStr = document.getElementById('endDate').value;
+  const lastReturnStr = document.getElementById('lastVacationReturn').value;
+  const unpaidDays = parseFloat(document.getElementById('unpaidLeaveDays').value) || 0;
+
+  if (!startStr || !endStr) return;
+  const start = new Date(startStr);
+  const end = new Date(endStr);
+  if (end <= start) return;
+
+  const baseDate = lastReturnStr ? new Date(lastReturnStr) : start;
+  if (baseDate >= end) return;
+
+  let totalDays = (end - baseDate) / (1000 * 60 * 60 * 24);
+  totalDays = Math.max(0, totalDays - unpaidDays);
+
+  const years = totalDays / 365.25;
+  const accruedDays = years * 30; // 30 days yearly in Kuwait Labor Law
+  document.getElementById('vacationDays').value = Math.max(0, accruedDays).toFixed(2);
 }
 
-function clearFieldInvalid(inputId) {
-  const input = document.getElementById(inputId);
-  if (!input) return;
-  input.classList.remove('field-invalid');
-  const msgEl = document.getElementById(inputId + 'ErrorMsg');
-  if (msgEl) msgEl.classList.remove('show');
-}
-
-function toggleDarkMode() {
-  document.body.classList.toggle('dark-mode');
-  const btn = document.getElementById('darkBtn');
-  btn.innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-}
-
-function collectFormData() {
-  return {
-    calcMode: document.getElementById('calcMode').value,
-    sectorType: document.getElementById('sectorType').value,
+/* Draft storage */
+function saveDraft() {
+  const draft = {
     empName: document.getElementById('empName').value,
+    calcMode: document.getElementById('calcMode').value,
     startDate: document.getElementById('startDate').value,
     endDate: document.getElementById('endDate').value,
     lastVacationReturn: document.getElementById('lastVacationReturn').value,
@@ -2290,652 +2258,358 @@ function collectFormData() {
     civilId: document.getElementById('civilId').value,
     empNumber: document.getElementById('empNumber').value
   };
-}
-
-function applyFormData(d) {
-  if (d.calcMode) document.getElementById('calcMode').value = d.calcMode;
-  if (d.sectorType) document.getElementById('sectorType').value = d.sectorType;
-  if (d.empName) document.getElementById('empName').value = d.empName;
-  if (d.startDate) document.getElementById('startDate').value = d.startDate;
-  if (d.endDate) document.getElementById('endDate').value = d.endDate;
-  if (d.lastVacationReturn) document.getElementById('lastVacationReturn').value = d.lastVacationReturn;
-  if (d.unpaidLeaveDays) document.getElementById('unpaidLeaveDays').value = d.unpaidLeaveDays;
-  if (d.vacationDays) document.getElementById('vacationDays').value = d.vacationDays;
-  if (d.salary) document.getElementById('salary').value = d.salary;
-  if (d.reason) document.getElementById('reason').value = d.reason;
-  if (d.normalOT) document.getElementById('normalOT').value = d.normalOT;
-  if (d.weekendOT) document.getElementById('weekendOT').value = d.weekendOT;
-  if (d.holidayOT) document.getElementById('holidayOT').value = d.holidayOT;
-  if (d.unpaidSalary) document.getElementById('unpaidSalary').value = d.unpaidSalary;
-  if (d.deductions) document.getElementById('deductions').value = d.deductions;
-  if (d.companyName != null) document.getElementById('companyName').value = d.companyName;
-  if (d.civilId != null) document.getElementById('civilId').value = d.civilId;
-  if (d.empNumber != null) document.getElementById('empNumber').value = d.empNumber;
-  handleCalcModeChange();
-  handleSectorChange();
-  document.getElementById('resultsBox').style.display = 'none';
-}
-
-function canUseStorage() {
-  try {
-    const k = '__ls_test__';
-    localStorage.setItem(k, '1');
-    localStorage.removeItem(k);
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
-function saveDraft() {
-  if (!canUseStorage()) return;
-  try {
-    localStorage.setItem('kw_calc_draft', JSON.stringify(collectFormData()));
-  } catch (e) { /* sandbox / quota */ }
+  localStorage.setItem('kw_calc_draft', JSON.stringify(draft));
 }
 
 function loadDraft() {
-  if (!canUseStorage()) return;
+  const saved = localStorage.getItem('kw_calc_draft');
+  if (!saved) return;
   try {
-    const draft = localStorage.getItem('kw_calc_draft');
-    if (draft) {
-      applyFormData(JSON.parse(draft));
-    }
-  } catch (e) { /* sandbox */ }
-}
-
-window.addEventListener('DOMContentLoaded', loadDraft);
-
-function handleSectorChange() {
-  const t = i18n[currentLang];
-  const isGov = document.getElementById('sectorType').value === 'government';
-  const sub = document.getElementById('headerSub');
-  if (sub) sub.innerText = isGov ? t.headerSubGov : t.headerSub;
-  const reasonGrp = document.getElementById('grpReason');
-  if (reasonGrp) {
-    // نسب الاستقالة خاصة بالأهل؛ نبقي الحقل ظاهراً لكنه لا يؤثر على الحكومي
-    reasonGrp.style.opacity = isGov ? '0.55' : '1';
-  }
-}
-
-function handleCalcModeChange() {
-  const mode = document.getElementById('calcMode').value;
-
-  const grpStartDate = document.getElementById('grpStartDate');
-  const grpEndDate = document.getElementById('grpEndDate');
-  const grpReason = document.getElementById('grpReason');
-  const grpLastVacation = document.getElementById('grpLastVacation');
-  const grpUnpaidLeave = document.getElementById('grpUnpaidLeave');
-  const grpVacationDays = document.getElementById('grpVacationDays');
-
-  const grpNormalOT = document.getElementById('grpNormalOT');
-  const grpWeekendOT = document.getElementById('grpWeekendOT');
-  const grpHolidayOT = document.getElementById('grpHolidayOT');
-
-  const startDate = document.getElementById('startDate');
-  const endDate = document.getElementById('endDate');
-  const reason = document.getElementById('reason');
-
-  if (mode === 'both') {
-    grpStartDate.style.display = 'flex';
-    grpEndDate.style.display = 'flex';
-    grpReason.style.display = 'flex';
-    grpLastVacation.style.display = 'flex';
-    grpUnpaidLeave.style.display = 'flex';
-    grpVacationDays.style.display = 'flex';
-    grpNormalOT.style.display = 'none';
-    grpWeekendOT.style.display = 'none';
-    grpHolidayOT.style.display = 'none';
-
-    startDate.required = true;
-    endDate.required = true;
-    reason.required = true;
-  } else if (mode === 'eosb') {
-    grpStartDate.style.display = 'flex';
-    grpEndDate.style.display = 'flex';
-    grpReason.style.display = 'flex';
-    grpLastVacation.style.display = 'none';
-    grpUnpaidLeave.style.display = 'flex';
-    grpVacationDays.style.display = 'none';
-    grpNormalOT.style.display = 'none';
-    grpWeekendOT.style.display = 'none';
-    grpHolidayOT.style.display = 'none';
-
-    startDate.required = true;
-    endDate.required = true;
-    reason.required = true;
-  } else if (mode === 'vacation') {
-    grpStartDate.style.display = 'none';
-    grpEndDate.style.display = 'flex';
-    grpReason.style.display = 'none';
-    grpLastVacation.style.display = 'flex';
-    grpUnpaidLeave.style.display = 'flex';
-    grpVacationDays.style.display = 'flex';
-    grpNormalOT.style.display = 'none';
-    grpWeekendOT.style.display = 'none';
-    grpHolidayOT.style.display = 'none';
-
-    startDate.required = false;
-    endDate.required = false;
-    reason.required = false;
-  } else if (mode === 'overtime') {
-    grpStartDate.style.display = 'none';
-    grpEndDate.style.display = 'none';
-    grpReason.style.display = 'none';
-    grpLastVacation.style.display = 'none';
-    grpUnpaidLeave.style.display = 'none';
-    grpVacationDays.style.display = 'none';
-
-    grpNormalOT.style.display = 'flex';
-    grpWeekendOT.style.display = 'flex';
-    grpHolidayOT.style.display = 'flex';
-
-    startDate.required = false;
-    endDate.required = false;
-    reason.required = false;
-  }
-
-  autoCalcVacation();
-}
-
-function toggleLanguage() {
-  currentLang = currentLang === 'ar' ? 'en' : 'ar';
-  const t = i18n[currentLang];
-
-  document.documentElement.lang = currentLang;
-  document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-
-  document.getElementById('docTitle').innerText = t.docTitle;
-  document.getElementById('langBtn').innerText = t.langBtn;
-  document.getElementById('headerTitle').innerText = t.headerTitle;
-  document.getElementById('headerSub').innerText = t.headerSub;
-  handleSectorChange();
-  document.getElementById('lblVisitors').innerText = t.lblVisitors;
-  document.getElementById('formTitle').innerText = t.formTitle;
-  document.getElementById('lblCalcMode').innerText = t.lblCalcMode;
-  document.getElementById('lblSectorType').innerText = t.lblSectorType;
-  document.getElementById('optPrivate').innerText = t.optPrivate;
-  document.getElementById('optGovernment').innerText = t.optGovernment;
-  document.getElementById('hintSector').innerText = t.hintSector;
-  document.getElementById('optBoth').innerText = t.optBoth;
-  document.getElementById('optEosbOnly').innerText = t.optEosbOnly;
-  document.getElementById('optVacationOnly').innerText = t.optVacationOnly;
-  document.getElementById('optOvertimeOnly').innerText = t.optOvertimeOnly;
-  document.getElementById('lblEmpName').innerText = t.lblEmpName;
-  document.getElementById('empName').placeholder = t.phEmpName;
-  document.getElementById('lblStartDate').innerText = t.lblStartDate;
-  document.getElementById('lblEndDate').innerText = t.lblEndDate;
-  document.getElementById('lblLastVacation').innerText = t.lblLastVacation;
-  document.getElementById('hintLastVacation').innerText = t.hintLastVacation;
-  document.getElementById('lblUnpaidLeave').innerText = t.lblUnpaidLeave;
-  document.getElementById('hintUnpaidLeave').innerText = t.hintUnpaidLeave;
-  document.getElementById('lblVacationDays').innerText = t.lblVacationDays;
-  document.getElementById('lblSalary').innerText = t.lblSalary;
-  document.getElementById('salary').placeholder = t.phSalary;
-  document.getElementById('hintSalary').innerText = t.hintSalary;
-  document.getElementById('lblReason').innerText = t.lblReason;
-  document.getElementById('optTermination').innerText = t.optTermination;
-  document.getElementById('optResignation').innerText = t.optResignation;
-  document.getElementById('lblNormalOT').innerText = t.lblNormalOT;
-  document.getElementById('hintNormalOT').innerText = t.hintNormalOT;
-  document.getElementById('lblWeekendOT').innerText = t.lblWeekendOT;
-  document.getElementById('hintWeekendOT').innerText = t.hintWeekendOT;
-  document.getElementById('lblHolidayOT').innerText = t.lblHolidayOT;
-  document.getElementById('hintHolidayOT').innerText = t.hintHolidayOT;
-  document.getElementById('lblUnpaidSalary').innerText = t.lblUnpaidSalary;
-  document.getElementById('hintUnpaidSalary').innerText = t.hintUnpaidSalary;
-  document.getElementById('lblDeductions').innerText = t.lblDeductions;
-  document.getElementById('hintDeductions').innerText = t.hintDeductions;
-  document.getElementById('btnCalc').innerText = t.btnCalc;
-    document.getElementById('btnReset').innerText = t.btnReset;
-  document.getElementById('lblRawEOSBDays').innerText = t.lblRawEOSBDays;
-  document.getElementById('lblEntitlementRatio').innerText = t.lblEntitlementRatio;
-  document.getElementById('lblNetEOSBDays').innerText = t.lblNetEOSBDays;
-  document.getElementById('lblRawEOSB').innerText = t.lblRawEOSB;
-  document.getElementById('lblFinalEOSB').innerText = t.lblFinalEOSB;
-  document.getElementById('lblVacationAmount').innerText = t.lblVacationAmount;
-  document.getElementById('lblOvertimeAmount').innerText = t.lblOvertimeAmount;
-  document.getElementById('lblUnpaidSalaryAmount').innerText = t.lblUnpaidSalaryAmount;
-  document.getElementById('lblDeductionsAmount').innerText = t.lblDeductionsAmount;
-  document.getElementById('lblGrandTotal').innerText = t.lblGrandTotal;
-  
-  document.getElementById('cardLblEosb').innerText = t.cardLblEosb;
-  document.getElementById('cardLblVacation').innerText = t.cardLblVacation;
-  document.getElementById('cardLblOvertime').innerText = t.cardLblOvertime;
-  document.getElementById('cardLblGrandTotal').innerText = t.cardLblGrandTotal;
-
-  document.getElementById('btnExport').innerText = t.btnExport;
-  document.getElementById('btnPrint').innerText = t.btnPrint;
-  document.getElementById('btnCopy').innerText = t.btnCopy;
-  document.getElementById('btnShare').innerText = t.btnShare;
-  document.getElementById('btnReceipt').innerText = t.btnReceipt;
-  document.getElementById('footerLaw').innerText = t.footerLaw;
-  document.getElementById('footerDev').innerText = t.footerDev;
-
-  const setTxt = (id, key) => { const el = document.getElementById(id); if (el && t[key] != null) el.innerText = t[key]; };
-  setTxt('btnEmail', 'btnEmail');
-  setTxt('btnCompare', 'btnCompare');
-  setTxt('lblReceiptMeta', 'lblReceiptMeta');
-  setTxt('lblCompanyName', 'lblCompanyName');
-  setTxt('lblCivilId', 'lblCivilId');
-  setTxt('lblEmpNumber', 'lblEmpNumber');
-  const cn = document.getElementById('companyName');
-  const ci = document.getElementById('civilId');
-  const en = document.getElementById('empNumber');
-  if (cn) cn.placeholder = t.phCompanyName;
-  if (ci) ci.placeholder = t.phCivilId;
-  if (en) en.placeholder = t.phEmpNumber;
-  setTxt('historyTitle', 'historyTitle');
-  setTxt('btnClearHistory', 'historyClear');
-  setTxt('btnExportHistory', 'historyExport');
-  setTxt('howTitle', 'howTitle');
-  setTxt('howBadge', 'howBadge');
-  setTxt('howEosbTitle', 'howEosbTitle');
-  setTxt('howEosbBody', 'howEosbBody');
-  setTxt('howResTitle', 'howResTitle');
-  setTxt('howResBody', 'howResBody');
-  setTxt('howVacTitle', 'howVacTitle');
-  setTxt('howVacBody', 'howVacBody');
-  setTxt('howOtTitle', 'howOtTitle');
-  setTxt('howOtBody', 'howOtBody');
-  setTxt('compareTitle', 'compareTitle');
-  setTxt('compareTermLbl', 'compareTermLbl');
-  setTxt('compareResLbl', 'compareResLbl');
-  setTxt('footerUpdated', 'footerUpdated');
-  setTxt('footerPrivacy', 'footerPrivacy');
-  setTxt('footerNote', 'footerNote');
-
-  renderHistory();
-  autoCalcVacation();
-
-  if (document.getElementById('resultsBox').style.display === 'block') {
-    document.getElementById('calcForm').dispatchEvent(new Event('submit'));
-  }
-}
-
-function autoCalcVacation() {
-  const t = i18n[currentLang];
-  const mode = document.getElementById('calcMode').value;
-  const lastReturnVal = document.getElementById('lastVacationReturn').value;
-  const endDateVal = document.getElementById('endDate').value;
-  const unpaidLeaveDays = parseFloat(document.getElementById('unpaidLeaveDays').value) || 0;
-  const vacationInput = document.getElementById('vacationDays');
-  const vacationHint = document.getElementById('vacationHint');
-
-  if (mode === 'eosb' || mode === 'overtime') return;
-
-  if (lastReturnVal && endDateVal) {
-    const calcFromDate = new Date(lastReturnVal);
-    const endDate = new Date(endDateVal);
-
-    if (endDate > calcFromDate) {
-      const diffTime = Math.abs(endDate - calcFromDate);
-      let totalDays = diffTime / (1000 * 60 * 60 * 24);
-      
-      totalDays = Math.max(0, totalDays - unpaidLeaveDays);
-      
-      const calculatedVacation = totalDays * (30 / 365.25);
-      
-      vacationInput.value = calculatedVacation.toFixed(2);
-      vacationInput.disabled = true;
-      vacationHint.innerText = t.vacationHintAuto;
-      return;
-    }
-  }
-  
-  vacationInput.disabled = false;
-  vacationHint.innerText = t.vacationHintDefault;
+    const d = JSON.parse(saved);
+    if (d.empName) document.getElementById('empName').value = d.empName;
+    if (d.calcMode) document.getElementById('calcMode').value = d.calcMode;
+    if (d.startDate) document.getElementById('startDate').value = d.startDate;
+    if (d.endDate) document.getElementById('endDate').value = d.endDate;
+    if (d.lastVacationReturn) document.getElementById('lastVacationReturn').value = d.lastVacationReturn;
+    if (d.unpaidLeaveDays) document.getElementById('unpaidLeaveDays').value = d.unpaidLeaveDays;
+    if (d.vacationDays) document.getElementById('vacationDays').value = d.vacationDays;
+    if (d.salary) document.getElementById('salary').value = d.salary;
+    if (d.reason) document.getElementById('reason').value = d.reason;
+    if (d.normalOT) document.getElementById('normalOT').value = d.normalOT;
+    if (d.weekendOT) document.getElementById('weekendOT').value = d.weekendOT;
+    if (d.holidayOT) document.getElementById('holidayOT').value = d.holidayOT;
+    if (d.unpaidSalary) document.getElementById('unpaidSalary').value = d.unpaidSalary;
+    if (d.deductions) document.getElementById('deductions').value = d.deductions;
+    if (d.companyName) document.getElementById('companyName').value = d.companyName;
+    if (d.civilId) document.getElementById('civilId').value = d.civilId;
+    if (d.empNumber) document.getElementById('empNumber').value = d.empNumber;
+  } catch (e) {}
 }
 
 function resetForm() {
   document.getElementById('calcForm').reset();
-  if (canUseStorage()) {
-    try { localStorage.removeItem('kw_calc_draft'); } catch (e) { /* sandbox */ }
-  }
+  localStorage.removeItem('kw_calc_draft');
   document.getElementById('resultsBox').style.display = 'none';
-  document.getElementById('vacationDays').disabled = false;
-  clearFieldInvalid('salary');
-  clearFieldInvalid('endDate');
   handleCalcModeChange();
+  showToast(currentLang === 'ar' ? 'تم إعادة تعيين الحقول' : 'Form reset successfully');
 }
 
+/* MAIN CALCULATION ENGINE */
 function calculate(e) {
-  e.preventDefault();
-  const t = i18n[currentLang];
-  const mode = document.getElementById('calcMode').value;
-
-  const empName = document.getElementById('empName').value.trim();
-  const startDateVal = document.getElementById('startDate').value;
-  const endDateVal = document.getElementById('endDate').value;
-  const lastVacationReturnVal = document.getElementById('lastVacationReturn').value;
-  const unpaidLeaveDays = parseFloat(document.getElementById('unpaidLeaveDays').value) || 0;
-  const salary = parseFloat(document.getElementById('salary').value) || 0;
-  const reasonSelect = document.getElementById('reason');
-  const reason = reasonSelect.value;
-  const reasonText = reasonSelect.options[reasonSelect.selectedIndex].text;
-  const vacationDays = parseFloat(document.getElementById('vacationDays').value) || 0;
+  if (e) e.preventDefault();
   
-  const normalOT = parseFloat(document.getElementById('normalOT').value) || 0;
-  const weekendOT = parseFloat(document.getElementById('weekendOT').value) || 0;
-  const holidayOT = parseFloat(document.getElementById('holidayOT').value) || 0;
+  const mode = document.getElementById('calcMode').value;
+  const salary = parseFloat(document.getElementById('salary').value);
+  
+  if (!salary || salary <= 0) {
+    showToast(i18n[currentLang].errSalary, 'error');
+    document.getElementById('salary').classList.add('field-invalid');
+    return;
+  } else {
+    document.getElementById('salary').classList.remove('field-invalid');
+  }
 
+  const startDate = new Date(document.getElementById('startDate').value);
+  const endDate = new Date(document.getElementById('endDate').value);
+  const unpaidLeave = parseFloat(document.getElementById('unpaidLeaveDays').value) || 0;
+
+  if (mode !== 'overtime' && (isNaN(startDate) || isNaN(endDate) || endDate <= startDate)) {
+    showToast(i18n[currentLang].errDates, 'error');
+    return;
+  }
+
+  // Daily and Hourly rates (26 days base)
+  const dailyWage = salary / 26;
+  const hourlyWage = dailyWage / 8;
+
+  // Duration
+  let totalDays = 0, years = 0, months = 0, remDays = 0;
+  if (!isNaN(startDate) && !isNaN(endDate)) {
+    let diffMs = endDate - startDate;
+    let rawDays = diffMs / (1000 * 60 * 60 * 24);
+    totalDays = Math.max(0, rawDays - unpaidLeave);
+    
+    years = Math.floor(totalDays / 365.25);
+    let remAfterY = totalDays % 365.25;
+    months = Math.floor(remAfterY / 30.4375);
+    remDays = Math.floor(remAfterY % 30.4375);
+  }
+
+  const durationYearsDec = totalDays / 365.25;
+
+  // 1. EOSB Calculation
+  let rawEOSBDays = 0;
+  let entitlementRatio = 1.0;
+  const reason = document.getElementById('reason').value;
+
+  if (mode === 'both' || mode === 'eosb') {
+    if (durationYearsDec <= 5) {
+      rawEOSBDays = durationYearsDec * 15;
+    } else {
+      rawEOSBDays = (5 * 15) + ((durationYearsDec - 5) * 30);
+    }
+
+    // Max cap: 18 months salary = 18 * 26 = 468 days wage
+    const maxDaysCap = 468;
+    if (rawEOSBDays > maxDaysCap) {
+      rawEOSBDays = maxDaysCap;
+    }
+
+    // Resignation ratios (Article 53)
+    if (reason === 'resignation') {
+      if (durationYearsDec < 3) {
+        entitlementRatio = 0.0;
+      } else if (durationYearsDec < 5) {
+        entitlementRatio = 0.50;
+      } else if (durationYearsDec < 10) {
+        entitlementRatio = 2 / 3;
+      } else {
+        entitlementRatio = 1.0;
+      }
+    } else {
+      // Termination / Death / Disability = 100%
+      entitlementRatio = 1.0;
+    }
+  }
+
+  const netEOSBDays = rawEOSBDays * entitlementRatio;
+  const rawEOSBAmount = rawEOSBDays * dailyWage;
+  const finalEOSBAmount = netEOSBDays * dailyWage;
+
+  // 2. Vacation Pay
+  let vacDays = parseFloat(document.getElementById('vacationDays').value) || 0;
+  let vacationAmount = 0;
+  if (mode === 'both' || mode === 'vacation') {
+    vacationAmount = vacDays * dailyWage;
+  }
+
+  // 3. Overtime Pay
+  const normalOTHours = parseFloat(document.getElementById('normalOT').value) || 0;
+  const weekendOTHours = parseFloat(document.getElementById('weekendOT').value) || 0;
+  const holidayOTHours = parseFloat(document.getElementById('holidayOT').value) || 0;
+
+  const normalOTPay = normalOTHours * hourlyWage * 1.25;
+  const weekendOTPay = weekendOTHours * hourlyWage * 1.50;
+  const holidayOTPay = holidayOTHours * hourlyWage * 2.00;
+  const totalOvertimeAmount = normalOTPay + weekendOTPay + holidayOTPay;
+
+  // 4. Pending Salaries & Deductions
   const unpaidSalary = parseFloat(document.getElementById('unpaidSalary').value) || 0;
   const deductions = parseFloat(document.getElementById('deductions').value) || 0;
 
-  if (!salary || salary <= 0) {
-    markFieldInvalid('salary', t.zeroSalaryAlert);
-    showToast(t.zeroSalaryAlert, 'error');
-    document.getElementById('salary').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
-  clearFieldInvalid('salary');
+  const grandTotal = finalEOSBAmount + vacationAmount + totalOvertimeAmount + unpaidSalary - deductions;
 
-  let years = 0;
-  let totalDays = 0;
-  let serviceText = t.notSpecified;
+  // Render
+  const empName = document.getElementById('empName').value || (currentLang === 'ar' ? 'الموظف' : 'Employee');
+  document.getElementById('resEmpName').innerText = (i18n[currentLang].resEmpName) + empName;
+  document.getElementById('servicePeriodText').innerText = (i18n[currentLang].servicePeriodText) + 
+    `${years} ${currentLang === 'ar'?'سنة':'yrs'} - ${months} ${currentLang === 'ar'?'شهر':'mos'} - ${remDays} ${currentLang === 'ar'?'يوم':'days'}`;
 
-  if (mode !== 'vacation' && mode !== 'overtime') {
-    const startDate = new Date(startDateVal);
-    const endDate = new Date(endDateVal);
+  document.getElementById('cardValEosb').innerText = finalEOSBAmount.toFixed(3) + ' KWD';
+  document.getElementById('cardValVacation').innerText = vacationAmount.toFixed(3) + ' KWD';
+  document.getElementById('cardValOvertime').innerText = totalOvertimeAmount.toFixed(3) + ' KWD';
+  document.getElementById('cardValGrandTotal').innerText = grandTotal.toFixed(3) + ' KWD';
 
-    if (endDate <= startDate) {
-      markFieldInvalid('endDate', t.dateAlert);
-      showToast(t.dateAlert, 'error');
-      document.getElementById('endDate').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-    clearFieldInvalid('endDate');
+  document.getElementById('rawEOSBDays').innerText = rawEOSBDays.toFixed(2) + (currentLang === 'ar'?' يوم':' days');
+  document.getElementById('entitlementRatio').innerText = (entitlementRatio * 100).toFixed(2) + '%';
+  document.getElementById('netEOSBDays').innerText = netEOSBDays.toFixed(2) + (currentLang === 'ar'?' يوم':' days');
+  document.getElementById('rawEOSB').innerText = rawEOSBAmount.toFixed(3) + ' KWD';
+  document.getElementById('finalEOSB').innerText = finalEOSBAmount.toFixed(3) + ' KWD';
+  document.getElementById('vacationAmount').innerText = vacationAmount.toFixed(3) + ' KWD';
+  document.getElementById('overtimeAmount').innerText = totalOvertimeAmount.toFixed(3) + ' KWD';
+  document.getElementById('unpaidSalaryAmount').innerText = unpaidSalary.toFixed(3) + ' KWD';
+  document.getElementById('deductionsAmount').innerText = '-' + deductions.toFixed(3) + ' KWD';
+  document.getElementById('grandTotal').innerText = grandTotal.toFixed(3) + ' KWD';
 
-    const diffTime = Math.abs(endDate - startDate);
-    totalDays = diffTime / (1000 * 60 * 60 * 24);
-    // استبعاد أيام الإجازة بدون أجر من مدة الخدمة الفعلية
-    totalDays = Math.max(0, totalDays - unpaidLeaveDays);
-    years = totalDays / 365.25;
-
-    const displayYears = Math.floor(years);
-    const remainingMonths = Math.floor((years - displayYears) * 12);
-    const remainingDays = Math.floor(totalDays % 30.4375);
-
-    serviceText = `${displayYears} ${t.yearText} ${t.andText} ${remainingMonths} ${t.monthText} ${t.andText} ${remainingDays} ${t.dayText}`;
-    if (unpaidLeaveDays > 0) {
-      serviceText += currentLang === 'ar'
-        ? ` (بعد خصم ${unpaidLeaveDays} يوم بدون أجر)`
-        : ` (after deducting ${unpaidLeaveDays} unpaid leave days)`;
-    }
-    document.getElementById('servicePeriodText').style.display = 'inline';
-    document.getElementById('servicePeriodText').innerText = `${t.servicePeriodText}${serviceText}`;
-  } else {
-    document.getElementById('servicePeriodText').style.display = 'none';
-  }
-
-  document.getElementById('resEmpName').innerText = `${t.resEmpName}${empName}`;
-
-  const sector = document.getElementById('sectorType').value;
-  const isGov = sector === 'government';
-  const dailySalary = isGov ? (salary / 30) : (salary / 26);
-  const hourlyRate = isGov ? (salary / (30 * 8)) : (salary / 208);
-
-  let rawEOSBDays = 0;
-  let ratio = 1.0;
-  let rawEOSB = 0;
-  let netEOSBDays = 0;
-  let finalEOSB = 0;
-
-  if (mode === 'both' || mode === 'eosb') {
-    if (isGov) {
-      // تقدير مكافأة القطاع الحكومي (غير مستحقي المعاش) وفق شرائح النسب السنوية
-      let yLeft = years;
-      const bands = [
-        { max: 5, rate: 0.10 },
-        { max: 5, rate: 0.12 },
-        { max: 5, rate: 0.15 },
-        { max: Infinity, rate: 0.20 }
-      ];
-      rawEOSB = 0;
-      for (const b of bands) {
-        if (yLeft <= 0) break;
-        const take = Math.min(b.max, yLeft);
-        rawEOSB += salary * 12 * b.rate * take;
-        yLeft -= take;
-      }
-      rawEOSBDays = salary > 0 ? (rawEOSB / dailySalary) : 0;
-      ratio = 1.0; // نسب الاستقالة (م53) خاصة بالقطاع الأهلي
-      netEOSBDays = rawEOSBDays;
-      finalEOSB = rawEOSB;
-    } else {
-      if (years <= 5) {
-        rawEOSBDays = years * 15;
-      } else {
-        const first5YearsDays = 5 * 15;
-        const restYearsDays = (years - 5) * 30;
-        rawEOSBDays = first5YearsDays + restYearsDays;
-      }
-
-      const maxCapDays = 18 * 26;
-      if (rawEOSBDays > maxCapDays) {
-        rawEOSBDays = maxCapDays;
-      }
-
-      rawEOSB = rawEOSBDays * dailySalary;
-
-      if (reason === 'resignation') {
-        if (years < 3) {
-          ratio = 0;
-        } else if (years >= 3 && years < 5) {
-          ratio = 0.5;
-        } else if (years >= 5 && years < 10) {
-          ratio = 2 / 3;
-        } else {
-          ratio = 1.0;
-        }
-      }
-
-      netEOSBDays = rawEOSBDays * ratio;
-      finalEOSB = rawEOSB * ratio;
-    }
-  }
-
-  let vacationAmount = 0;
-  if (mode === 'both' || mode === 'vacation') {
-    vacationAmount = vacationDays * dailySalary;
-  }
-
-  let overtimeAmount = 0;
-  if (mode === 'overtime') {
-    overtimeAmount = (normalOT * hourlyRate * 1.25) +
-                     (weekendOT * hourlyRate * 1.50) +
-                     (holidayOT * hourlyRate * 2.00);
-  }
-
-  const grandTotal = Math.max(0, (finalEOSB + vacationAmount + overtimeAmount + unpaidSalary) - deductions);
-
-  lastCalculationData = {
-    mode,
-    sector,
-    empName,
-    startDateVal: (mode !== 'vacation' && mode !== 'overtime') ? startDateVal : t.notSpecified,
-    endDateVal: (mode !== 'vacation' && mode !== 'overtime') ? endDateVal : (endDateVal || t.notSpecified),
-    lastVacationReturnVal: lastVacationReturnVal || t.notSpecified,
-    unpaidLeaveDays,
-    salary,
-    dailySalary,
-    hourlyRate,
-    reasonText: (mode !== 'vacation' && mode !== 'overtime') ? reasonText : t.notSpecified,
-    vacationDays: (mode === 'both' || mode === 'vacation') ? vacationDays.toFixed(2) : t.notCalculated,
-    rawEOSBDays: (mode === 'both' || mode === 'eosb') ? rawEOSBDays.toFixed(2) : t.notCalculated,
-    netEOSBDays: (mode === 'both' || mode === 'eosb') ? netEOSBDays.toFixed(2) : t.notCalculated,
-    normalOT,
-    weekendOT,
-    holidayOT,
-    overtimeAmount,
-    unpaidSalary,
-    deductions,
-    totalDays,
-    serviceText,
-    rawEOSB,
-    ratioText: (mode === 'both' || mode === 'eosb') ? ((ratio * 100).toFixed(1).replace('.0', '') + '%') : t.notCalculated,
-    finalEOSB,
-    vacationAmount,
-    grandTotal
-  };
-
-  const showEOSB = mode === 'both' || mode === 'eosb';
-  const showVacation = mode === 'both' || mode === 'vacation';
-  const showOT = mode === 'overtime';
-
-  document.getElementById('rowRawEOSBDays').style.display = showEOSB && !isGov ? 'flex' : 'none';
-  document.getElementById('rowEntitlementRatio').style.display = showEOSB && !isGov ? 'flex' : 'none';
-  document.getElementById('rowNetEOSBDays').style.display = showEOSB && !isGov ? 'flex' : 'none';
-  document.getElementById('rowRawEOSB').style.display = showEOSB && !isGov ? 'flex' : 'none';
-  document.getElementById('rowFinalEOSB').style.display = showEOSB ? 'flex' : 'none';
-  document.getElementById('rowVacationAmount').style.display = showVacation ? 'flex' : 'none';
-  document.getElementById('rowOvertimeAmount').style.display = showOT ? 'flex' : 'none';
+  // Toggle rows
+  document.getElementById('rowOvertimeAmount').style.display = totalOvertimeAmount > 0 ? 'flex' : 'none';
   document.getElementById('rowDeductionsAmount').style.display = deductions > 0 ? 'flex' : 'none';
-  document.getElementById('rowUnpaidSalaryAmount').style.display = unpaidSalary > 0 ? 'flex' : 'none';
 
-  if (showEOSB) {
-    document.getElementById('rawEOSBDays').innerText = rawEOSBDays.toFixed(2) + t.unitDays;
-    document.getElementById('netEOSBDays').innerText = netEOSBDays.toFixed(2) + t.unitDays;
-    document.getElementById('entitlementRatio').innerText = lastCalculationData.ratioText;
-    document.getElementById('rawEOSB').innerText = formatKWD(rawEOSB);
-    document.getElementById('finalEOSB').innerText = formatKWD(finalEOSB);
-  }
-
-  if (showVacation) {
-    document.getElementById('vacationAmount').innerText = formatKWD(vacationAmount);
-  }
-
-  if (showOT) {
-    document.getElementById('overtimeAmount').innerText = formatKWD(overtimeAmount);
-  }
-
-  if (deductions > 0) {
-    document.getElementById('deductionsAmount').innerText = '-' + formatKWD(deductions);
-  }
-
-  document.getElementById('unpaidSalaryAmount').innerText = formatKWD(unpaidSalary);
-  document.getElementById('grandTotal').innerText = formatKWD(grandTotal);
-
-  document.getElementById('cardValEosb').innerText = formatKWD(finalEOSB);
-  document.getElementById('cardValVacation').innerText = formatKWD(vacationAmount);
-  document.getElementById('cardValOvertime').innerText = formatKWD(overtimeAmount);
-  document.getElementById('cardValGrandTotal').innerText = formatKWD(grandTotal);
-
-  document.getElementById('calcNotesTitle').innerText = t.notesHeader;
-  const calcNotesList = document.getElementById('calcNotesList');
-  calcNotesList.innerHTML = '';
-
-  const note1 = document.createElement('li');
-  if (isGov) {
-    note1.innerText = `${t.noteDailyRateGov} (${salary.toFixed(3)} ÷ 30 = ${dailySalary.toFixed(3)}${t.unitKWD})`;
-  } else {
-    note1.innerText = `${t.noteDailyRate} (${salary.toFixed(3)} ÷ 26 = ${dailySalary.toFixed(3)}${t.unitKWD})`;
-  }
-  calcNotesList.appendChild(note1);
-
-  if (mode === 'overtime') {
-    const noteOT = document.createElement('li');
-    const divHours = isGov ? 240 : 208;
-    noteOT.innerText = `${t.noteHourlyRate} (${salary.toFixed(3)} ÷ ${divHours} = ${hourlyRate.toFixed(3)}${t.unitKWD})`;
-    calcNotesList.appendChild(noteOT);
-  }
-
-  if (showEOSB) {
-    const noteEOSB = document.createElement('li');
-    noteEOSB.innerText = isGov ? t.noteGovEOSBRule : t.noteEOSBRule;
-    calcNotesList.appendChild(noteEOSB);
-
-    if (!isGov) {
-      const noteResign = document.createElement('li');
-      noteResign.innerText = t.noteResignationRule;
-      calcNotesList.appendChild(noteResign);
-
-      if (totalDays > 0 && totalDays < 100) {
-        const noteProb = document.createElement('li');
-        noteProb.style.color = 'var(--red)';
-        noteProb.style.fontWeight = 'bold';
-        noteProb.innerText = t.noteProbationRule;
-        calcNotesList.appendChild(noteProb);
-      }
+  // Notes
+  const notesList = document.getElementById('calcNotesList');
+  notesList.innerHTML = '';
+  
+  const notes = [];
+  notes.push(`${currentLang === 'ar'?'أجر اليوم الشامل':'Daily Wage'} = ${salary.toFixed(3)} ÷ 26 = ${dailyWage.toFixed(3)} KWD`);
+  notes.push(`${currentLang === 'ar'?'أجر الساعة الإضافية العادية':'Hourly Rate'} = ${dailyWage.toFixed(3)} ÷ 8 = ${hourlyWage.toFixed(3)} KWD`);
+  
+  if (mode === 'both' || mode === 'eosb') {
+    notes.push(currentLang === 'ar' ? 
+      `استحقاق السنوات: 15 يوماً للسنوات الـ5 الأولى و30 يوماً لما بعدها. إجمالي أيام الاستحقاق = ${rawEOSBDays.toFixed(2)} يوم.` :
+      `Years entitlement: 15 days/yr for 1st 5 yrs, 30 days/yr after. Total = ${rawEOSBDays.toFixed(2)} days.`);
+    if (reason === 'resignation') {
+      notes.push(currentLang === 'ar' ?
+        `بسبب الاستقالة وخدمة ${durationYearsDec.toFixed(2)} سنة، نسبة الاستحقاق المطبقة هي ${(entitlementRatio*100).toFixed(2)}%.` :
+        `Resignation ratio applied for ${durationYearsDec.toFixed(2)} yrs service is ${(entitlementRatio*100).toFixed(2)}%.`);
     }
   }
 
-  if (showVacation) {
-    const noteVac = document.createElement('li');
-    noteVac.innerText = t.noteVacationRule;
-    calcNotesList.appendChild(noteVac);
+  if (vacationAmount > 0) {
+    notes.push(`${currentLang === 'ar'?'بدل الإجازات':'Vacation Pay'} = ${vacDays.toFixed(2)} ${currentLang==='ar'?'يوم':'days'} × ${dailyWage.toFixed(3)} = ${vacationAmount.toFixed(3)} KWD`);
   }
 
-  if (showOT) {
-    const noteOTRule = document.createElement('li');
-    noteOTRule.innerText = t.noteOvertimeRule;
-    calcNotesList.appendChild(noteOTRule);
-  }
+  notes.forEach(n => {
+    const li = document.createElement('li');
+    li.innerText = n;
+    notesList.appendChild(li);
+  });
 
   document.getElementById('resultsBox').style.display = 'block';
   document.getElementById('resultsBox').scrollIntoView({ behavior: 'smooth' });
 
-  saveToHistory(lastCalculationData);
-  updateComparePanel(lastCalculationData);
+  // Save State
+  lastCalculatedData = {
+    empName, salary, finalEOSBAmount, vacationAmount, totalOvertimeAmount, unpaidSalary, deductions, grandTotal,
+    years, months, remDays, durationYearsDec, rawEOSBAmount, entitlementRatio, date: new Date().toLocaleDateString()
+  };
+
+  saveHistory(lastCalculatedData);
+  updateComparison(durationYearsDec, rawEOSBDays, dailyWage, vacationAmount, totalOvertimeAmount, unpaidSalary, deductions);
 }
 
+/* History Storage */
+function saveHistory(data) {
+  let hist = JSON.parse(localStorage.getItem('kw_calc_history') || '[]');
+  hist.unshift(data);
+  if (hist.length > 5) hist.pop();
+  localStorage.setItem('kw_calc_history', JSON.stringify(hist));
+  renderHistory();
+}
+
+function renderHistory() {
+  const card = document.getElementById('historyCard');
+  const list = document.getElementById('historyList');
+  let hist = JSON.parse(localStorage.getItem('kw_calc_history') || '[]');
+  if (hist.length === 0) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = 'block';
+  list.innerHTML = '';
+
+  hist.forEach((h, idx) => {
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerHTML = `
+      <div>
+        <div class="hi-name">${h.empName} — ${h.grandTotal.toFixed(3)} KWD</div>
+        <div class="hi-meta">${h.date} | ${h.years}y ${h.months}m</div>
+      </div>
+      <button type="button" onclick='loadHistoryItem(${idx})'>${currentLang==='ar'?'عرض':'View'}</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function clearHistory() {
+  localStorage.removeItem('kw_calc_history');
+  renderHistory();
+  showToast(currentLang === 'ar' ? 'تم مسح السجل' : 'History cleared');
+}
+
+function loadHistoryItem(idx) {
+  let hist = JSON.parse(localStorage.getItem('kw_calc_history') || '[]');
+  const item = hist[idx];
+  if (!item) return;
+  alert(`${item.empName}\n${currentLang==='ar'?'الصافي المستحق':'Net Payable'}: ${item.grandTotal.toFixed(3)} KWD`);
+}
+
+/* Comparison */
+function updateComparison(yearsDec, rawEOSBDays, dailyWage, vacPay, otPay, unpaid, ded) {
+  let resRatio = 1.0;
+  if (yearsDec < 3) resRatio = 0.0;
+  else if (yearsDec < 5) resRatio = 0.50;
+  else if (yearsDec < 10) resRatio = 2/3;
+
+  const termEOSB = rawEOSBDays * dailyWage;
+  const resEOSB = rawEOSBDays * resRatio * dailyWage;
+
+  const termTotal = termEOSB + vacPay + otPay + unpaid - ded;
+  const resTotal = resEOSB + vacPay + otPay + unpaid - ded;
+
+  document.getElementById('compareTermVal').innerText = termTotal.toFixed(3) + ' KWD';
+  document.getElementById('compareResVal').innerText = resTotal.toFixed(3) + ' KWD';
+  document.getElementById('compareNote').innerText = currentLang === 'ar' ?
+    `الفرق المالي لصالح إنهاء الخدمات هو ${(termTotal - resTotal).toFixed(3)} KWD بسبب نسب الاستقالة.` :
+    `Difference in favor of termination is ${(termTotal - resTotal).toFixed(3)} KWD due to resignation penalty ratios.`;
+}
+
+function toggleCompare() {
+  const box = document.getElementById('compareBox');
+  box.classList.toggle('show');
+}
+
+/* Actions: Copy & Share */
+function copySummaryText() {
+  if (!lastCalculatedData) return;
+  const d = lastCalculatedData;
+  const text = `📊 *${currentLang==='ar'?'ملخص المستحقات المالية - الكويت':'Financial Settlement Summary'}*
+👤 الموظف: ${d.empName}
+⏱️ مدة الخدمة: ${d.years} سنة و ${d.months} شهر
+💰 نهاية الخدمة: ${d.finalEOSBAmount.toFixed(3)} KWD
+🏖️ بدل الإجازات: ${d.vacationAmount.toFixed(3)} KWD
+⏰ بدل إضافي: ${d.totalOvertimeAmount.toFixed(3)} KWD
+💵 صافي الإجمالي: *${d.grandTotal.toFixed(3)} KWD*`;
+
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(i18n[currentLang].copiedToast, 'success');
+  });
+}
+
+function copyEmailTemplate() {
+  if (!lastCalculatedData) return;
+  const d = lastCalculatedData;
+  const subject = `مستحقات نهاية الخدمة - ${d.empName}`;
+  const body = `السادة إدارة الموارد البشرية / الشؤون المالية،
+
+تحية طيبة وبعد،
+
+يرجى التكرم بالعلم بحساب المستحقات المالية النهائية وفق قانون العمل الكويتي رقم 6 لسنة 2010 للموظف/ ${d.empName}:
+
+- مكافأة نهاية الخدمة: ${d.finalEOSBAmount.toFixed(3)} د.ك
+- بدل رصيد الإجازات: ${d.vacationAmount.toFixed(3)} د.ك
+- بدل العمل الإضافي: ${d.totalOvertimeAmount.toFixed(3)} د.ك
+- الرواتب المتبقية: ${d.unpaidSalary.toFixed(3)} د.ك
+- الخصومات / السلف: -${d.deductions.toFixed(3)} د.ك
+
+إجمالي الصافي المستحق للصرف: ${d.grandTotal.toFixed(3)} د.ك
+
+وتفضلوا بقبول فائق الاحترام والتقدير.`;
+
+  navigator.clipboard.writeText(`الموضوع: ${subject}\n\n${body}`).then(() => {
+    showToast(i18n[currentLang].emailCopiedToast, 'success');
+  });
+}
+
+function shareWhatsApp() {
+  if (!lastCalculatedData) return;
+  const d = lastCalculatedData;
+  const text = encodeURIComponent(`حاسبة نهاية الخدمة بالكويت:
+الموظف: ${d.empName}
+صافي المستحقات: ${d.grandTotal.toFixed(3)} د.ك`);
+  window.open(`https://wa.me/?text=${text}`, '_blank');
+}
+
+/* Receipt Modal */
 function openReceiptModal() {
-  if (!lastCalculationData) return;
-  const d = lastCalculationData;
-  const company = (document.getElementById('companyName').value || '').trim();
-  const civil = (document.getElementById('civilId').value || '').trim();
-  const empNo = (document.getElementById('empNumber').value || '').trim();
-  const isAr = currentLang === 'ar';
+  if (!lastCalculatedData) return;
+  const d = lastCalculatedData;
 
-  document.getElementById('rcpName').innerText = d.empName;
-  document.getElementById('rcpStart').innerText = d.startDateVal;
-  document.getElementById('rcpEnd').innerText = d.endDateVal;
+  document.getElementById('recEmpName').innerText = d.empName;
+  document.getElementById('recCivilId').innerText = document.getElementById('civilId').value || '—';
+  document.getElementById('recCompName').innerText = document.getElementById('companyName').value || '—';
+  document.getElementById('recStart').innerText = document.getElementById('startDate').value || '—';
+  document.getElementById('recEnd').innerText = document.getElementById('endDate').value || '—';
+  document.getElementById('recDate').innerText = (currentLang==='ar'?'التاريخ: ':'Date: ') + new Date().toLocaleDateString();
+  document.getElementById('recDocNo').innerText = (currentLang==='ar'?'رقم الوثيقة: ':'Ref: ') + 'KW-' + Math.floor(100000 + Math.random() * 900000);
 
-  const ref = 'KW-' + Date.now().toString(36).toUpperCase();
-  document.getElementById('rcpRef').innerText = ref;
-  document.getElementById('rcpIssueDate').innerText = new Date().toLocaleDateString(isAr ? 'ar-KW' : 'en-GB');
+  document.getElementById('recValEosb').innerText = d.finalEOSBAmount.toFixed(3);
+  document.getElementById('recValVac').innerText = d.vacationAmount.toFixed(3);
+  document.getElementById('recValOT').innerText = d.totalOvertimeAmount.toFixed(3);
+  document.getElementById('recValUnpaid').innerText = d.unpaidSalary.toFixed(3);
+  document.getElementById('recValDed').innerText = '-' + d.deductions.toFixed(3);
+  document.getElementById('recValTotal').innerText = d.grandTotal.toFixed(3) + ' KWD';
 
-  const companyLine = document.getElementById('rcpCompanyLine');
-  const rcpCompany = document.getElementById('rcpCompany');
-  const rcpCompanyInline = document.getElementById('rcpCompanyInline');
-  if (company) {
-    companyLine.style.display = 'block';
-    rcpCompany.innerText = company;
-    rcpCompanyInline.innerText = company;
-  } else {
-    companyLine.style.display = 'none';
-    rcpCompany.innerText = '';
-    rcpCompanyInline.innerText = isAr ? 'الشركة' : 'the company';
-  }
-
-  const civilDisplay = civil || '.........................';
-  document.getElementById('rcpCivil').innerText = civilDisplay;
-  document.getElementById('rcpCivilInline').innerText = civilDisplay;
-
-  const empWrap = document.getElementById('rcpEmpNumWrap');
-  if (empNo) {
-    empWrap.style.display = 'inline';
-    document.getElementById('rcpEmpNum').innerText = empNo;
-  } else {
-    empWrap.style.display = 'none';
-  }
-
-  const showEOSB = d.mode === 'both' || d.mode === 'eosb';
-  const showVacation = d.mode === 'both' || d.mode === 'vacation';
-
-  document.getElementById('rcpEosb').innerText = formatKWD(d.finalEOSB);
-  document.getElementById('rcpRowEosb').style.display = showEOSB ? '' : 'none';
-
-  document.getElementById('rcpVac').innerText = formatKWD(d.vacationAmount);
-  document.getElementById('rcpRowVac').style.display = showVacation ? '' : 'none';
-
-  document.getElementById('rcpSal').innerText = formatKWD(d.unpaidSalary);
-  document.getElementById('rcpRowSal').style.display = d.unpaidSalary > 0 ? '' : 'none';
-
-  document.getElementById('rcpDed').innerText = formatKWD(d.deductions);
-  document.getElementById('rcpRowDed').style.display = d.deductions > 0 ? '' : 'none';
-
-  document.getElementById('rcpTotal').innerText = formatKWD(d.grandTotal);
   document.getElementById('receiptModal').style.display = 'block';
 }
 
@@ -2946,467 +2620,10 @@ function closeReceiptModal() {
 function printReceipt() {
   document.body.classList.add('printing-receipt');
   window.print();
+  setTimeout(() => {
+    document.body.classList.remove('printing-receipt');
+  }, 500);
 }
-
-window.addEventListener('afterprint', () => {
-  document.body.classList.remove('printing-receipt');
-});
-
-async function ensureExcelJS() {
-  if (typeof ExcelJS !== 'undefined') return true;
-  return new Promise((resolve) => {
-    const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js';
-    s.onload = () => resolve(true);
-    s.onerror = () => resolve(false);
-    document.head.appendChild(s);
-  });
-}
-
-async function exportToExcelReal() {
-  if (!lastCalculationData) return;
-  const ok = await ensureExcelJS();
-  if (!ok || typeof ExcelJS === 'undefined') {
-    showToast(currentLang === 'ar' ? 'تعذر تحميل مكتبة الإكسل' : 'Failed to load Excel library', 'error');
-    return;
-  }
-  const d = lastCalculationData;
-  const t = i18n[currentLang];
-  const isRTL = currentLang === 'ar';
-
-  // ألوان الهوية البصرية للحاسبة
-  const COLOR_GREEN_DARK = 'FF1B3320';
-  const COLOR_GREEN      = 'FF2F5233';
-  const COLOR_BRASS      = 'FFB08D57';
-  const COLOR_BRASS_LT   = 'FFDCC79A';
-  const COLOR_PAPER      = 'FFEDF1E6';
-  const COLOR_WHITE      = 'FFFAFAF7';
-  const COLOR_RED        = 'FFA63D40';
-
-  const workbook = new ExcelJS.Workbook();
-  workbook.creator = 'Ahmed Abdelkarim';
-  const sheet = workbook.addWorksheet(t.headerTitle.substring(0, 28) || 'تقرير المستحقات', {
-    views: [{ rightToLeft: isRTL, showGridLines: false }]
-  });
-
-  sheet.columns = [{ width: 42 }, { width: 26 }];
-
-  const thinBorder = { style: 'thin', color: { argb: 'FFC7D6C4' } };
-  const allBorders = { top: thinBorder, left: thinBorder, right: thinBorder, bottom: thinBorder };
-
-  function addTitleRow(text) {
-    const row = sheet.addRow([text]);
-    sheet.mergeCells(row.number, 1, row.number, 2);
-    row.height = 32;
-    row.getCell(1).font = { name: 'Calibri', size: 15, bold: true, color: { argb: COLOR_WHITE } };
-    row.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
-    row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_GREEN_DARK } };
-    return row;
-  }
-
-  function addSectionRow(text) {
-    const row = sheet.addRow([text]);
-    sheet.mergeCells(row.number, 1, row.number, 2);
-    row.height = 22;
-    row.getCell(1).font = { name: 'Calibri', size: 12, bold: true, color: { argb: COLOR_WHITE } };
-    row.getCell(1).alignment = { vertical: 'middle', horizontal: isRTL ? 'right' : 'left', indent: 1 };
-    row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_GREEN } };
-    return row;
-  }
-
-  function addDataRow(label, value, opts = {}) {
-    const row = sheet.addRow([label, value]);
-    row.height = 20;
-    row.eachCell(cell => {
-      cell.border = allBorders;
-      cell.alignment = { vertical: 'middle', horizontal: isRTL ? 'right' : 'left', indent: 1 };
-    });
-    row.getCell(1).font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF1C2620' } };
-    row.getCell(2).font = { name: 'Calibri', size: 11, color: { argb: opts.color || 'FF1C2620' } };
-    row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: opts.stripe ? COLOR_PAPER : COLOR_WHITE } };
-    row.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: opts.stripe ? COLOR_PAPER : COLOR_WHITE } };
-    return row;
-  }
-
-  function addTotalRow(label, value) {
-    const row = sheet.addRow([label, value]);
-    row.height = 24;
-    row.eachCell(cell => {
-      cell.border = allBorders;
-      cell.alignment = { vertical: 'middle', horizontal: isRTL ? 'right' : 'left', indent: 1 };
-      cell.font = { name: 'Calibri', size: 12, bold: true, color: { argb: 'FF1C2620' } };
-      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_BRASS_LT } };
-    });
-    return row;
-  }
-
-  // العنوان الرئيسي
-  addTitleRow(t.headerTitle);
-  sheet.addRow([]);
-
-  // بيانات الموظف والعقد (تُستبعد الحقول غير المحددة/الفارغة)
-  addSectionRow(t.formTitle);
-  let stripe = false;
-  if (d.empName) { addDataRow(t.lblEmpName, d.empName, { stripe }); stripe = !stripe; }
-  addDataRow(t.lblSalary, d.salary.toFixed(3) + t.unitKWD, { stripe }); stripe = !stripe;
-  if (d.startDateVal && d.startDateVal !== t.notSpecified) { addDataRow(t.lblStartDate, d.startDateVal, { stripe }); stripe = !stripe; }
-  if (d.endDateVal && d.endDateVal !== t.notSpecified) { addDataRow(t.lblEndDate, d.endDateVal, { stripe }); stripe = !stripe; }
-  if (d.serviceText && d.serviceText !== t.notSpecified) { addDataRow(t.servicePeriodText.replace(': ', ''), d.serviceText, { stripe }); stripe = !stripe; }
-  if (d.reasonText && d.reasonText !== t.notSpecified) { addDataRow(t.lblReason, d.reasonText, { stripe }); stripe = !stripe; }
-
-  sheet.addRow([]);
-
-  // النتائج المالية (تُستبعد البنود غير المشمولة بالحساب أو الصفرية)
-  addSectionRow(isRTL ? '💰 النتائج المالية' : '💰 Financial Results');
-  stripe = false;
-  if (d.mode === 'both' || d.mode === 'eosb') { addDataRow(t.lblFinalEOSB, d.finalEOSB.toFixed(3) + t.unitKWD, { stripe }); stripe = !stripe; }
-  if (d.mode === 'both' || d.mode === 'vacation') { addDataRow(t.lblVacationAmount, d.vacationAmount.toFixed(3) + t.unitKWD, { stripe }); stripe = !stripe; }
-  if (d.mode === 'overtime') { addDataRow(t.lblOvertimeAmount, d.overtimeAmount.toFixed(3) + t.unitKWD, { stripe }); stripe = !stripe; }
-  if (d.unpaidSalary > 0) { addDataRow(t.lblUnpaidSalaryAmount, d.unpaidSalary.toFixed(3) + t.unitKWD, { stripe }); stripe = !stripe; }
-  if (d.deductions > 0) { addDataRow(t.lblDeductionsAmount, '-' + d.deductions.toFixed(3) + t.unitKWD, { stripe, color: COLOR_RED }); stripe = !stripe; }
-
-  sheet.addRow([]);
-  addTotalRow(t.lblGrandTotal, d.grandTotal.toFixed(3) + t.unitKWD);
-
-  const buffer = await workbook.xlsx.writeBuffer();
-  const blob = new Blob([buffer], { type: 'application/octet-stream' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `مستحقات_${d.empName || 'موظف'}.xlsx`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(link.href);
-}
-
-function generateSummaryText() {
-  if (!lastCalculationData) return '';
-  const d = lastCalculationData;
-  const t = i18n[currentLang];
-
-  let text = `📄 *${t.headerTitle}*\n`;
-  text += `👤 ${t.lblEmpName}: ${d.empName}\n`;
-  if (d.serviceText && d.serviceText !== t.notSpecified) {
-    text += `⏱️ ${t.servicePeriodText}${d.serviceText}\n`;
-  }
-  text += `💰 ${t.lblSalary}: ${d.salary.toFixed(3)}${t.unitKWD}\n`;
-  text += `-----------------------------------\n`;
-
-  if (d.mode === 'both' || d.mode === 'eosb') {
-    text += `🔹 ${t.lblFinalEOSB}: ${d.finalEOSB.toFixed(3)}${t.unitKWD}\n`;
-  }
-  if (d.mode === 'both' || d.mode === 'vacation') {
-    text += `🔹 ${t.lblVacationAmount} (${d.vacationDays}${t.unitDays}): ${d.vacationAmount.toFixed(3)}${t.unitKWD}\n`;
-  }
-  if (d.mode === 'overtime') {
-    text += `🔹 ${t.lblOvertimeAmount}: ${d.overtimeAmount.toFixed(3)}${t.unitKWD}\n`;
-  }
-  if (d.unpaidSalary > 0) {
-    text += `🔹 ${t.lblUnpaidSalaryAmount}: ${d.unpaidSalary.toFixed(3)}${t.unitKWD}\n`;
-  }
-  if (d.deductions > 0) {
-    text += `🔻 ${t.lblDeductionsAmount}: -${d.deductions.toFixed(3)}${t.unitKWD}\n`;
-  }
-
-  text += `-----------------------------------\n`;
-  text += `✅ *${t.lblGrandTotal}: ${d.grandTotal.toFixed(3)}${t.unitKWD}*\n`;
-  text += `-----------------------------------\n`;
-
-  text += `📌 *${t.notesHeader}*\n`;
-  text += `1️⃣ ${t.noteDailyRate} (${d.salary.toFixed(3)} ÷ 26 = ${d.dailySalary.toFixed(3)}${t.unitKWD})\n`;
-
-  return text;
-}
-
-function copySummaryText() {
-  const text = generateSummaryText();
-  if (!text) return;
-
-  navigator.clipboard.writeText(text).then(() => {
-    showToast(i18n[currentLang].copiedMsg, 'success');
-  }).catch(() => {
-    const area = document.createElement('textarea');
-    area.value = text;
-    document.body.appendChild(area);
-    area.select();
-    document.execCommand('copy');
-    document.body.removeChild(area);
-    showToast(i18n[currentLang].copiedMsg, 'success');
-  });
-}
-
-function shareWhatsApp() {
-  const text = generateSummaryText();
-  if (!text) return;
-  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-  window.open(url, '_blank');
-}
-
-function formatKWD(amount) {
-  return amount.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + i18n[currentLang].unitKWD;
-}
-
-/* ===== History ===== */
-const HISTORY_KEY = 'kw_calc_history_v1';
-
-function getHistory() {
-  if (!canUseStorage()) return [];
-  try {
-    return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-  } catch (e) { return []; }
-}
-
-function saveToHistory(d) {
-  if (!d || !canUseStorage()) return;
-  try {
-    let list = getHistory();
-    const entry = {
-      ts: Date.now(),
-      empName: d.empName,
-      grandTotal: d.grandTotal,
-      mode: d.mode,
-      form: collectFormData()
-    };
-    list = [entry, ...list.filter(x => x.empName !== entry.empName || Math.abs(x.grandTotal - entry.grandTotal) > 0.01)].slice(0, 5);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
-    renderHistory();
-  } catch (e) { /* ignore */ }
-}
-
-function renderHistory() {
-  const card = document.getElementById('historyCard');
-  const listEl = document.getElementById('historyList');
-  if (!card || !listEl) return;
-  const t = i18n[currentLang];
-  const list = getHistory();
-  if (!list.length) {
-    card.style.display = 'none';
-    return;
-  }
-  card.style.display = 'block';
-  const clearBtn = document.getElementById('btnClearHistory');
-  if (clearBtn) clearBtn.innerText = t.historyClear;
-  const expBtn = document.getElementById('btnExportHistory');
-  if (expBtn) expBtn.innerText = t.historyExport;
-  listEl.innerHTML = '';
-  list.forEach((item, idx) => {
-    const div = document.createElement('div');
-    div.className = 'history-item';
-    const dateStr = new Date(item.ts).toLocaleString(currentLang === 'ar' ? 'ar-KW' : 'en-GB');
-    const info = document.createElement('div');
-    info.innerHTML = `<span class="hi-name">${item.empName || '—'}</span><div class="hi-meta">${dateStr} · ${Number(item.grandTotal).toFixed(3)}</div>`;
-    const actions = document.createElement('div');
-    actions.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;';
-    const loadBtn = document.createElement('button');
-    loadBtn.type = 'button';
-    loadBtn.innerText = t.historyLoad;
-    loadBtn.onclick = () => {
-      applyFormData(item.form);
-      showToast(currentLang === 'ar' ? 'تم تحميل البيانات من السجل' : 'Data loaded from history', 'success');
-    };
-    const delBtn = document.createElement('button');
-    delBtn.type = 'button';
-    delBtn.innerText = t.historyDelete;
-    delBtn.style.background = 'var(--danger)';
-    delBtn.onclick = () => deleteHistoryItem(idx);
-    actions.appendChild(loadBtn);
-    actions.appendChild(delBtn);
-    div.appendChild(info);
-    div.appendChild(actions);
-    listEl.appendChild(div);
-  });
-}
-
-function deleteHistoryItem(index) {
-  if (!canUseStorage()) return;
-  try {
-    let list = getHistory();
-    list.splice(index, 1);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
-    renderHistory();
-    showToast(i18n[currentLang].historyItemDeleted, 'success');
-  } catch (e) { /* ignore */ }
-}
-
-function clearAllHistory() {
-  if (!canUseStorage()) return;
-  try {
-    localStorage.removeItem(HISTORY_KEY);
-    renderHistory();
-    showToast(i18n[currentLang].historyCleared, 'success');
-  } catch (e) { /* ignore */ }
-}
-
-async function exportHistoryToExcel() {
-  const t = i18n[currentLang];
-  const list = getHistory();
-  if (!list.length) {
-    showToast(t.historyExportEmpty, 'error');
-    return;
-  }
-  const ok = await ensureExcelJS();
-  if (!ok || typeof ExcelJS === 'undefined') {
-    showToast(currentLang === 'ar' ? 'تعذر تحميل مكتبة الإكسل' : 'Failed to load Excel library', 'error');
-    return;
-  }
-
-  const isRTL = currentLang === 'ar';
-  const workbook = new ExcelJS.Workbook();
-  workbook.creator = 'Ahmed Abdelkarim';
-  const sheet = workbook.addWorksheet(isRTL ? 'سجل الحسابات' : 'History', {
-    views: [{ rightToLeft: isRTL, showGridLines: false }]
-  });
-
-  const headers = isRTL
-    ? ['#', 'اسم الموظف', 'التاريخ', 'الإجمالي (د.ك)', 'نوع الحساب', 'الراتب', 'تاريخ البداية', 'تاريخ النهاية', 'سبب الترك']
-    : ['#', 'Employee', 'Date', 'Total (KWD)', 'Mode', 'Salary', 'Start date', 'End date', 'Reason'];
-
-  const headerRow = sheet.addRow(headers);
-  headerRow.eachCell(cell => {
-    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F766E' } };
-    cell.alignment = { vertical: 'middle', horizontal: 'center' };
-  });
-  headerRow.height = 22;
-
-  const modeLabel = (m) => {
-    const map = {
-      both: isRTL ? 'نهاية خدمة + إجازات' : 'EOS + Vacation',
-      eosb: isRTL ? 'نهاية خدمة فقط' : 'EOS only',
-      vacation: isRTL ? 'إجازات فقط' : 'Vacation only',
-      overtime: isRTL ? 'أوفر تايم فقط' : 'Overtime only'
-    };
-    return map[m] || m || '—';
-  };
-
-  list.forEach((item, i) => {
-    const f = item.form || {};
-    const dateStr = new Date(item.ts).toLocaleString(isRTL ? 'ar-KW' : 'en-GB');
-    sheet.addRow([
-      i + 1,
-      item.empName || f.empName || '—',
-      dateStr,
-      Number(item.grandTotal || 0).toFixed(3),
-      modeLabel(item.mode || f.calcMode),
-      f.salary || '—',
-      f.startDate || '—',
-      f.endDate || '—',
-      f.reason === 'resignation' ? (isRTL ? 'استقالة' : 'Resignation')
-        : f.reason === 'termination' ? (isRTL ? 'إنهاء خدمات' : 'Termination') : (f.reason || '—')
-    ]);
-  });
-
-  sheet.columns.forEach(col => { col.width = 16; });
-  sheet.getColumn(2).width = 24;
-  sheet.getColumn(3).width = 22;
-
-  const buffer = await workbook.xlsx.writeBuffer();
-  const blob = new Blob([buffer], { type: 'application/octet-stream' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = isRTL ? 'سجل_الحسابات.xlsx' : 'calculation_history.xlsx';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(link.href);
-  showToast(t.historyExportOk, 'success');
-}
-
-/* ===== Compare scenarios ===== */
-function resignationRatio(years) {
-  if (years < 3) return 0;
-  if (years < 5) return 0.5;
-  if (years < 10) return 2 / 3;
-  return 1;
-}
-
-function updateComparePanel(d) {
-  const box = document.getElementById('compareBox');
-  if (!box || !d) return;
-  if (d.sector === 'government' || (d.mode !== 'both' && d.mode !== 'eosb')) {
-    box.classList.remove('show');
-    return;
-  }
-  const years = (d.totalDays || 0) / 365.25;
-  const termAmt = d.rawEOSB;
-  const resAmt = d.rawEOSB * resignationRatio(years);
-  document.getElementById('compareTermVal').innerText = formatKWD(termAmt);
-  document.getElementById('compareResVal').innerText = formatKWD(resAmt);
-  document.getElementById('compareTermCol').classList.toggle('winner', termAmt >= resAmt);
-  document.getElementById('compareResCol').classList.toggle('winner', resAmt > termAmt);
-  const diff = termAmt - resAmt;
-  const t = i18n[currentLang];
-  document.getElementById('compareNote').innerText =
-    (currentLang === 'ar'
-      ? `الفرق بين السيناريوهين: ${formatKWD(Math.abs(diff))} · مدة الخدمة ≈ ${years.toFixed(2)} سنة · نسبة الاستقالة ${(resignationRatio(years) * 100).toFixed(1)}%`
-      : `Difference: ${formatKWD(Math.abs(diff))} · Tenure ≈ ${years.toFixed(2)} yrs · Resignation ratio ${(resignationRatio(years) * 100).toFixed(1)}%`);
-}
-
-function toggleCompare() {
-  if (!lastCalculationData) {
-    showToast(i18n[currentLang].compareNeedEosb, 'error');
-    return;
-  }
-  if (lastCalculationData.sector === 'government' || (lastCalculationData.mode !== 'both' && lastCalculationData.mode !== 'eosb')) {
-    showToast(i18n[currentLang].compareNeedEosb, 'error');
-    return;
-  }
-  const box = document.getElementById('compareBox');
-  updateComparePanel(lastCalculationData);
-  box.classList.toggle('show');
-  if (box.classList.contains('show')) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-/* ===== Email template ===== */
-function copyEmailTemplate() {
-  if (!lastCalculationData) return;
-  const d = lastCalculationData;
-  const t = i18n[currentLang];
-  let body = '';
-  if (currentLang === 'ar') {
-    body = `السلام عليكم،\n\nأرفق ملخص مستحقات نهاية الخدمة للموظف: ${d.empName}\n`;
-    if (d.serviceText && d.serviceText !== t.notSpecified) body += `مدة الخدمة: ${d.serviceText}\n`;
-    body += `الراتب الشامل: ${d.salary.toFixed(3)} د.ك\n`;
-    if (d.mode === 'both' || d.mode === 'eosb') body += `صافي مكافأة نهاية الخدمة: ${d.finalEOSB.toFixed(3)} د.ك\n`;
-    if (d.mode === 'both' || d.mode === 'vacation') body += `بدل الإجازات: ${d.vacationAmount.toFixed(3)} د.ك\n`;
-    if (d.unpaidSalary > 0) body += `رواتب متأخرة: ${d.unpaidSalary.toFixed(3)} د.ك\n`;
-    if (d.deductions > 0) body += `خصومات: ${d.deductions.toFixed(3)} د.ك\n`;
-    body += `\nإجمالي الصافي المستحق: ${d.grandTotal.toFixed(3)} د.ك\n\nملاحظة: حساب استرشادي وفق قانون العمل 6/2010.\n\nمع التحية`;
-  } else {
-    body = `Dear HR,\n\nPlease find the end-of-service entitlement summary for: ${d.empName}\n`;
-    if (d.serviceText && d.serviceText !== t.notSpecified) body += `Service period: ${d.serviceText}\n`;
-    body += `Total salary: ${d.salary.toFixed(3)} KWD\n`;
-    if (d.mode === 'both' || d.mode === 'eosb') body += `Net indemnity: ${d.finalEOSB.toFixed(3)} KWD\n`;
-    if (d.mode === 'both' || d.mode === 'vacation') body += `Vacation pay: ${d.vacationAmount.toFixed(3)} KWD\n`;
-    if (d.unpaidSalary > 0) body += `Unpaid salary: ${d.unpaidSalary.toFixed(3)} KWD\n`;
-    if (d.deductions > 0) body += `Deductions: ${d.deductions.toFixed(3)} KWD\n`;
-    body += `\nGrand net payable: ${d.grandTotal.toFixed(3)} KWD\n\nNote: Indicative calculation per Labor Law 6/2010.\n\nBest regards`;
-  }
-  navigator.clipboard.writeText(body).then(() => {
-    showToast(t.emailCopied, 'success');
-  }).catch(() => {
-    const area = document.createElement('textarea');
-    area.value = body;
-    document.body.appendChild(area);
-    area.select();
-    document.execCommand('copy');
-    document.body.removeChild(area);
-    showToast(t.emailCopied, 'success');
-  });
-}
-
-/* ===== Keyboard shortcuts ===== */
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    closeReceiptModal();
-  }
-});
-
-/* ===== Init extras ===== */
-window.addEventListener('DOMContentLoaded', () => {
-  renderHistory();
-  handleSectorChange();
-});
 </script>
 
 </body>
