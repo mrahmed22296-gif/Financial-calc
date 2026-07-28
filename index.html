@@ -527,12 +527,32 @@
 
   @media print {
     body { background: #fff !important; color: #000 !important; }
-    header, .margin-line, .card:has(#calcForm), .action-bar, footer, .top-controls, #receiptModal { display: none !important; }
-    .results { display: block !important; }
-    .card { border: 1px solid #000 !important; box-shadow: none !important; }
-    .summary-cards-grid { background: #fff !important; border-bottom: 1px solid #000 !important; }
-    .summary-card { border: 1px solid #000 !important; }
-    .calc-notes-box { background: #fff !important; border-top: 1px solid #000 !important; }
+
+    /* الوضع الافتراضي: طباعة صفحة النتائج الرئيسية (عند عدم فتح نافذة المخالصة) */
+    body:not(.printing-receipt) header,
+    body:not(.printing-receipt) .margin-line,
+    body:not(.printing-receipt) .card:has(#calcForm),
+    body:not(.printing-receipt) .action-bar,
+    body:not(.printing-receipt) footer,
+    body:not(.printing-receipt) .top-controls,
+    body:not(.printing-receipt) #receiptModal { display: none !important; }
+    body:not(.printing-receipt) .results { display: block !important; }
+    body:not(.printing-receipt) .card { border: 1px solid #000 !important; box-shadow: none !important; }
+    body:not(.printing-receipt) .summary-cards-grid { background: #fff !important; border-bottom: 1px solid #000 !important; }
+    body:not(.printing-receipt) .summary-card { border: 1px solid #000 !important; }
+    body:not(.printing-receipt) .calc-notes-box { background: #fff !important; border-top: 1px solid #000 !important; }
+
+    /* وضع طباعة مخالصة وإخلاء الطرف فقط: يُفعّل عبر زر الطباعة داخل النافذة */
+    body.printing-receipt > *:not(#receiptModal) { display: none !important; }
+    body.printing-receipt #receiptModal {
+      display: block !important;
+      position: static !important;
+      background: #fff !important;
+      padding: 0 !important;
+      overflow: visible !important;
+    }
+    body.printing-receipt .receipt-box { margin: 0 !important; box-shadow: none !important; }
+    .no-print { display: none !important; }
   }
 </style>
 </head>
@@ -557,6 +577,16 @@
 <main>
   <div class="card">
     <div class="card-title" id="formTitle">📋 بيانات الموظف والعقد</div>
+    <div class="form-group full-width" style="flex-direction: row; align-items: flex-end; gap: 8px; margin-bottom: 16px;">
+      <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
+        <label for="savedEmployees" id="lblSavedEmployees">📁 السجلات المحفوظة</label>
+        <select id="savedEmployees" onchange="loadSavedEmployee()">
+          <option value="" id="optNewRecord">-- سجل جديد --</option>
+        </select>
+      </div>
+      <button type="button" class="btn-action btn-export" style="background: var(--brass); color: var(--green-dark);" onclick="saveEmployeeRecord()" id="btnSaveRecord">💾 حفظ</button>
+      <button type="button" class="btn-action btn-reset" onclick="deleteSavedEmployee()" id="btnDeleteRecord">🗑️ حذف</button>
+    </div>
     <form id="calcForm" onsubmit="calculate(event)">
       <div class="grid">
         
@@ -787,7 +817,7 @@
     </div>
 
     <div style="text-align: center; margin-top: 25px;" class="no-print">
-      <button class="btn-action btn-print" onclick="window.print()">🖨️ طباعة المخالصة</button>
+      <button class="btn-action btn-print" onclick="printReceipt()">🖨️ طباعة المخالصة</button>
       <button class="btn-action btn-reset" onclick="closeReceiptModal()">إغلاق</button>
     </div>
   </div>
@@ -817,6 +847,13 @@ const i18n = {
     headerSub: "وفقاً لقانون العمل الكويتي في القطاع الأهلي (رقم 6 لسنة 2010)",
     lblVisitors: "👥 عدد زوار الموقع:",
     formTitle: "📋 بيانات الموظف والعقد",
+    lblSavedEmployees: "📁 السجلات المحفوظة",
+    optNewRecord: "-- سجل جديد --",
+    btnSaveRecord: "💾 حفظ",
+    btnDeleteRecord: "🗑️ حذف",
+    emptyNameAlert: "الرجاء إدخال اسم الموظف أولاً قبل الحفظ.",
+    recordSavedMsg: "تم حفظ بيانات الموظف بنجاح!",
+    deleteConfirmMsg: "هل أنت متأكد من حذف هذا السجل المحفوظ؟",
     lblCalcMode: "نوع الحساب المطلوب",
     optBoth: "حساب نهاية الخدمة + رصيد الإجازات معاً",
     optEosbOnly: "حساب مكافأة نهاية الخدمة فقط",
@@ -881,13 +918,14 @@ const i18n = {
     dayText: "يوم",
     andText: "و",
     dateAlert: "تاريخ نهاية العمل يجب أن يكون بعد تاريخ البداية!",
+    zeroSalaryAlert: "الرجاء إدخال قيمة صحيحة للراتب أكبر من صفر لإتمام الحساب.",
     notSpecified: "لم يحدد",
     notCalculated: "غير مشمول بالحساب",
     notesHeader: "📝 ملاحظات وتفاصيل الحسابات الرياضية:",
     noteDailyRate: "أجر اليوم = الراتب الشامل ÷ 26 يوم عمل",
     noteHourlyRate: "أجر الساعة = الراتب الشامل ÷ (26 × 8) = الراتب ÷ 208 ساعة",
-    noteEOSBRule: "حساب نهاية الخدمة: 15 يوماً عن كل سنة من الـ 5 سنوات الأولى، و30 يوماً عن كل سنة تالية (بحد أقصى 18 شهراً).",
-    noteResignationRule: "نسبة الاستحقاق في الاستقالة: أقل من سنتين (0%)، من 2-5 سنوات (50%)، من 5-10 سنوات (66.67%)، أكثر من 10 سنوات (100%).",
+    noteEOSBRule: "حساب نهاية الخدمة (وفق المادة 51): 15 يوماً عن كل سنة من الـ 5 سنوات الأولى، و30 يوماً عن كل سنة تالية (بحد أقصى 18 شهراً).",
+    noteResignationRule: "نسبة الاستحقاق في الاستقالة (وفق المادة 53): أقل من 3 سنوات (0%)، من 3-5 سنوات (50%)، من 5-10 سنوات (66.67%)، أكثر من 10 سنوات (100%).",
     noteVacationRule: "بدل الإجازات = رصيد الأيام × أجر اليوم.",
     noteOvertimeRule: "العمل الإضافي: عادي (125%)، عطلة أسبوعية (150%)، عطل رسمية (200%).",
     noteProbationRule: "تنبيه: مدة الخدمة أقل من 100 يوم عمل (فترة التجربة وفق المادة 32)، قد تخضع المستحقات لبنود شرط التجربة بالعقد.",
@@ -900,6 +938,13 @@ const i18n = {
     headerSub: "According to Kuwait Labor Law in Private Sector (No. 6 of 2010)",
     lblVisitors: "👥 Total Visitors:",
     formTitle: "📋 Employee & Contract Details",
+    lblSavedEmployees: "📁 Saved Records",
+    optNewRecord: "-- New Record --",
+    btnSaveRecord: "💾 Save",
+    btnDeleteRecord: "🗑️ Delete",
+    emptyNameAlert: "Please enter the employee name before saving.",
+    recordSavedMsg: "Employee record saved successfully!",
+    deleteConfirmMsg: "Are you sure you want to delete this saved record?",
     lblCalcMode: "Calculation Mode",
     optBoth: "End of Service + Vacation Balance Both",
     optEosbOnly: "End of Service Indemnity Only",
@@ -964,13 +1009,14 @@ const i18n = {
     dayText: "Day(s)",
     andText: "and",
     dateAlert: "End date must be after the start date!",
+    zeroSalaryAlert: "Please enter a valid salary greater than zero to complete the calculation.",
     notSpecified: "Not Specified",
     notCalculated: "Not Calculated",
     notesHeader: "📝 Calculation Notes & Formulas:",
     noteDailyRate: "Daily Rate = Total Salary ÷ 26 working days",
     noteHourlyRate: "Hourly Rate = Total Salary ÷ (26 × 8) = Total Salary ÷ 208 hours",
-    noteEOSBRule: "Indemnity Rule: 15 days per year for first 5 years, 30 days per year for subsequent years (Max 18 months cap).",
-    noteResignationRule: "Resignation Entitlement: <2 yrs (0%), 2-5 yrs (50%), 5-10 yrs (66.67%), >10 yrs (100%).",
+    noteEOSBRule: "Indemnity Rule (Article 51): 15 days per year for first 5 years, 30 days per year for subsequent years (Max 18 months cap).",
+    noteResignationRule: "Resignation Entitlement (Article 53): <3 yrs (0%), 3-5 yrs (50%), 5-10 yrs (66.67%), >10 yrs (100%).",
     noteVacationRule: "Vacation Pay = Remaining Days × Daily Rate.",
     noteOvertimeRule: "Overtime Rates: Normal (125%), Weekends (150%), Public Holidays (200%).",
     noteProbationRule: "Notice: Service period is under 100 days (Probation Period Art. 32), entitlements subject to contract probation clause.",
@@ -1000,8 +1046,9 @@ function toggleDarkMode() {
   btn.innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
 }
 
-function saveDraft() {
-  const formData = {
+function collectFormData() {
+  return {
+    calcMode: document.getElementById('calcMode').value,
     empName: document.getElementById('empName').value,
     startDate: document.getElementById('startDate').value,
     endDate: document.getElementById('endDate').value,
@@ -1010,30 +1057,134 @@ function saveDraft() {
     vacationDays: document.getElementById('vacationDays').value,
     salary: document.getElementById('salary').value,
     reason: document.getElementById('reason').value,
+    normalOT: document.getElementById('normalOT').value,
+    weekendOT: document.getElementById('weekendOT').value,
+    holidayOT: document.getElementById('holidayOT').value,
     unpaidSalary: document.getElementById('unpaidSalary').value,
     deductions: document.getElementById('deductions').value
   };
-  localStorage.setItem('kw_calc_draft', JSON.stringify(formData));
+}
+
+function applyFormData(d) {
+  if (d.calcMode) document.getElementById('calcMode').value = d.calcMode;
+  if (d.empName) document.getElementById('empName').value = d.empName;
+  if (d.startDate) document.getElementById('startDate').value = d.startDate;
+  if (d.endDate) document.getElementById('endDate').value = d.endDate;
+  if (d.lastVacationReturn) document.getElementById('lastVacationReturn').value = d.lastVacationReturn;
+  if (d.unpaidLeaveDays) document.getElementById('unpaidLeaveDays').value = d.unpaidLeaveDays;
+  if (d.vacationDays) document.getElementById('vacationDays').value = d.vacationDays;
+  if (d.salary) document.getElementById('salary').value = d.salary;
+  if (d.reason) document.getElementById('reason').value = d.reason;
+  if (d.normalOT) document.getElementById('normalOT').value = d.normalOT;
+  if (d.weekendOT) document.getElementById('weekendOT').value = d.weekendOT;
+  if (d.holidayOT) document.getElementById('holidayOT').value = d.holidayOT;
+  if (d.unpaidSalary) document.getElementById('unpaidSalary').value = d.unpaidSalary;
+  if (d.deductions) document.getElementById('deductions').value = d.deductions;
+  handleCalcModeChange();
+  document.getElementById('resultsBox').style.display = 'none';
+}
+
+function saveDraft() {
+  localStorage.setItem('kw_calc_draft', JSON.stringify(collectFormData()));
 }
 
 function loadDraft() {
   const draft = localStorage.getItem('kw_calc_draft');
   if (draft) {
-    const d = JSON.parse(draft);
-    if(d.empName) document.getElementById('empName').value = d.empName;
-    if(d.startDate) document.getElementById('startDate').value = d.startDate;
-    if(d.endDate) document.getElementById('endDate').value = d.endDate;
-    if(d.lastVacationReturn) document.getElementById('lastVacationReturn').value = d.lastVacationReturn;
-    if(d.unpaidLeaveDays) document.getElementById('unpaidLeaveDays').value = d.unpaidLeaveDays;
-    if(d.vacationDays) document.getElementById('vacationDays').value = d.vacationDays;
-    if(d.salary) document.getElementById('salary').value = d.salary;
-    if(d.reason) document.getElementById('reason').value = d.reason;
-    if(d.unpaidSalary) document.getElementById('unpaidSalary').value = d.unpaidSalary;
-    if(d.deductions) document.getElementById('deductions').value = d.deductions;
+    applyFormData(JSON.parse(draft));
   }
 }
 
-window.addEventListener('DOMContentLoaded', loadDraft);
+/* ------- إدارة سجلات الموظفين المحفوظة (أكثر من موظف) ------- */
+function getSavedRecords() {
+  try {
+    return JSON.parse(localStorage.getItem('kw_calc_records') || '[]');
+  } catch (e) {
+    return [];
+  }
+}
+
+function setSavedRecords(records) {
+  localStorage.setItem('kw_calc_records', JSON.stringify(records));
+}
+
+function refreshSavedEmployeesList() {
+  const select = document.getElementById('savedEmployees');
+  if (!select) return;
+  const t = i18n[currentLang];
+  const records = getSavedRecords();
+  const currentVal = select.value;
+  select.innerHTML = '';
+  const optNew = document.createElement('option');
+  optNew.value = '';
+  optNew.innerText = t.optNewRecord;
+  select.appendChild(optNew);
+  records.forEach((r, idx) => {
+    const opt = document.createElement('option');
+    opt.value = idx;
+    opt.innerText = r.empName || (t.optNewRecord + ' ' + (idx + 1));
+    select.appendChild(opt);
+  });
+  select.value = currentVal || '';
+}
+
+function saveEmployeeRecord() {
+  const t = i18n[currentLang];
+  const formData = collectFormData();
+  if (!formData.empName) {
+    alert(t.emptyNameAlert);
+    return;
+  }
+  const records = getSavedRecords();
+  const select = document.getElementById('savedEmployees');
+  const idx = select.value;
+  if (idx !== '') {
+    records[idx] = formData;
+  } else {
+    records.push(formData);
+  }
+  setSavedRecords(records);
+  refreshSavedEmployeesList();
+  select.value = idx !== '' ? idx : (records.length - 1);
+  alert(t.recordSavedMsg);
+}
+
+function loadSavedEmployee() {
+  const select = document.getElementById('savedEmployees');
+  const idx = select.value;
+  if (idx === '') {
+    document.getElementById('calcForm').reset();
+    handleCalcModeChange();
+    document.getElementById('resultsBox').style.display = 'none';
+    return;
+  }
+  const records = getSavedRecords();
+  const d = records[idx];
+  if (!d) return;
+  document.getElementById('calcForm').reset();
+  applyFormData(d);
+}
+
+function deleteSavedEmployee() {
+  const t = i18n[currentLang];
+  const select = document.getElementById('savedEmployees');
+  const idx = select.value;
+  if (idx === '') return;
+  if (!confirm(t.deleteConfirmMsg)) return;
+  const records = getSavedRecords();
+  records.splice(idx, 1);
+  setSavedRecords(records);
+  refreshSavedEmployeesList();
+  select.value = '';
+  document.getElementById('calcForm').reset();
+  handleCalcModeChange();
+  document.getElementById('resultsBox').style.display = 'none';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  loadDraft();
+  refreshSavedEmployeesList();
+});
 
 function handleCalcModeChange() {
   const mode = document.getElementById('calcMode').value;
@@ -1128,6 +1279,10 @@ function toggleLanguage() {
   document.getElementById('headerSub').innerText = t.headerSub;
   document.getElementById('lblVisitors').innerText = t.lblVisitors;
   document.getElementById('formTitle').innerText = t.formTitle;
+  document.getElementById('lblSavedEmployees').innerText = t.lblSavedEmployees;
+  document.getElementById('btnSaveRecord').innerText = t.btnSaveRecord;
+  document.getElementById('btnDeleteRecord').innerText = t.btnDeleteRecord;
+  refreshSavedEmployeesList();
   document.getElementById('lblCalcMode').innerText = t.lblCalcMode;
   document.getElementById('optBoth').innerText = t.optBoth;
   document.getElementById('optEosbOnly').innerText = t.optEosbOnly;
@@ -1256,6 +1411,11 @@ function calculate(e) {
   const unpaidSalary = parseFloat(document.getElementById('unpaidSalary').value) || 0;
   const deductions = parseFloat(document.getElementById('deductions').value) || 0;
 
+  if (!salary || salary <= 0) {
+    alert(t.zeroSalaryAlert);
+    return;
+  }
+
   let years = 0;
   let totalDays = 0;
   let serviceText = t.notSpecified;
@@ -1312,9 +1472,9 @@ function calculate(e) {
     rawEOSB = rawEOSBDays * dailySalary;
 
     if (reason === 'resignation') {
-      if (years < 2) {
+      if (years < 3) {
         ratio = 0;
-      } else if (years >= 2 && years < 5) {
+      } else if (years >= 3 && years < 5) {
         ratio = 0.5;
       } else if (years >= 5 && years < 10) {
         ratio = 2 / 3;
@@ -1489,6 +1649,15 @@ function openReceiptModal() {
 function closeReceiptModal() {
   document.getElementById('receiptModal').style.display = 'none';
 }
+
+function printReceipt() {
+  document.body.classList.add('printing-receipt');
+  window.print();
+}
+
+window.addEventListener('afterprint', () => {
+  document.body.classList.remove('printing-receipt');
+});
 
 async function exportToExcelReal() {
   if (!lastCalculationData) return;
