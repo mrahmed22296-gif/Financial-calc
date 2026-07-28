@@ -593,30 +593,9 @@
     filter: brightness(0.88);
   }
 
-  /* ===== زر الحساب العائم على الموبايل ===== */
-  .fab-calc {
-    display: none;
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 500;
-    background: var(--brass);
-    color: var(--green-dark);
-    border: none;
-    padding: 14px 30px;
-    border-radius: 30px;
-    font-family: 'Tajawal', sans-serif;
-    font-weight: 900;
-    font-size: 15px;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
-    cursor: pointer;
-  }
-  @media (max-width: 640px) {
-    .fab-calc { display: block; }
-  }
+  
   @media print {
-    .fab-calc, .toast-container { display: none !important; }
+    .toast-container { display: none !important; }
   }
 
   /* ===== تكديس صفوف النتائج على الشاشات الصغيرة جداً ===== */
@@ -661,6 +640,7 @@
     .no-print { display: none !important; }
   }
 </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -885,7 +865,6 @@
   </div>
 </main>
 
-<button type="button" class="fab-calc" id="fabCalc" onclick="document.getElementById('btnCalc').click()">✅ احسب المستحقات</button>
 
 <!-- نافذة مخالصة وإخلاء طرف -->
 <div id="receiptModal">
@@ -1368,8 +1347,7 @@ function toggleLanguage() {
   document.getElementById('lblDeductions').innerText = t.lblDeductions;
   document.getElementById('hintDeductions').innerText = t.hintDeductions;
   document.getElementById('btnCalc').innerText = t.btnCalc;
-  document.getElementById('fabCalc').innerText = '✅ ' + t.btnCalc;
-  document.getElementById('btnReset').innerText = t.btnReset;
+    document.getElementById('btnReset').innerText = t.btnReset;
   document.getElementById('lblRawEOSBDays').innerText = t.lblRawEOSBDays;
   document.getElementById('lblEntitlementRatio').innerText = t.lblEntitlementRatio;
   document.getElementById('lblNetEOSBDays').innerText = t.lblNetEOSBDays;
