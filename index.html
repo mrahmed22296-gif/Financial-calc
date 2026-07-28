@@ -535,8 +535,8 @@
         <div class="form-group" id="grpVacationPolicy">
           <label for="vacationPolicy" id="lblVacationPolicy">سياسة إجازات الشركة</label>
           <select id="vacationPolicy" onchange="autoCalcVacation()">
-            <option value="calendar" id="optPolicyCalendar">30 يوم تقويمي سنوياً (حسب القانون الكويتي الأساسي)</option>
-            <option value="working" id="optPolicyWorking">30 يوم عمل وليس تقويمياً (إجازة برواتب كاملة باستثناء العطل)</option>
+            <option value="calendar" id="optPolicyCalendar">30 يوم سنوياً (تُحسب شاملة العطل والجمع)</option>
+            <option value="working" id="optPolicyWorking">30 يوم عمل (لا تُحسب العطل والجمع ضمنها)</option>
           </select>
         </div>
 
@@ -713,8 +713,8 @@ const i18n = {
     lblStartDate: "تاريخ بداية العمل",
     lblEndDate: "تاريخ نهاية العمل",
     lblVacationPolicy: "سياسة إجازات الشركة",
-    optPolicyCalendar: "30 يوم تقويمي سنوياً (حسب القانون الكويتي الأساسي)",
-    optPolicyWorking: "30 يوم عمل وليس تقويمياً (إجازة برواتب كاملة باستثناء العطل)",
+    optPolicyCalendar: "30 يوم سنوياً (تُحسب شاملة العطل والجمع)",
+    optPolicyWorking: "30 يوم عمل (لا تُحسب العطل والجمع ضمنها)",
     lblLastVacation: "تاريخ آخر عودة من إجازة (اختياري)",
     hintLastVacation: "لحساب رصيد الإجازات تلقائياً، اتركه فارغاً للإدخال اليدوي",
     lblUnpaidLeave: "أيام الإجازة بدون أجر (إن وجدت)",
@@ -790,8 +790,8 @@ const i18n = {
     lblStartDate: "Start Date",
     lblEndDate: "End Date",
     lblVacationPolicy: "Company Vacation Policy",
-    optPolicyCalendar: "30 Calendar Days/Year (Standard Kuwait Law)",
-    optPolicyWorking: "30 Working Days (Excluding Weekends)",
+    optPolicyCalendar: "30 Days / Year (Includes Weekends & Holidays)",
+    optPolicyWorking: "30 Working Days (Excluding Weekends & Holidays)",
     lblLastVacation: "Last Return Date from Vacation (Optional)",
     hintLastVacation: "Leave blank for manual entry to calculate vacation balance automatically",
     lblUnpaidLeave: "Unpaid Leave Days (if any)",
@@ -1045,7 +1045,6 @@ function autoCalcVacation() {
       
       totalDays = Math.max(0, totalDays - unpaidLeaveDays);
       
-      // إذا كانت السياسة 30 يوم عمل وليس تقويمياً، تحسب النسبة بـ (30 يوم عمل × 7 / 5) = 42 يوم تقويمي
       const annualVacationRate = (policy === 'working') ? (30 * (7 / 5)) : 30;
       const calculatedVacation = totalDays * (annualVacationRate / 365.25);
       
@@ -1119,7 +1118,7 @@ function calculate(e) {
   document.getElementById('resEmpName').innerText = `${t.resEmpName}${empName}`;
 
   const dailySalary = salary / 26; 
-  const hourlyRate = salary / 208; // 26 يوم * 8 ساعات عمل
+  const hourlyRate = salary / 208;
 
   let rawEOSBDays = 0;
   let ratio = 1.0;
@@ -1299,7 +1298,29 @@ function generateSummaryText() {
   }
 
   text += `-----------------------------------\n`;
-  text += `✅ *${t.lblGrandTotal}: ${d.grandTotal.toFixed(3)}${t.unitKWD}*`;
+  text += `✅ *${t.lblGrandTotal}: ${d.grandTotal.toFixed(3)}${t.unitKWD}*\n`;
+  text += `-----------------------------------\n`;
+
+  // إدراج قسم الملاحظات الحسابية إلى نص النسخ والواتساب تلقائياً
+  text += `📌 *${t.notesHeader}*\n`;
+  text += `1️⃣ ${t.noteDailyRate} (${d.salary.toFixed(3)} ÷ 26 = ${d.dailySalary.toFixed(3)}${t.unitKWD})\n`;
+
+  if (d.mode === 'overtime') {
+    text += `2️⃣ ${t.noteHourlyRate} (${d.salary.toFixed(3)} ÷ 208 = ${d.hourlyRate.toFixed(3)}${t.unitKWD})\n`;
+  }
+
+  if (d.mode === 'both' || d.mode === 'eosb') {
+    text += `3️⃣ ${t.noteEOSBRule}\n`;
+    text += `4️⃣ ${t.noteResignationRule}\n`;
+  }
+
+  if (d.mode === 'both' || d.mode === 'vacation') {
+    text += `5️⃣ ${t.noteVacationRule}\n`;
+  }
+
+  if (d.mode === 'overtime') {
+    text += `6️⃣ ${t.noteOvertimeRule}\n`;
+  }
 
   return text;
 }
@@ -1389,7 +1410,6 @@ function exportToExcel() {
   rows.push([d.unpaidSalary.toFixed(3) + t.unitKWD, t.lblUnpaidSalary]);
   rows.push([d.grandTotal.toFixed(3) + t.unitKWD, t.lblGrandTotal]);
 
-  // إعداد Meno/Notes العملية الحسابية
   const notes = [];
   notes.push(t.notesHeader);
   notes.push(`1. ${t.noteDailyRate} (${d.salary.toFixed(3)} ÷ 26 = ${d.dailySalary.toFixed(3)}${t.unitKWD})`);
@@ -1457,7 +1477,6 @@ function exportToExcel() {
 
   tableHTML += `</table>`;
 
-  // إضافة جدول الملاحظات الرياضية
   tableHTML += `
     <br/>
     <table border="1" style="border-collapse: collapse; font-family: Arial, sans-serif; text-align: right; width: 100%; background-color: #FFF2CC;">
