@@ -532,14 +532,6 @@
           <input type="date" id="endDate" onchange="autoCalcVacation()" required>
         </div>
 
-        <div class="form-group" id="grpVacationPolicy">
-          <label for="vacationPolicy" id="lblVacationPolicy">سياسة إجازات الشركة</label>
-          <select id="vacationPolicy" onchange="autoCalcVacation()">
-            <option value="calendar" id="optPolicyCalendar">30 يوم سنوياً (تُحسب شاملة العطل والجمع)</option>
-            <option value="working" id="optPolicyWorking">30 يوم عمل (لا تُحسب العطل والجمع ضمنها)</option>
-          </select>
-        </div>
-
         <div class="form-group" id="grpLastVacation">
           <label for="lastVacationReturn" id="lblLastVacation">تاريخ آخر عودة من إجازة (اختياري)</label>
           <input type="date" id="lastVacationReturn" onchange="autoCalcVacation()">
@@ -712,9 +704,6 @@ const i18n = {
     phEmpName: "أدخل اسم الموظف",
     lblStartDate: "تاريخ بداية العمل",
     lblEndDate: "تاريخ نهاية العمل",
-    lblVacationPolicy: "سياسة إجازات الشركة",
-    optPolicyCalendar: "30 يوم سنوياً (تُحسب شاملة العطل والجمع)",
-    optPolicyWorking: "30 يوم عمل (لا تُحسب العطل والجمع ضمنها)",
     lblLastVacation: "تاريخ آخر عودة من إجازة (اختياري)",
     hintLastVacation: "لحساب رصيد الإجازات تلقائياً، اتركه فارغاً للإدخال اليدوي",
     lblUnpaidLeave: "أيام الإجازة بدون أجر (إن وجدت)",
@@ -789,9 +778,6 @@ const i18n = {
     phEmpName: "Enter employee name",
     lblStartDate: "Start Date",
     lblEndDate: "End Date",
-    lblVacationPolicy: "Company Vacation Policy",
-    optPolicyCalendar: "30 Days / Year (Includes Weekends & Holidays)",
-    optPolicyWorking: "30 Working Days (Excluding Weekends & Holidays)",
     lblLastVacation: "Last Return Date from Vacation (Optional)",
     hintLastVacation: "Leave blank for manual entry to calculate vacation balance automatically",
     lblUnpaidLeave: "Unpaid Leave Days (if any)",
@@ -875,7 +861,6 @@ function handleCalcModeChange() {
   const grpStartDate = document.getElementById('grpStartDate');
   const grpEndDate = document.getElementById('grpEndDate');
   const grpReason = document.getElementById('grpReason');
-  const grpVacationPolicy = document.getElementById('grpVacationPolicy');
   const grpLastVacation = document.getElementById('grpLastVacation');
   const grpUnpaidLeave = document.getElementById('grpUnpaidLeave');
   const grpVacationDays = document.getElementById('grpVacationDays');
@@ -892,7 +877,6 @@ function handleCalcModeChange() {
     grpStartDate.style.display = 'flex';
     grpEndDate.style.display = 'flex';
     grpReason.style.display = 'flex';
-    grpVacationPolicy.style.display = 'flex';
     grpLastVacation.style.display = 'flex';
     grpUnpaidLeave.style.display = 'flex';
     grpVacationDays.style.display = 'flex';
@@ -907,7 +891,6 @@ function handleCalcModeChange() {
     grpStartDate.style.display = 'flex';
     grpEndDate.style.display = 'flex';
     grpReason.style.display = 'flex';
-    grpVacationPolicy.style.display = 'none';
     grpLastVacation.style.display = 'none';
     grpUnpaidLeave.style.display = 'none';
     grpVacationDays.style.display = 'none';
@@ -922,7 +905,6 @@ function handleCalcModeChange() {
     grpStartDate.style.display = 'none';
     grpEndDate.style.display = 'flex';
     grpReason.style.display = 'none';
-    grpVacationPolicy.style.display = 'flex';
     grpLastVacation.style.display = 'flex';
     grpUnpaidLeave.style.display = 'flex';
     grpVacationDays.style.display = 'flex';
@@ -937,7 +919,6 @@ function handleCalcModeChange() {
     grpStartDate.style.display = 'none';
     grpEndDate.style.display = 'none';
     grpReason.style.display = 'none';
-    grpVacationPolicy.style.display = 'none';
     grpLastVacation.style.display = 'none';
     grpUnpaidLeave.style.display = 'none';
     grpVacationDays.style.display = 'none';
@@ -976,9 +957,6 @@ function toggleLanguage() {
   document.getElementById('empName').placeholder = t.phEmpName;
   document.getElementById('lblStartDate').innerText = t.lblStartDate;
   document.getElementById('lblEndDate').innerText = t.lblEndDate;
-  document.getElementById('lblVacationPolicy').innerText = t.lblVacationPolicy;
-  document.getElementById('optPolicyCalendar').innerText = t.optPolicyCalendar;
-  document.getElementById('optPolicyWorking').innerText = t.optPolicyWorking;
   document.getElementById('lblLastVacation').innerText = t.lblLastVacation;
   document.getElementById('hintLastVacation').innerText = t.hintLastVacation;
   document.getElementById('lblUnpaidLeave').innerText = t.lblUnpaidLeave;
@@ -1028,7 +1006,6 @@ function autoCalcVacation() {
   const mode = document.getElementById('calcMode').value;
   const lastReturnVal = document.getElementById('lastVacationReturn').value;
   const endDateVal = document.getElementById('endDate').value;
-  const policy = document.getElementById('vacationPolicy').value;
   const unpaidLeaveDays = parseFloat(document.getElementById('unpaidLeaveDays').value) || 0;
   const vacationInput = document.getElementById('vacationDays');
   const vacationHint = document.getElementById('vacationHint');
@@ -1045,8 +1022,7 @@ function autoCalcVacation() {
       
       totalDays = Math.max(0, totalDays - unpaidLeaveDays);
       
-      const annualVacationRate = (policy === 'working') ? (30 * (7 / 5)) : 30;
-      const calculatedVacation = totalDays * (annualVacationRate / 365.25);
+      const calculatedVacation = totalDays * (30 / 365.25);
       
       vacationInput.value = calculatedVacation.toFixed(2);
       vacationInput.disabled = true;
