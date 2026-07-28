@@ -411,7 +411,6 @@
           <label for="calcMode" id="lblCalcMode">نوع الحساب المطلوب</label>
           <select id="calcMode" onchange="handleCalcModeChange()" required>
             <option value="both" id="optBoth">حساب نهاية الخدمة + رصيد الإجازات معاً</option>
-            <option value="all" id="optAll">حساب الشامل (نهاية الخدمة + الإجازات + الأوفر تايم)</option>
             <option value="eosb" id="optEosbOnly">حساب مكافأة نهاية الخدمة فقط</option>
             <option value="vacation" id="optVacationOnly">حساب بدل رصيد الإجازات فقط</option>
             <option value="overtime" id="optOvertimeOnly">حساب بدل العمل الإضافي (الأوفر تايم) فقط</option>
@@ -466,19 +465,19 @@
         </div>
 
         <!-- حقول بدل العمل الإضافي (الأوفر تايم) -->
-        <div class="form-group" id="grpNormalOT">
+        <div class="form-group" id="grpNormalOT" style="display: none;">
           <label for="normalOT" id="lblNormalOT">ساعات عمل إضافي (أيام عادية - 125%)</label>
           <input type="number" id="normalOT" min="0" value="0" step="0.5">
           <span class="hint" id="hintNormalOT">أجر الساعة × 1.25</span>
         </div>
 
-        <div class="form-group" id="grpWeekendOT">
+        <div class="form-group" id="grpWeekendOT" style="display: none;">
           <label for="weekendOT" id="lblWeekendOT">ساعات عمل إضافي (أيام الراحة/الجمعة - 150%)</label>
           <input type="number" id="weekendOT" min="0" value="0" step="0.5">
           <span class="hint" id="hintWeekendOT">أجر الساعة × 1.50</span>
         </div>
 
-        <div class="form-group" id="grpHolidayOT">
+        <div class="form-group" id="grpHolidayOT" style="display: none;">
           <label for="holidayOT" id="lblHolidayOT">ساعات عمل إضافي (العطل الرسمية - 200%)</label>
           <input type="number" id="holidayOT" min="0" value="0" step="0.5">
           <span class="hint" id="hintHolidayOT">أجر الساعة × 2.00</span>
@@ -534,7 +533,7 @@
           <span class="amount" id="vacationAmount">0.000 د.ك</span>
         </div>
 
-        <div class="result-row" id="rowOvertimeAmount">
+        <div class="result-row" id="rowOvertimeAmount" style="display: none;">
           <span id="lblOvertimeAmount">بدل العمل الإضافي (الأوفر تايم):</span>
           <span class="amount" id="overtimeAmount">0.000 د.ك</span>
         </div>
@@ -578,13 +577,12 @@ const i18n = {
   ar: {
     docTitle: "حاسبة نهاية الخدمة ورصيد الإجازات في الكويت | قانون العمل 6/2010",
     langBtn: "English 🌐",
-    headerTitle: "حاسبة مستحقات نهاية الخدمة بالإجازات",
+    headerTitle: "حاسبة مستحقات نهاية الخدمة ورصيد الاجازات",
     headerSub: "وفقاً لقانون العمل الكويتي في القطاع الأهلي (رقم 6 لسنة 2010)",
     lblVisitors: "👥 عدد زوار الموقع:",
     formTitle: "📋 بيانات الموظف والعقد",
     lblCalcMode: "نوع الحساب المطلوب",
     optBoth: "حساب نهاية الخدمة + رصيد الإجازات معاً",
-    optAll: "حساب الشامل (نهاية الخدمة + الإجازات + الأوفر تايم)",
     optEosbOnly: "حساب مكافأة نهاية الخدمة فقط",
     optVacationOnly: "حساب بدل رصيد الإجازات فقط",
     optOvertimeOnly: "حساب بدل العمل الإضافي (الأوفر تايم) فقط",
@@ -647,7 +645,6 @@ const i18n = {
     formTitle: "📋 Employee & Contract Details",
     lblCalcMode: "Calculation Mode",
     optBoth: "End of Service + Vacation Balance Both",
-    optAll: "Full Calculation (EOSB + Vacation + Overtime)",
     optEosbOnly: "End of Service Indemnity Only",
     optVacationOnly: "Vacation Balance Pay Only",
     optOvertimeOnly: "Overtime Pay Only",
@@ -733,33 +730,25 @@ function handleCalcModeChange() {
   const grpNormalOT = document.getElementById('grpNormalOT');
   const grpWeekendOT = document.getElementById('grpWeekendOT');
   const grpHolidayOT = document.getElementById('grpHolidayOT');
-  const grpUnpaidSalary = document.getElementById('grpUnpaidSalary');
 
   const startDate = document.getElementById('startDate');
   const endDate = document.getElementById('endDate');
   const reason = document.getElementById('reason');
 
-  if (mode === 'both' || mode === 'all') {
+  if (mode === 'both') {
     grpStartDate.style.display = 'flex';
     grpEndDate.style.display = 'flex';
     grpReason.style.display = 'flex';
     grpLastVacation.style.display = 'flex';
     grpUnpaidLeave.style.display = 'flex';
     grpVacationDays.style.display = 'flex';
+    grpNormalOT.style.display = 'none';
+    grpWeekendOT.style.display = 'none';
+    grpHolidayOT.style.display = 'none';
 
     startDate.required = true;
     endDate.required = true;
     reason.required = true;
-
-    if (mode === 'all') {
-      grpNormalOT.style.display = 'flex';
-      grpWeekendOT.style.display = 'flex';
-      grpHolidayOT.style.display = 'flex';
-    } else {
-      grpNormalOT.style.display = 'none';
-      grpWeekendOT.style.display = 'none';
-      grpHolidayOT.style.display = 'none';
-    }
   } else if (mode === 'eosb') {
     grpStartDate.style.display = 'flex';
     grpEndDate.style.display = 'flex';
@@ -823,7 +812,6 @@ function toggleLanguage() {
   document.getElementById('formTitle').innerText = t.formTitle;
   document.getElementById('lblCalcMode').innerText = t.lblCalcMode;
   document.getElementById('optBoth').innerText = t.optBoth;
-  document.getElementById('optAll').innerText = t.optAll;
   document.getElementById('optEosbOnly').innerText = t.optEosbOnly;
   document.getElementById('optVacationOnly').innerText = t.optVacationOnly;
   document.getElementById('optOvertimeOnly').innerText = t.optOvertimeOnly;
@@ -890,7 +878,6 @@ function autoCalcVacation() {
       const diffTime = Math.abs(endDate - calcFromDate);
       let totalDays = diffTime / (1000 * 60 * 60 * 24);
       
-      // خصم أيام الإجازة بدون أجر من المدة الفعلية المستحقة
       totalDays = Math.max(0, totalDays - unpaidLeaveDays);
       
       const calculatedVacation = totalDays * (30 / 365.25);
@@ -966,7 +953,7 @@ function calculate(e) {
   let netEOSBDays = 0;
   let finalEOSB = 0;
 
-  if (mode === 'both' || mode === 'all' || mode === 'eosb') {
+  if (mode === 'both' || mode === 'eosb') {
     if (years <= 5) {
       rawEOSBDays = years * 15;
     } else {
@@ -999,12 +986,12 @@ function calculate(e) {
   }
 
   let vacationAmount = 0;
-  if (mode === 'both' || mode === 'all' || mode === 'vacation') {
+  if (mode === 'both' || mode === 'vacation') {
     vacationAmount = vacationDays * dailySalary;
   }
 
   let overtimeAmount = 0;
-  if (mode === 'all' || mode === 'overtime') {
+  if (mode === 'overtime') {
     overtimeAmount = (normalOT * hourlyRate * 1.25) +
                      (weekendOT * hourlyRate * 1.50) +
                      (holidayOT * hourlyRate * 2.00);
@@ -1021,9 +1008,9 @@ function calculate(e) {
     unpaidLeaveDays,
     salary,
     reasonText: (mode !== 'vacation' && mode !== 'overtime') ? reasonText : t.notSpecified,
-    vacationDays: (mode === 'both' || mode === 'all' || mode === 'vacation') ? vacationDays.toFixed(2) : t.notCalculated,
-    rawEOSBDays: (mode === 'both' || mode === 'all' || mode === 'eosb') ? rawEOSBDays.toFixed(2) : t.notCalculated,
-    netEOSBDays: (mode === 'both' || mode === 'all' || mode === 'eosb') ? netEOSBDays.toFixed(2) : t.notCalculated,
+    vacationDays: (mode === 'both' || mode === 'vacation') ? vacationDays.toFixed(2) : t.notCalculated,
+    rawEOSBDays: (mode === 'both' || mode === 'eosb') ? rawEOSBDays.toFixed(2) : t.notCalculated,
+    netEOSBDays: (mode === 'both' || mode === 'eosb') ? netEOSBDays.toFixed(2) : t.notCalculated,
     normalOT,
     weekendOT,
     holidayOT,
@@ -1031,15 +1018,15 @@ function calculate(e) {
     unpaidSalary,
     serviceText,
     rawEOSB,
-    ratioText: (mode === 'both' || mode === 'all' || mode === 'eosb') ? ((ratio * 100).toFixed(1).replace('.0', '') + '%') : t.notCalculated,
+    ratioText: (mode === 'both' || mode === 'eosb') ? ((ratio * 100).toFixed(1).replace('.0', '') + '%') : t.notCalculated,
     finalEOSB,
     vacationAmount,
     grandTotal
   };
 
-  const showEOSB = mode === 'both' || mode === 'all' || mode === 'eosb';
-  const showVacation = mode === 'both' || mode === 'all' || mode === 'vacation';
-  const showOT = mode === 'all' || mode === 'overtime';
+  const showEOSB = mode === 'both' || mode === 'eosb';
+  const showVacation = mode === 'both' || mode === 'vacation';
+  const showOT = mode === 'overtime';
 
   document.getElementById('rowRawEOSBDays').style.display = showEOSB ? 'flex' : 'none';
   document.getElementById('rowEntitlementRatio').style.display = showEOSB ? 'flex' : 'none';
@@ -1091,7 +1078,6 @@ function exportToExcel() {
     return `${dd}-${mm}-${yy}`;
   };
 
-  // إعداد قائمة الصفوف (القيم أولاً ثم العناوين)
   const rows = [];
   rows.push([d.empName, t.lblEmpName]);
 
@@ -1114,7 +1100,7 @@ function exportToExcel() {
     rows.push([d.reasonText, t.lblReason]);
   }
 
-  if (d.mode === 'both' || d.mode === 'all' || d.mode === 'eosb') {
+  if (d.mode === 'both' || d.mode === 'eosb') {
     rows.push([d.rawEOSBDays + t.unitDays, t.lblRawEOSBDays]);
     rows.push([d.ratioText, t.lblEntitlementRatio]);
     rows.push([d.netEOSBDays + t.unitDays, t.lblNetEOSBDays]);
@@ -1122,19 +1108,18 @@ function exportToExcel() {
     rows.push([d.finalEOSB.toFixed(3) + t.unitKWD, t.lblFinalEOSB]);
   }
 
-  if (d.mode === 'both' || d.mode === 'all' || d.mode === 'vacation') {
+  if (d.mode === 'both' || d.mode === 'vacation') {
     rows.push([d.vacationDays + t.unitDays, t.lblVacationDays]);
     rows.push([d.vacationAmount.toFixed(3) + t.unitKWD, t.lblVacationAmount]);
   }
 
-  if (d.mode === 'all' || d.mode === 'overtime') {
+  if (d.mode === 'overtime') {
     rows.push([d.overtimeAmount.toFixed(3) + t.unitKWD, t.lblOvertimeAmount]);
   }
 
   rows.push([d.unpaidSalary.toFixed(3) + t.unitKWD, t.lblUnpaidSalary]);
   rows.push([d.grandTotal.toFixed(3) + t.unitKWD, t.lblGrandTotal]);
 
-  // بناء جدول HTML منسق بألوان التقرير
   let tableHTML = `
     <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
     <head>
@@ -1165,13 +1150,10 @@ function exportToExcel() {
     let cellStyle = 'padding: 8px; border: 1px solid #D9D9D9; text-align: center; font-size: 14px;';
 
     if (index === 0) {
-      // الصف الأول: كحلي غامق ونص أبيض عريض
       rowStyle = 'background-color: #002060; color: #FFFFFF; font-weight: bold;';
     } else if (index === totalRows - 1) {
-      // الصف الأخير: أخضر فستقي ونص أسود عريض
       rowStyle = 'background-color: #92D050; color: #000000; font-weight: bold; font-size: 15px;';
     } else {
-      // الصفوف التبادلية
       const bgColor = (index % 2 === 1) ? '#FFFFFF' : '#F2F5F9';
       rowStyle = `background-color: ${bgColor}; color: #000000;`;
     }
@@ -1188,7 +1170,6 @@ function exportToExcel() {
     </html>
   `;
 
-  // تصدير الملف بصيغة Excel منسقة
   const fileName = `تقرير_مستحقات_${d.empName.replace(/\s+/g, '_')}.xls`;
   const blob = new Blob(['\ufeff' + tableHTML], { type: 'application/vnd.ms-excel;charset=utf-8' });
 
