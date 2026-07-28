@@ -1493,6 +1493,22 @@
           <span class="hint" id="hintDeductions">سلف، عهود مفقودة، أو جزاءات يتم خصمها من الإجمالي</span>
         </div>
 
+        <div class="form-group full-width" style="margin-top:4px;">
+          <label id="lblReceiptMeta" style="opacity:0.85;">بيانات المخالصة (اختياري — للطباعة)</label>
+        </div>
+        <div class="form-group">
+          <label for="companyName" id="lblCompanyName">اسم الشركة</label>
+          <input type="text" id="companyName" placeholder="مثال: شركة …" oninput="saveDraft()">
+        </div>
+        <div class="form-group">
+          <label for="civilId" id="lblCivilId">الرقم المدني</label>
+          <input type="text" id="civilId" placeholder="12 رقماً" inputmode="numeric" oninput="saveDraft()">
+        </div>
+        <div class="form-group">
+          <label for="empNumber" id="lblEmpNumber">رقم الموظف</label>
+          <input type="text" id="empNumber" placeholder="اختياري" oninput="saveDraft()">
+        </div>
+
       </div>
 
       <div class="button-group">
@@ -1704,9 +1720,14 @@
 <!-- نافذة مخالصة وإخلاء طرف -->
 <div id="receiptModal">
   <div class="receipt-box" id="receiptContent">
-    <h2 style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px;">إقرار استلام مستحقات وإخلاء طرف نهائي</h2>
+    <h2 style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px;" id="rcpDocTitle">إقرار استلام مستحقات وإخلاء طرف نهائي</h2>
+    <p id="rcpCompanyLine" style="text-align:center;font-size:15px;font-weight:bold;margin:8px 0 4px;display:none;">الشركة: <span id="rcpCompany"></span></p>
     <p style="text-align:center;font-size:13px;color:#555;">رقم مرجعي: <strong id="rcpRef">—</strong> &nbsp;|&nbsp; تاريخ الإصدار: <strong id="rcpIssueDate">—</strong></p>
-    <p>أقر أنا الموظف/ <strong><span id="rcpName"></span></strong>، وأحمل الرقم المدني/.........................، بأنني قد استلمت كافة مستحقاتي المالية والتنفيذية الناتجة عن فترة عملي لدى الشركة من تاريخ <strong><span id="rcpStart"></span></strong> إلى تاريخ <strong><span id="rcpEnd"></span></strong>.</p>
+    <p style="text-align:center;font-size:13px;color:#555;" id="rcpEmpMetaLine">
+      <span id="rcpEmpNumWrap" style="display:none;">رقم الموظف: <strong id="rcpEmpNum"></strong> &nbsp;|&nbsp; </span>
+      <span id="rcpCivilWrap">الرقم المدني: <strong id="rcpCivil">.........................</strong></span>
+    </p>
+    <p>أقر أنا الموظف/ <strong><span id="rcpName"></span></strong>، وأحمل الرقم المدني/<strong id="rcpCivilInline">.........................</strong>، بأنني قد استلمت كافة مستحقاتي المالية والتنفيذية الناتجة عن فترة عملي لدى <strong id="rcpCompanyInline">الشركة</strong> من تاريخ <strong><span id="rcpStart"></span></strong> إلى تاريخ <strong><span id="rcpEnd"></span></strong>.</p>
     
     <table border="1" style="width:100%; border-collapse:collapse; margin: 15px 0; text-align: center;">
       <tr style="background:#f2f2f2;"><th>البيان</th><th>المبلغ المحسوب (د.ك)</th></tr>
@@ -1725,7 +1746,7 @@
         <p>التاريخ: .... / .... / ........</p>
       </div>
       <div style="margin-right: auto; text-align: left;">
-        <p>توقيع الشركة: ....................................</p>
+        <p id="rcpSignCompany">توقيع الشركة: ....................................</p>
         <p>التاريخ: .... / .... / ........</p>
       </div>
     </div>
@@ -1800,6 +1821,13 @@ const i18n = {
     hintUnpaidSalary: "أي رواتب أو مستحقات شهرية سابقة لم يتسلمها الموظف",
     lblDeductions: "الخصومات / السلف والالتزامات (د.ك)",
     hintDeductions: "سلف، عهود مفقودة، أو جزاءات يتم خصمها من الإجمالي",
+    lblReceiptMeta: "بيانات المخالصة (اختياري — للطباعة)",
+    lblCompanyName: "اسم الشركة",
+    lblCivilId: "الرقم المدني",
+    lblEmpNumber: "رقم الموظف",
+    phCompanyName: "مثال: شركة …",
+    phCivilId: "12 رقماً",
+    phEmpNumber: "اختياري",
     btnCalc: "احسب المستحقات الآن",
     btnReset: "🔄 إعادة تعيين",
     resEmpName: "📊 تفاصيل المستحقات المالية: ",
@@ -1934,6 +1962,13 @@ const i18n = {
     hintUnpaidSalary: "Any unpaid monthly salaries or previous dues",
     lblDeductions: "Deductions / Loans & Obligations (KWD)",
     hintDeductions: "Advances, lost assets, or penalties to be deducted",
+    lblReceiptMeta: "Settlement details (optional — for print)",
+    lblCompanyName: "Company name",
+    lblCivilId: "Civil ID",
+    lblEmpNumber: "Employee number",
+    phCompanyName: "e.g. Company …",
+    phCivilId: "12 digits",
+    phEmpNumber: "Optional",
     btnCalc: "Calculate Entitlements Now",
     btnReset: "🔄 Reset",
     resEmpName: "📊 Entitlement Details for: ",
@@ -2130,7 +2165,10 @@ function collectFormData() {
     weekendOT: document.getElementById('weekendOT').value,
     holidayOT: document.getElementById('holidayOT').value,
     unpaidSalary: document.getElementById('unpaidSalary').value,
-    deductions: document.getElementById('deductions').value
+    deductions: document.getElementById('deductions').value,
+    companyName: document.getElementById('companyName').value,
+    civilId: document.getElementById('civilId').value,
+    empNumber: document.getElementById('empNumber').value
   };
 }
 
@@ -2149,6 +2187,9 @@ function applyFormData(d) {
   if (d.holidayOT) document.getElementById('holidayOT').value = d.holidayOT;
   if (d.unpaidSalary) document.getElementById('unpaidSalary').value = d.unpaidSalary;
   if (d.deductions) document.getElementById('deductions').value = d.deductions;
+  if (d.companyName != null) document.getElementById('companyName').value = d.companyName;
+  if (d.civilId != null) document.getElementById('civilId').value = d.civilId;
+  if (d.empNumber != null) document.getElementById('empNumber').value = d.empNumber;
   handleCalcModeChange();
   document.getElementById('resultsBox').style.display = 'none';
 }
@@ -2335,6 +2376,16 @@ function toggleLanguage() {
   const setTxt = (id, key) => { const el = document.getElementById(id); if (el && t[key] != null) el.innerText = t[key]; };
   setTxt('btnEmail', 'btnEmail');
   setTxt('btnCompare', 'btnCompare');
+  setTxt('lblReceiptMeta', 'lblReceiptMeta');
+  setTxt('lblCompanyName', 'lblCompanyName');
+  setTxt('lblCivilId', 'lblCivilId');
+  setTxt('lblEmpNumber', 'lblEmpNumber');
+  const cn = document.getElementById('companyName');
+  const ci = document.getElementById('civilId');
+  const en = document.getElementById('empNumber');
+  if (cn) cn.placeholder = t.phCompanyName;
+  if (ci) ci.placeholder = t.phCivilId;
+  if (en) en.placeholder = t.phEmpNumber;
   setTxt('historyTitle', 'historyTitle');
   setTxt('btnClearHistory', 'historyClear');
   setTxt('btnExportHistory', 'historyExport');
@@ -2665,13 +2716,43 @@ function calculate(e) {
 function openReceiptModal() {
   if (!lastCalculationData) return;
   const d = lastCalculationData;
+  const company = (document.getElementById('companyName').value || '').trim();
+  const civil = (document.getElementById('civilId').value || '').trim();
+  const empNo = (document.getElementById('empNumber').value || '').trim();
+  const isAr = currentLang === 'ar';
+
   document.getElementById('rcpName').innerText = d.empName;
   document.getElementById('rcpStart').innerText = d.startDateVal;
   document.getElementById('rcpEnd').innerText = d.endDateVal;
 
   const ref = 'KW-' + Date.now().toString(36).toUpperCase();
   document.getElementById('rcpRef').innerText = ref;
-  document.getElementById('rcpIssueDate').innerText = new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-KW' : 'en-GB');
+  document.getElementById('rcpIssueDate').innerText = new Date().toLocaleDateString(isAr ? 'ar-KW' : 'en-GB');
+
+  const companyLine = document.getElementById('rcpCompanyLine');
+  const rcpCompany = document.getElementById('rcpCompany');
+  const rcpCompanyInline = document.getElementById('rcpCompanyInline');
+  if (company) {
+    companyLine.style.display = 'block';
+    rcpCompany.innerText = company;
+    rcpCompanyInline.innerText = company;
+  } else {
+    companyLine.style.display = 'none';
+    rcpCompany.innerText = '';
+    rcpCompanyInline.innerText = isAr ? 'الشركة' : 'the company';
+  }
+
+  const civilDisplay = civil || '.........................';
+  document.getElementById('rcpCivil').innerText = civilDisplay;
+  document.getElementById('rcpCivilInline').innerText = civilDisplay;
+
+  const empWrap = document.getElementById('rcpEmpNumWrap');
+  if (empNo) {
+    empWrap.style.display = 'inline';
+    document.getElementById('rcpEmpNum').innerText = empNo;
+  } else {
+    empWrap.style.display = 'none';
+  }
 
   const showEOSB = d.mode === 'both' || d.mode === 'eosb';
   const showVacation = d.mode === 'both' || d.mode === 'vacation';
