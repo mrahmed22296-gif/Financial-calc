@@ -1015,10 +1015,10 @@ function exportToExcel() {
     rows.push([d.vacationAmount.toFixed(3) + t.unitKWD, t.lblVacationAmount]);
   }
 
-  rows.push([d.unpaidSalary.toFixed(3) + t.unitKWD, t.lblUnpaidSalary]);
+  excelData.push ? rows.push([d.unpaidSalary.toFixed(3) + t.unitKWD, t.lblUnpaidSalary]) : null;
   rows.push([d.grandTotal.toFixed(3) + t.unitKWD, t.lblGrandTotal]);
 
-  // بناء جدول HTML منسق بألوان الصورة بالضبط
+  // بناء جدول HTML محدد العرض فقط على خلايا البيانات
   let tableHTML = `
     <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
     <head>
@@ -1039,30 +1039,39 @@ function exportToExcel() {
       <![endif]-->
     </head>
     <body>
-      <table border="1" style="border-collapse: collapse; font-family: Arial, sans-serif; text-align: center; width: 100%;">
+      <table border="1" style="border-collapse: collapse; font-family: Arial, sans-serif; table-layout: auto;">
   `;
 
   const totalRows = rows.length;
 
   rows.forEach((row, index) => {
-    let rowStyle = '';
-    let cellStyle = 'padding: 8px; border: 1px solid #D9D9D9; text-align: center; font-size: 14px;';
+    let bgColor = '';
+    let textColor = '#000000';
+    let fontWeight = 'normal';
+    let fontSize = '14px';
 
     if (index === 0) {
-      // الصف الأول: كحلي غامق ونص أبيض عريض
-      rowStyle = 'background-color: #002060; color: #FFFFFF; font-weight: bold;';
+      // الصف الأول: كحلي غامق
+      bgColor = '#002060';
+      textColor = '#FFFFFF';
+      fontWeight = 'bold';
     } else if (index === totalRows - 1) {
-      // الصف الأخير: أخضر فستقي ونص أسود عريض
-      rowStyle = 'background-color: #92D050; color: #000000; font-weight: bold; font-size: 15px;';
+      // الصف الأخير: أخضر فستقي
+      bgColor = '#92D050';
+      textColor = '#000000';
+      fontWeight = 'bold';
+      fontSize = '15px';
     } else {
-      // الصفوف التبادلية
-      const bgColor = (index % 2 === 1) ? '#FFFFFF' : '#F2F5F9';
-      rowStyle = `background-color: ${bgColor}; color: #000000;`;
+      // التناوب بين الأبيض والأزرق الفاتح
+      bgColor = (index % 2 === 1) ? '#FFFFFF' : '#F2F5F9';
     }
 
-    tableHTML += `<tr style="${rowStyle}">`;
-    tableHTML += `<td style="${cellStyle} width: 250px;">${row[0]}</td>`;
-    tableHTML += `<td style="${cellStyle} width: 350px;">${row[1]}</td>`;
+    // تطبيق التنسيق واللون حصراً على الخلايا نفسها (<td>)
+    const cellStyle = `background-color: ${bgColor}; color: ${textColor}; font-weight: ${fontWeight}; font-size: ${fontSize}; padding: 8px 15px; border: 1px solid #C0C0C0; text-align: center;`;
+
+    tableHTML += `<tr>`;
+    tableHTML += `<td style="${cellStyle} width: 220px;">${row[0]}</td>`;
+    tableHTML += `<td style="${cellStyle} width: 320px;">${row[1]}</td>`;
     tableHTML += `</tr>`;
   });
 
@@ -1072,7 +1081,7 @@ function exportToExcel() {
     </html>
   `;
 
-  // تصدير الملف بصيغة Excel منسقة
+  // تصدير الملف
   const fileName = `تقرير_مستحقات_${d.empName.replace(/\s+/g, '_')}.xls`;
   const blob = new Blob(['\ufeff' + tableHTML], { type: 'application/vnd.ms-excel;charset=utf-8' });
 
