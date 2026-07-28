@@ -979,110 +979,113 @@ function exportToExcel() {
     return `${dd}-${mm}-${yy}`;
   };
 
-  // إعداد البيانات
-  const excelData = [];
-  excelData.push([d.empName, t.lblEmpName]);
+  // إعداد قائمة الصفوف (القيم أولاً ثم العناوين)
+  const rows = [];
+  rows.push([d.empName, t.lblEmpName]);
 
   if (d.mode !== 'vacation') {
-    excelData.push([formatDateShort(d.startDateVal), t.lblStartDate]);
-    excelData.push([formatDateShort(d.endDateVal), t.lblEndDate]);
-    excelData.push([d.serviceText, t.servicePeriodText.replace(': ', '')]);
+    rows.push([formatDateShort(d.startDateVal), t.lblStartDate]);
+    rows.push([formatDateShort(d.endDateVal), t.lblEndDate]);
+    rows.push([d.serviceText, t.servicePeriodText.replace(': ', '')]);
   } else {
-    excelData.push([formatDateShort(d.endDateVal), t.lblEndDate]);
+    rows.push([formatDateShort(d.endDateVal), t.lblEndDate]);
   }
 
   if (d.mode !== 'eosb') {
-    excelData.push([formatDateShort(d.lastVacationReturnVal), t.lblLastVacation]);
-    excelData.push([d.unpaidLeaveDays + t.unitDays, t.lblUnpaidLeave]);
+    rows.push([formatDateShort(d.lastVacationReturnVal), t.lblLastVacation]);
+    rows.push([d.unpaidLeaveDays + t.unitDays, t.lblUnpaidLeave]);
   }
 
-  excelData.push([d.salary.toFixed(3) + t.unitKWD, t.lblSalary]);
+  rows.push([d.salary.toFixed(3) + t.unitKWD, t.lblSalary]);
 
   if (d.mode !== 'vacation') {
-    excelData.push([d.reasonText, t.lblReason]);
+    rows.push([d.reasonText, t.lblReason]);
   }
 
   if (d.mode === 'both' || d.mode === 'eosb') {
-    excelData.push([d.rawEOSBDays + t.unitDays, t.lblRawEOSBDays]);
-    excelData.push([d.ratioText, t.lblEntitlementRatio]);
-    excelData.push([d.netEOSBDays + t.unitDays, t.lblNetEOSBDays]);
-    excelData.push([d.rawEOSB.toFixed(3) + t.unitKWD, t.lblRawEOSB]);
-    excelData.push([d.finalEOSB.toFixed(3) + t.unitKWD, t.lblFinalEOSB]);
+    rows.push([d.rawEOSBDays + t.unitDays, t.lblRawEOSBDays]);
+    rows.push([d.ratioText, t.lblEntitlementRatio]);
+    rows.push([d.netEOSBDays + t.unitDays, t.lblNetEOSBDays]);
+    rows.push([d.rawEOSB.toFixed(3) + t.unitKWD, t.lblRawEOSB]);
+    rows.push([d.finalEOSB.toFixed(3) + t.unitKWD, t.lblFinalEOSB]);
   }
 
   if (d.mode === 'both' || d.mode === 'vacation') {
-    excelData.push([d.vacationDays + t.unitDays, t.lblVacationDays]);
-    excelData.push([d.vacationAmount.toFixed(3) + t.unitKWD, t.lblVacationAmount]);
+    rows.push([d.vacationDays + t.unitDays, t.lblVacationDays]);
+    rows.push([d.vacationAmount.toFixed(3) + t.unitKWD, t.lblVacationAmount]);
   }
 
-  excelData.push([d.unpaidSalary.toFixed(3) + t.unitKWD, t.lblUnpaidSalary]);
-  excelData.push([d.grandTotal.toFixed(3) + t.unitKWD, t.lblGrandTotal]);
+  rows.push([d.unpaidSalary.toFixed(3) + t.unitKWD, t.lblUnpaidSalary]);
+  rows.push([d.grandTotal.toFixed(3) + t.unitKWD, t.lblGrandTotal]);
 
-  // إنشاء ورقة العمل
-  const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+  // بناء جدول HTML منسق بألوان الصورة بالضبط
+  let tableHTML = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
+      <meta charset="utf-8" />
+      <!--[if gte mso 9]>
+      <xml>
+        <x:ExcelWorkbook>
+          <x:ExcelWorksheets>
+            <x:ExcelWorksheet>
+              <x:Name>التقرير</x:Name>
+              <x:WorksheetOptions>
+                <x:DisplayRightToLeft/>
+              </x:WorksheetOptions>
+            </x:ExcelWorksheet>
+          </x:ExcelWorksheets>
+        </x:ExcelWorkbook>
+      </xml>
+      <![endif]-->
+    </head>
+    <body>
+      <table border="1" style="border-collapse: collapse; font-family: Arial, sans-serif; text-align: center; width: 100%;">
+  `;
 
-  // تحديد عرض الأعمدة
-  worksheet['!cols'] = [
-    { wch: 32 }, 
-    { wch: 42 }  
-  ];
+  const totalRows = rows.length;
 
-  // تفعيل خيار RTL
-  if (currentLang === 'ar') {
-    worksheet['!views'] = [{ RTL: true }];
-  }
+  rows.forEach((row, index) => {
+    let rowStyle = '';
+    let cellStyle = 'padding: 8px; border: 1px solid #D9D9D9; text-align: center; font-size: 14px;';
 
-  // --- إعطاء الألوان والتصميم الكامل للخلايا ---
-  const range = XLSX.utils.decode_range(worksheet['!ref']);
-  const totalRows = range.e.r;
-
-  for (let R = range.s.r; R <= range.e.r; ++R) {
-    for (let C = range.s.c; C <= range.e.c; ++C) {
-      const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-      if (!worksheet[cellAddress]) continue;
-
-      // حدود الخلايا الرمادية
-      const thinBorder = {
-        top: { style: "thin", color: { rgb: "C0C0C0" } },
-        bottom: { style: "thin", color: { rgb: "C0C0C0" } },
-        left: { style: "thin", color: { rgb: "C0C0C0" } },
-        right: { style: "thin", color: { rgb: "C0C0C0" } }
-      };
-
-      if (R === 0) {
-        // الصف الأول: كحلي غامق مع نص أبيض عريض (نفس الصورة)
-        worksheet[cellAddress].s = {
-          fill: { fgColor: { rgb: "002060" } },
-          font: { name: "Arial", sz: 12, bold: true, color: { rgb: "FFFFFF" } },
-          alignment: { vertical: "center", horizontal: "center" },
-          border: thinBorder
-        };
-      } else if (R === totalRows) {
-        // الصف الأخير (الإجمالي): أخضر فستقي مع نص عريض (نفس الصورة)
-        worksheet[cellAddress].s = {
-          fill: { fgColor: { rgb: "92D050" } },
-          font: { name: "Arial", sz: 12, bold: true, color: { rgb: "000000" } },
-          alignment: { vertical: "center", horizontal: "center" },
-          border: thinBorder
-        };
-      } else {
-        // الصفوف الوسطى: صف أبيض وصف أزرق فاتح بالتناوب
-        const rowBgColor = (R % 2 === 1) ? "FFFFFF" : "F2F5F9";
-        worksheet[cellAddress].s = {
-          fill: { fgColor: { rgb: rowBgColor } },
-          font: { name: "Arial", sz: 11, color: { rgb: "000000" } },
-          alignment: { vertical: "center", horizontal: "center" },
-          border: thinBorder
-        };
-      }
+    if (index === 0) {
+      // الصف الأول: كحلي غامق ونص أبيض عريض
+      rowStyle = 'background-color: #002060; color: #FFFFFF; font-weight: bold;';
+    } else if (index === totalRows - 1) {
+      // الصف الأخير: أخضر فستقي ونص أسود عريض
+      rowStyle = 'background-color: #92D050; color: #000000; font-weight: bold; font-size: 15px;';
+    } else {
+      // الصفوف التبادلية
+      const bgColor = (index % 2 === 1) ? '#FFFFFF' : '#F2F5F9';
+      rowStyle = `background-color: ${bgColor}; color: #000000;`;
     }
+
+    tableHTML += `<tr style="${rowStyle}">`;
+    tableHTML += `<td style="${cellStyle} width: 250px;">${row[0]}</td>`;
+    tableHTML += `<td style="${cellStyle} width: 350px;">${row[1]}</td>`;
+    tableHTML += `</tr>`;
+  });
+
+  tableHTML += `
+      </table>
+    </body>
+    </html>
+  `;
+
+  // تصدير الملف بصيغة Excel منسقة
+  const fileName = `تقرير_مستحقات_${d.empName.replace(/\s+/g, '_')}.xls`;
+  const blob = new Blob(['\ufeff' + tableHTML], { type: 'application/vnd.ms-excel;charset=utf-8' });
+
+  if (navigator.msSaveOrOpenBlob) {
+    navigator.msSaveOrOpenBlob(blob, fileName);
+  } else {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
-
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "التقرير");
-
-  const fileName = `تقرير_مستحقات_${d.empName.replace(/\s+/g, '_')}.xlsx`;
-  XLSX.writeFile(workbook, fileName);
 }
 </script>
 
