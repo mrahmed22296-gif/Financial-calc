@@ -71,7 +71,6 @@
 }
 </script>
 
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <!-- ExcelJS يُحمّل عند الطلب فقط (lazy) -->
@@ -1001,7 +1000,6 @@
     .wa-float, .disclaimer-box, .info-section, .compare-box, .history-list { display: none !important; }
   }
 
-
   /* ===== UI Polish v2 ===== */
   html { scroll-behavior: smooth; }
 
@@ -1373,7 +1371,6 @@
     }
   }
 
-
   .btn-close-modal {
     background: #fff;
     color: #0f172a;
@@ -1401,7 +1398,6 @@
     background: #334155;
     border-color: #94a3b8;
   }
-
 
   /* ===== High-contrast buttons ===== */
   .control-btn {
@@ -1518,6 +1514,7 @@
 
 </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 
@@ -1554,14 +1551,7 @@
           </select>
         </div>
 
-        <div class="form-group">
-          <label for="sectorType" id="lblSectorType">نوع العقد / القطاع</label>
-          <select id="sectorType" onchange="handleSectorChange(); saveDraft();" required>
-            <option value="private" id="optPrivate">أهلي (قانون العمل 6/2010)</option>
-            <option value="government" id="optGovernment">حكومي (التأمينات / الخدمة المدنية)</option>
-          </select>
-          <span class="hint" id="hintSector">يغيّر معادلة مكافأة نهاية الخدمة حسب القانون المعمول به</span>
-        </div>
+        
 
         <div class="form-group full-width">
           <label for="empName" id="lblEmpName">اسم الموظف بالكامل</label>
@@ -1821,7 +1811,6 @@
 
 </main>
 
-
 <!-- نافذة مخالصة وإخلاء طرف -->
 <div id="receiptModal">
   <div class="receipt-box" id="receiptContent">
@@ -1896,12 +1885,6 @@ const i18n = {
     formTitle: "📋 بيانات الموظف والعقد",
     lblCalcMode: "نوع الحساب المطلوب",
     lblSectorType: "نوع العقد / القطاع",
-    optPrivate: "أهلي (قانون العمل 6/2010)",
-    optGovernment: "حكومي (التأمينات / الخدمة المدنية)",
-    hintSector: "يغيّر معادلة مكافأة نهاية الخدمة حسب القانون المعمول به",
-    noteGovEOSBRule: "القطاع الحكومي (غير مستحقي المعاش — تقدير): 10% ثم 12% ثم 15% ثم 20% × 12 × الراتب عن شرائح السنوات (5+5+5+الباقي). الراتب المدخل يُعامل كراتب تسوية المعاش.",
-    noteDailyRateGov: "أجر اليوم (حكومي تقديري) = الراتب ÷ 30",
-    headerSubGov: "وفقاً لقواعد التأمينات الاجتماعية / الخدمة المدنية (تقدير)",
     optBoth: "حساب نهاية الخدمة + رصيد الإجازات معاً",
     optEosbOnly: "حساب مكافأة نهاية الخدمة فقط",
     optVacationOnly: "حساب بدل رصيد الإجازات فقط",
@@ -2044,12 +2027,6 @@ const i18n = {
     formTitle: "📋 Employee & Contract Details",
     lblCalcMode: "Calculation Mode",
     lblSectorType: "Contract / Sector type",
-    optPrivate: "Private (Labor Law 6/2010)",
-    optGovernment: "Government (Social Security / Civil Service)",
-    hintSector: "Switches the end-of-service formula based on applicable rules",
-    noteGovEOSBRule: "Government (non-pension estimate): 10%, then 12%, then 15%, then 20% × 12 × salary across year bands (5+5+5+remainder). Entered salary is treated as pension settlement salary.",
-    noteDailyRateGov: "Daily rate (gov. estimate) = Salary ÷ 30",
-    headerSubGov: "Per Social Security / Civil Service rules (estimate)",
     optBoth: "End of Service + Vacation Balance Both",
     optEosbOnly: "End of Service Indemnity Only",
     optVacationOnly: "Vacation Balance Pay Only",
@@ -2272,8 +2249,7 @@ function toggleDarkMode() {
 function collectFormData() {
   return {
     calcMode: document.getElementById('calcMode').value,
-    sectorType: document.getElementById('sectorType').value,
-    empName: document.getElementById('empName').value,
+        empName: document.getElementById('empName').value,
     startDate: document.getElementById('startDate').value,
     endDate: document.getElementById('endDate').value,
     lastVacationReturn: document.getElementById('lastVacationReturn').value,
@@ -2294,8 +2270,7 @@ function collectFormData() {
 
 function applyFormData(d) {
   if (d.calcMode) document.getElementById('calcMode').value = d.calcMode;
-  if (d.sectorType) document.getElementById('sectorType').value = d.sectorType;
-  if (d.empName) document.getElementById('empName').value = d.empName;
+    if (d.empName) document.getElementById('empName').value = d.empName;
   if (d.startDate) document.getElementById('startDate').value = d.startDate;
   if (d.endDate) document.getElementById('endDate').value = d.endDate;
   if (d.lastVacationReturn) document.getElementById('lastVacationReturn').value = d.lastVacationReturn;
@@ -2312,7 +2287,7 @@ function applyFormData(d) {
   if (d.civilId != null) document.getElementById('civilId').value = d.civilId;
   if (d.empNumber != null) document.getElementById('empNumber').value = d.empNumber;
   handleCalcModeChange();
-  handleSectorChange();
+  
   document.getElementById('resultsBox').style.display = 'none';
 }
 
@@ -2346,16 +2321,6 @@ function loadDraft() {
 
 window.addEventListener('DOMContentLoaded', loadDraft);
 
-function handleSectorChange() {
-  const t = i18n[currentLang];
-  const isGov = document.getElementById('sectorType').value === 'government';
-  const sub = document.getElementById('headerSub');
-  if (sub) sub.innerText = isGov ? t.headerSubGov : t.headerSub;
-  const reasonGrp = document.getElementById('grpReason');
-  if (reasonGrp) {
-    // نسب الاستقالة خاصة بالأهل؛ نبقي الحقل ظاهراً لكنه لا يؤثر على الحكومي
-    reasonGrp.style.opacity = isGov ? '0.55' : '1';
-  }
 }
 
 function handleCalcModeChange() {
@@ -2449,14 +2414,12 @@ function toggleLanguage() {
   document.getElementById('langBtn').innerText = t.langBtn;
   document.getElementById('headerTitle').innerText = t.headerTitle;
   document.getElementById('headerSub').innerText = t.headerSub;
-  handleSectorChange();
+  
   document.getElementById('lblVisitors').innerText = t.lblVisitors;
   document.getElementById('formTitle').innerText = t.formTitle;
   document.getElementById('lblCalcMode').innerText = t.lblCalcMode;
   document.getElementById('lblSectorType').innerText = t.lblSectorType;
-  document.getElementById('optPrivate').innerText = t.optPrivate;
-  document.getElementById('optGovernment').innerText = t.optGovernment;
-  document.getElementById('hintSector').innerText = t.hintSector;
+      document.getElementById('hintSector').innerText = t.hintSector;
   document.getElementById('optBoth').innerText = t.optBoth;
   document.getElementById('optEosbOnly').innerText = t.optEosbOnly;
   document.getElementById('optVacationOnly').innerText = t.optVacationOnly;
@@ -2670,8 +2633,7 @@ function calculate(e) {
 
   document.getElementById('resEmpName').innerText = `${t.resEmpName}${empName}`;
 
-  const sector = document.getElementById('sectorType').value;
-  const isGov = sector === 'government';
+  const isGov = false;
   const dailySalary = isGov ? (salary / 30) : (salary / 26);
   const hourlyRate = isGov ? (salary / (30 * 8)) : (salary / 208);
 
@@ -3405,7 +3367,7 @@ document.addEventListener('keydown', (e) => {
 /* ===== Init extras ===== */
 window.addEventListener('DOMContentLoaded', () => {
   renderHistory();
-  handleSectorChange();
+  
 });
 </script>
 
