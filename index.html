@@ -38,10 +38,43 @@
 }
 </script>
 
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "كيف تُحسب مكافأة نهاية الخدمة في الكويت؟",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "وفق المادة 51 من قانون العمل 6/2010: 15 يوماً عن كل سنة من السنوات الخمس الأولى، و30 يوماً عن كل سنة تالية، بحد أقصى أجر 18 شهراً. أجر اليوم = الراتب الشامل ÷ 26."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "ما نسبة الاستحقاق عند الاستقالة؟",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "وفق المادة 53: أقل من 3 سنوات 0%، من 3 إلى 5 سنوات 50%، من 5 إلى 10 سنوات ثلثان (66.67%)، وأكثر من 10 سنوات 100%."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "كيف يُحسب بدل رصيد الإجازات؟",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "بدل الإجازات = عدد أيام الرصيد المتبقي × أجر اليوم (الراتب الشامل ÷ 26)."
+      }
+    }
+  ]
+}
+</script>
+
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-<!-- مكتبة تصدير الإكسل الحقيقية (مع دعم التنسيق والألوان) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<!-- ExcelJS يُحمّل عند الطلب فقط (lazy) -->
 
 <style>
   :root {
@@ -708,6 +741,285 @@
     body.printing-receipt .receipt-box { margin: 0 !important; box-shadow: none !important; }
     .no-print { display: none !important; }
   }
+
+  /* ===== Professional extras ===== */
+  .btn-demo {
+    flex: 1;
+    background: var(--surface-2);
+    color: var(--primary-dark);
+    border: 1.5px dashed var(--primary);
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 15px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  body.dark-mode .btn-demo { color: var(--primary); }
+  .btn-demo:hover {
+    background: var(--primary-light);
+    transform: translateY(-1px);
+  }
+
+  .disclaimer-box {
+    margin-top: 16px;
+    padding: 14px 18px;
+    background: var(--accent-soft);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    line-height: 1.65;
+  }
+  .disclaimer-box strong { color: var(--ink); }
+
+  .info-section {
+    margin-top: 8px;
+  }
+  .info-section .card-title { cursor: default; }
+
+  .faq-item {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    margin-bottom: 10px;
+    overflow: hidden;
+    background: var(--surface-2);
+  }
+  .faq-item summary {
+    padding: 14px 16px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink);
+    user-select: none;
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::before {
+    content: "+";
+    font-weight: 900;
+    color: var(--primary);
+    font-size: 1.1rem;
+    width: 1.2em;
+    flex-shrink: 0;
+  }
+  .faq-item[open] summary::before { content: "−"; }
+  .faq-item .faq-body {
+    padding: 0 16px 14px;
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    line-height: 1.7;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    margin: 0 4px;
+  }
+
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .how-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+  }
+  .how-card h4 {
+    margin: 0 0 8px;
+    font-size: 0.9rem;
+    color: var(--primary-dark);
+  }
+  body.dark-mode .how-card h4 { color: var(--primary); }
+  .how-card p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    line-height: 1.65;
+  }
+  .how-card code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+  body.dark-mode .how-card code { color: var(--primary); }
+
+  .rate-mini {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  @media (max-width: 560px) {
+    .rate-mini { grid-template-columns: 1fr; }
+  }
+  .rate-out {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    padding: 12px;
+    text-align: center;
+  }
+  .rate-out .rl {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ink-muted);
+    margin-bottom: 4px;
+  }
+  .rate-out .rv {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700;
+    color: var(--primary-dark);
+    direction: ltr;
+  }
+  body.dark-mode .rate-out .rv { color: var(--primary); }
+
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    font-size: 0.85rem;
+    flex-wrap: wrap;
+  }
+  .history-item .hi-name { font-weight: 700; }
+  .history-item .hi-meta {
+    color: var(--ink-muted);
+    font-size: 0.78rem;
+    font-family: 'IBM Plex Mono', monospace;
+    direction: ltr;
+  }
+  .history-item button {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  .compare-box {
+    margin-top: 16px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    display: none;
+  }
+  .compare-box.show { display: block; }
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  @media (max-width: 480px) {
+    .compare-grid { grid-template-columns: 1fr; }
+  }
+  .compare-col {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    padding: 14px;
+    text-align: center;
+  }
+  .compare-col h5 {
+    margin: 0 0 8px;
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+  }
+  .compare-col .cv {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--primary-dark);
+    direction: ltr;
+  }
+  body.dark-mode .compare-col .cv { color: var(--primary); }
+  .compare-col.winner {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+  }
+
+  .wa-float {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    z-index: 9000;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #25D366;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    text-decoration: none;
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  html[dir="ltr"] .wa-float { left: auto; right: 24px; }
+  .wa-float:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 28px rgba(37, 211, 102, 0.55);
+  }
+
+  .meta-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    justify-content: center;
+    margin-top: 14px;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.7);
+  }
+  .meta-bar span { opacity: 0.95; }
+
+  .privacy-note {
+    margin-top: 12px;
+    font-size: 0.78rem;
+    opacity: 0.75;
+  }
+
+  .btn-email { background: #0ea5e9; }
+  .btn-compare { background: #6366f1; }
+
+  .section-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-inline-start: 6px;
+  }
+  body.dark-mode .section-badge { color: var(--primary); }
+
+  @media print {
+    .wa-float, .disclaimer-box, .info-section, .compare-box, .history-list { display: none !important; }
+  }
+
 </style>
 <base target="_blank">
 </head>
@@ -832,6 +1144,7 @@
 
       <div class="button-group">
         <button type="submit" class="btn-calc" id="btnCalc">احسب المستحقات الآن</button>
+        <button type="button" class="btn-demo" id="btnDemo" onclick="fillDemoExample()">✨ مثال تجريبي</button>
         <button type="button" class="btn-reset" id="btnReset" onclick="resetForm()">🔄 إعادة تعيين</button>
       </div>
     </form>
@@ -929,8 +1242,107 @@
       <button type="button" class="btn-action btn-export" onclick="exportToExcelReal()" id="btnExport">📊 تصدير إكسل (XLSX)</button>
       <button type="button" class="btn-action btn-print" onclick="window.print()" id="btnPrint">🖨️ طباعة / PDF</button>
       <button type="button" class="btn-action btn-copy" onclick="copySummaryText()" id="btnCopy">📋 نسخ الملخص</button>
+      <button type="button" class="btn-action btn-email" onclick="copyEmailTemplate()" id="btnEmail">✉️ قالب بريد</button>
       <button type="button" class="btn-action btn-share" onclick="shareWhatsApp()" id="btnShare">💬 واتساب</button>
+      <button type="button" class="btn-action btn-compare" onclick="toggleCompare()" id="btnCompare">⚖️ مقارنة سيناريوهين</button>
     </div>
+
+    <div class="compare-box" id="compareBox">
+      <div class="card-title" style="margin:0;border:none;padding:0;" id="compareTitle">⚖️ مقارنة: إنهاء خدمات vs استقالة</div>
+      <div class="compare-grid">
+        <div class="compare-col" id="compareTermCol">
+          <h5 id="compareTermLbl">إنهاء خدمات (100%)</h5>
+          <div class="cv" id="compareTermVal">—</div>
+        </div>
+        <div class="compare-col" id="compareResCol">
+          <h5 id="compareResLbl">استقالة (حسب المدة)</h5>
+          <div class="cv" id="compareResVal">—</div>
+        </div>
+      </div>
+      <p style="margin:12px 0 0;font-size:0.8rem;color:var(--ink-muted);" id="compareNote"></p>
+    </div>
+
+    <div class="disclaimer-box" id="disclaimerBox">
+      <strong id="disclaimerTitle">⚠️ إخلاء مسؤولية:</strong>
+      <span id="disclaimerText"> النتائج استرشادية وفق قانون العمل الكويتي رقم 6 لسنة 2010 في القطاع الأهلي، ولا تُعد استشارة قانونية أو بديلاً عن محامٍ مختص. يُرجى التحقق من بنود عقد العمل وأي اتفاقيات خاصة.</span>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="card info-section" id="historyCard" style="display:none;">
+    <div class="card-title" id="historyTitle">🕘 سجل الحسابات الأخيرة</div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <!-- Daily rate mini -->
+  <div class="card info-section">
+    <div class="card-title" id="rateTitle">💵 حاسبة أجر اليوم والساعة</div>
+    <div class="form-group" style="max-width:280px;">
+      <label for="miniSalary" id="lblMiniSalary">الراتب الشامل (د.ك)</label>
+      <input type="number" id="miniSalary" step="0.001" min="0" placeholder="750" oninput="updateMiniRates()">
+    </div>
+    <div class="rate-mini">
+      <div class="rate-out">
+        <div class="rl" id="lblDailyOut">أجر اليوم (÷26)</div>
+        <div class="rv" id="dailyOut">0.000 د.ك</div>
+      </div>
+      <div class="rate-out">
+        <div class="rl" id="lblHourlyOut">أجر الساعة (÷208)</div>
+        <div class="rv" id="hourlyOut">0.000 د.ك</div>
+      </div>
+      <div class="rate-out">
+        <div class="rl" id="lblMonthDays">مكافأة يوم خدمة (تقريبي)</div>
+        <div class="rv" id="eosbDayOut">0.000 د.ك</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div class="card info-section">
+    <div class="card-title"><span id="howTitle">📘 كيف يُحسب؟</span> <span class="section-badge" id="howBadge">قانون 6/2010</span></div>
+    <div class="how-grid">
+      <div class="how-card">
+        <h4 id="howEosbTitle">مكافأة نهاية الخدمة (م51)</h4>
+        <p id="howEosbBody">15 يوماً × السنوات الخمس الأولى + 30 يوماً × السنوات التالية. الحد الأقصى = أجر 18 شهراً (18 × 26 يوماً). أجر اليوم = الراتب ÷ 26.</p>
+      </div>
+      <div class="how-card">
+        <h4 id="howResTitle">الاستقالة (م53)</h4>
+        <p id="howResBody">&lt; 3 سنوات: 0% · 3–5 سنوات: 50% · 5–10 سنوات: ⅔ (66.67%) · أكثر من 10: 100%.</p>
+      </div>
+      <div class="how-card">
+        <h4 id="howVacTitle">بدل الإجازات</h4>
+        <p id="howVacBody">رصيد الأيام × أجر اليوم. يمكن حساب الرصيد تلقائياً من تاريخ آخر عودة (30 يوم / سنة).</p>
+      </div>
+      <div class="how-card">
+        <h4 id="howOtTitle">العمل الإضافي</h4>
+        <p id="howOtBody">عادي 125% · راحة أسبوعية 150% · عطل رسمية 200%. أجر الساعة = الراتب ÷ 208.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="card info-section">
+    <div class="card-title" id="faqTitle">❓ أسئلة شائعة</div>
+    <details class="faq-item">
+      <summary id="faq1q">ما الحد الأقصى لمكافأة نهاية الخدمة؟</summary>
+      <div class="faq-body" id="faq1a">لا تتجاوز المكافأة أجر ثمانية عشر شهراً (المادة 51). أي ما يعادل 18 × 26 = 468 يوم عمل كحد أقصى لأيام الاستحقاق.</div>
+    </details>
+    <details class="faq-item">
+      <summary id="faq2q">هل تُحسب فترة التجربة؟</summary>
+      <div class="faq-body" id="faq2a">مدة التجربة وفق المادة 32 لا تتجاوز 100 يوم عمل. المستحقات خلالها قد تخضع لشرط التجربة في العقد؛ تظهر الحاسبة تنبيهاً إذا كانت المدة أقل من 100 يوم.</div>
+    </details>
+    <details class="faq-item">
+      <summary id="faq3q">ماذا عن الإجازة بدون أجر؟</summary>
+      <div class="faq-body" id="faq3a">أيام الإجازة بدون أجر تُستبعد من فترة استحقاق رصيد الإجازات عند استخدام الحساب التلقائي من تاريخ آخر عودة.</div>
+    </details>
+    <details class="faq-item">
+      <summary id="faq4q">هل تُرسل بياناتي لأي خادم؟</summary>
+      <div class="faq-body" id="faq4a">لا. كل الحسابات تتم داخل متصفحك محلياً. لا تُرفع بيانات الراتب أو الاسم إلى أي خادم. المسودة تُحفظ اختيارياً في التخزين المحلي لجهازك فقط.</div>
+    </details>
+    <details class="faq-item">
+      <summary id="faq5q">ما الفرق بين الفصل والاستقالة في المكافأة؟</summary>
+      <div class="faq-body" id="faq5a">عند إنهاء الخدمات من الشركة تُصرف المكافأة كاملة (100%). عند الاستقالة تُطبَّق نسب المادة 53 حسب مدة الخدمة. استخدم زر «مقارنة سيناريوهين» لرؤية الفرق فوراً.</div>
+    </details>
   </div>
 </main>
 
@@ -939,6 +1351,7 @@
 <div id="receiptModal">
   <div class="receipt-box" id="receiptContent">
     <h2 style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px;">إقرار استلام مستحقات وإخلاء طرف نهائي</h2>
+    <p style="text-align:center;font-size:13px;color:#555;">رقم مرجعي: <strong id="rcpRef">—</strong> &nbsp;|&nbsp; تاريخ الإصدار: <strong id="rcpIssueDate">—</strong></p>
     <p>أقر أنا الموظف/ <strong><span id="rcpName"></span></strong>، وأحمل الرقم المدني/.........................، بأنني قد استلمت كافة مستحقاتي المالية والتنفيذية الناتجة عن فترة عملي لدى الشركة من تاريخ <strong><span id="rcpStart"></span></strong> إلى تاريخ <strong><span id="rcpEnd"></span></strong>.</p>
     
     <table border="1" style="width:100%; border-collapse:collapse; margin: 15px 0; text-align: center;">
@@ -972,6 +1385,10 @@
 
 <footer>
   <div id="footerLaw">برمجية حساب المستحقات وفق قانون العمل الكويتي رقم 6/2010</div>
+  <div class="meta-bar">
+    <span id="footerUpdated">آخر مراجعة للحسابات: يوليو 2026</span>
+    <span id="footerPrivacy">🔒 الحسابات محلية — لا تُرسل بياناتك لأي خادم</span>
+  </div>
   
   <div class="developer-card">
     <h4 id="footerDev">💻 تطوير وتصميم: أحمد عبدالكريم</h4>
@@ -980,7 +1397,10 @@
       <span>📱 <a href="tel:60085043">60085043</a> / <a href="tel:01201487209">01201487209</a></span>
     </div>
   </div>
+  <p class="privacy-note" id="footerNote">أداة مجانية مستقلة وغير تابعة لأي جهة حكومية.</p>
 </footer>
+
+<a class="wa-float" id="waFloat" href="https://wa.me/96560085043" title="واتساب" aria-label="WhatsApp">💬</a>
 
 <script>
 let currentLang = 'ar';
@@ -1069,7 +1489,50 @@ const i18n = {
     noteVacationRule: "بدل الإجازات = رصيد الأيام × أجر اليوم.",
     noteOvertimeRule: "العمل الإضافي: عادي (125%)، عطلة أسبوعية (150%)، عطل رسمية (200%).",
     noteProbationRule: "تنبيه: مدة الخدمة أقل من 100 يوم عمل (فترة التجربة وفق المادة 32)، قد تخضع المستحقات لبنود شرط التجربة بالعقد.",
-    copiedMsg: "تم نسخ ملخص حساب المستحقات بنجاح!"
+    copiedMsg: "تم نسخ ملخص حساب المستحقات بنجاح!",
+    btnDemo: "✨ مثال تجريبي",
+    btnEmail: "✉️ قالب بريد",
+    btnCompare: "⚖️ مقارنة سيناريوهين",
+    disclaimerTitle: "⚠️ إخلاء مسؤولية:",
+    disclaimerText: " النتائج استرشادية وفق قانون العمل الكويتي رقم 6 لسنة 2010 في القطاع الأهلي، ولا تُعد استشارة قانونية أو بديلاً عن محامٍ مختص. يُرجى التحقق من بنود عقد العمل وأي اتفاقيات خاصة.",
+    historyTitle: "🕘 سجل الحسابات الأخيرة",
+    historyEmpty: "لا يوجد سجل بعد",
+    historyLoad: "تحميل",
+    rateTitle: "💵 حاسبة أجر اليوم والساعة",
+    lblMiniSalary: "الراتب الشامل (د.ك)",
+    lblDailyOut: "أجر اليوم (÷26)",
+    lblHourlyOut: "أجر الساعة (÷208)",
+    lblMonthDays: "قيمة يوم مكافأة (تقريبي)",
+    howTitle: "📘 كيف يُحسب؟",
+    howBadge: "قانون 6/2010",
+    howEosbTitle: "مكافأة نهاية الخدمة (م51)",
+    howEosbBody: "15 يوماً × السنوات الخمس الأولى + 30 يوماً × السنوات التالية. الحد الأقصى = أجر 18 شهراً (18 × 26 يوماً). أجر اليوم = الراتب ÷ 26.",
+    howResTitle: "الاستقالة (م53)",
+    howResBody: "< 3 سنوات: 0% · 3–5 سنوات: 50% · 5–10 سنوات: ⅔ (66.67%) · أكثر من 10: 100%.",
+    howVacTitle: "بدل الإجازات",
+    howVacBody: "رصيد الأيام × أجر اليوم. يمكن حساب الرصيد تلقائياً من تاريخ آخر عودة (30 يوم / سنة).",
+    howOtTitle: "العمل الإضافي",
+    howOtBody: "عادي 125% · راحة أسبوعية 150% · عطل رسمية 200%. أجر الساعة = الراتب ÷ 208.",
+    faqTitle: "❓ أسئلة شائعة",
+    faq1q: "ما الحد الأقصى لمكافأة نهاية الخدمة؟",
+    faq1a: "لا تتجاوز المكافأة أجر ثمانية عشر شهراً (المادة 51). أي ما يعادل 18 × 26 = 468 يوم عمل كحد أقصى لأيام الاستحقاق.",
+    faq2q: "هل تُحسب فترة التجربة؟",
+    faq2a: "مدة التجربة وفق المادة 32 لا تتجاوز 100 يوم عمل. المستحقات خلالها قد تخضع لشرط التجربة في العقد؛ تظهر الحاسبة تنبيهاً إذا كانت المدة أقل من 100 يوم.",
+    faq3q: "ماذا عن الإجازة بدون أجر؟",
+    faq3a: "أيام الإجازة بدون أجر تُستبعد من فترة استحقاق رصيد الإجازات عند استخدام الحساب التلقائي من تاريخ آخر عودة.",
+    faq4q: "هل تُرسل بياناتي لأي خادم؟",
+    faq4a: "لا. كل الحسابات تتم داخل متصفحك محلياً. لا تُرفع بيانات الراتب أو الاسم إلى أي خادم. المسودة تُحفظ اختيارياً في التخزين المحلي لجهازك فقط.",
+    faq5q: "ما الفرق بين الفصل والاستقالة في المكافأة؟",
+    faq5a: "عند إنهاء الخدمات من الشركة تُصرف المكافأة كاملة (100%). عند الاستقالة تُطبَّق نسب المادة 53 حسب مدة الخدمة. استخدم زر «مقارنة سيناريوهين» لرؤية الفرق فوراً.",
+    compareTitle: "⚖️ مقارنة: إنهاء خدمات vs استقالة",
+    compareTermLbl: "إنهاء خدمات (100%)",
+    compareResLbl: "استقالة (حسب المدة)",
+    compareNeedEosb: "المقارنة متاحة عند حساب مكافأة نهاية الخدمة.",
+    emailCopied: "تم نسخ قالب البريد الإلكتروني!",
+    demoFilled: "تم تعبئة مثال تجريبي — اضغط احسب.",
+    footerUpdated: "آخر مراجعة للحسابات: يوليو 2026",
+    footerPrivacy: "🔒 الحسابات محلية — لا تُرسل بياناتك لأي خادم",
+    footerNote: "أداة مجانية مستقلة وغير تابعة لأي جهة حكومية."
   },
   en: {
     docTitle: "Indemnity & Vacation Calculator - Kuwait Labor Law 6/2010",
@@ -1153,7 +1616,50 @@ const i18n = {
     noteVacationRule: "Vacation Pay = Remaining Days × Daily Rate.",
     noteOvertimeRule: "Overtime Rates: Normal (125%), Weekends (150%), Public Holidays (200%).",
     noteProbationRule: "Notice: Service period is under 100 days (Probation Period Art. 32), entitlements subject to contract probation clause.",
-    copiedMsg: "Summary text copied successfully!"
+    copiedMsg: "Summary text copied successfully!",
+    btnDemo: "✨ Demo Example",
+    btnEmail: "✉️ Email Template",
+    btnCompare: "⚖️ Compare Scenarios",
+    disclaimerTitle: "⚠️ Disclaimer:",
+    disclaimerText: " Results are indicative per Kuwait Labor Law No. 6 of 2010 (private sector) and do not constitute legal advice. Always verify your contract terms.",
+    historyTitle: "🕘 Recent Calculations",
+    historyEmpty: "No history yet",
+    historyLoad: "Load",
+    rateTitle: "💵 Daily & Hourly Rate Calculator",
+    lblMiniSalary: "Total Salary (KWD)",
+    lblDailyOut: "Daily Rate (÷26)",
+    lblHourlyOut: "Hourly Rate (÷208)",
+    lblMonthDays: "Approx. indemnity day value",
+    howTitle: "📘 How is it calculated?",
+    howBadge: "Law 6/2010",
+    howEosbTitle: "End of Service (Art. 51)",
+    howEosbBody: "15 days × first 5 years + 30 days × subsequent years. Cap = 18 months pay (18 × 26 days). Daily rate = salary ÷ 26.",
+    howResTitle: "Resignation (Art. 53)",
+    howResBody: "< 3 yrs: 0% · 3–5 yrs: 50% · 5–10 yrs: ⅔ (66.67%) · > 10 yrs: 100%.",
+    howVacTitle: "Vacation Pay",
+    howVacBody: "Remaining days × daily rate. Balance can be auto-calculated from last return date (30 days / year).",
+    howOtTitle: "Overtime",
+    howOtBody: "Normal 125% · Weekend 150% · Public holidays 200%. Hourly rate = salary ÷ 208.",
+    faqTitle: "❓ Frequently Asked Questions",
+    faq1q: "What is the maximum end-of-service indemnity?",
+    faq1a: "It shall not exceed 18 months' wages (Article 51), i.e. a maximum of 18 × 26 = 468 working days of entitlement.",
+    faq2q: "Is the probation period counted?",
+    faq2a: "Probation under Article 32 shall not exceed 100 working days. Entitlements may be subject to the contract clause; the calculator shows a notice if service is under 100 days.",
+    faq3q: "What about unpaid leave?",
+    faq3a: "Unpaid leave days are excluded from vacation accrual when using automatic calculation from the last return date.",
+    faq4q: "Is my data sent to any server?",
+    faq4a: "No. All calculations run locally in your browser. Salary and name are never uploaded. Drafts are saved optionally in your device's local storage only.",
+    faq5q: "Difference between termination and resignation?",
+    faq5a: "On company termination, full indemnity (100%) is due. On resignation, Article 53 ratios apply by service length. Use Compare Scenarios to see the difference instantly.",
+    compareTitle: "⚖️ Compare: Termination vs Resignation",
+    compareTermLbl: "Termination (100%)",
+    compareResLbl: "Resignation (by tenure)",
+    compareNeedEosb: "Comparison is available when calculating end-of-service indemnity.",
+    emailCopied: "Email template copied!",
+    demoFilled: "Demo data filled — press Calculate.",
+    footerUpdated: "Calculations last reviewed: July 2026",
+    footerPrivacy: "🔒 Local calculations — your data is never sent to a server",
+    footerNote: "Free independent tool, not affiliated with any government body."
   }
 };
 
@@ -1458,6 +1964,43 @@ function toggleLanguage() {
   document.getElementById('footerLaw').innerText = t.footerLaw;
   document.getElementById('footerDev').innerText = t.footerDev;
 
+  const setTxt = (id, key) => { const el = document.getElementById(id); if (el && t[key] != null) el.innerText = t[key]; };
+  setTxt('btnDemo', 'btnDemo');
+  setTxt('btnEmail', 'btnEmail');
+  setTxt('btnCompare', 'btnCompare');
+  setTxt('disclaimerTitle', 'disclaimerTitle');
+  setTxt('disclaimerText', 'disclaimerText');
+  setTxt('historyTitle', 'historyTitle');
+  setTxt('rateTitle', 'rateTitle');
+  setTxt('lblMiniSalary', 'lblMiniSalary');
+  setTxt('lblDailyOut', 'lblDailyOut');
+  setTxt('lblHourlyOut', 'lblHourlyOut');
+  setTxt('lblMonthDays', 'lblMonthDays');
+  setTxt('howTitle', 'howTitle');
+  setTxt('howBadge', 'howBadge');
+  setTxt('howEosbTitle', 'howEosbTitle');
+  setTxt('howEosbBody', 'howEosbBody');
+  setTxt('howResTitle', 'howResTitle');
+  setTxt('howResBody', 'howResBody');
+  setTxt('howVacTitle', 'howVacTitle');
+  setTxt('howVacBody', 'howVacBody');
+  setTxt('howOtTitle', 'howOtTitle');
+  setTxt('howOtBody', 'howOtBody');
+  setTxt('faqTitle', 'faqTitle');
+  setTxt('faq1q', 'faq1q'); setTxt('faq1a', 'faq1a');
+  setTxt('faq2q', 'faq2q'); setTxt('faq2a', 'faq2a');
+  setTxt('faq3q', 'faq3q'); setTxt('faq3a', 'faq3a');
+  setTxt('faq4q', 'faq4q'); setTxt('faq4a', 'faq4a');
+  setTxt('faq5q', 'faq5q'); setTxt('faq5a', 'faq5a');
+  setTxt('compareTitle', 'compareTitle');
+  setTxt('compareTermLbl', 'compareTermLbl');
+  setTxt('compareResLbl', 'compareResLbl');
+  setTxt('footerUpdated', 'footerUpdated');
+  setTxt('footerPrivacy', 'footerPrivacy');
+  setTxt('footerNote', 'footerNote');
+
+  updateMiniRates();
+  renderHistory();
   autoCalcVacation();
 
   if (document.getElementById('resultsBox').style.display === 'block') {
@@ -1747,6 +2290,9 @@ function calculate(e) {
 
   document.getElementById('resultsBox').style.display = 'block';
   document.getElementById('resultsBox').scrollIntoView({ behavior: 'smooth' });
+
+  saveToHistory(lastCalculationData);
+  updateComparePanel(lastCalculationData);
 }
 
 function openReceiptModal() {
@@ -1755,6 +2301,10 @@ function openReceiptModal() {
   document.getElementById('rcpName').innerText = d.empName;
   document.getElementById('rcpStart').innerText = d.startDateVal;
   document.getElementById('rcpEnd').innerText = d.endDateVal;
+
+  const ref = 'KW-' + Date.now().toString(36).toUpperCase();
+  document.getElementById('rcpRef').innerText = ref;
+  document.getElementById('rcpIssueDate').innerText = new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-KW' : 'en-GB');
 
   const showEOSB = d.mode === 'both' || d.mode === 'eosb';
   const showVacation = d.mode === 'both' || d.mode === 'vacation';
@@ -1788,8 +2338,24 @@ window.addEventListener('afterprint', () => {
   document.body.classList.remove('printing-receipt');
 });
 
+async function ensureExcelJS() {
+  if (typeof ExcelJS !== 'undefined') return true;
+  return new Promise((resolve) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js';
+    s.onload = () => resolve(true);
+    s.onerror = () => resolve(false);
+    document.head.appendChild(s);
+  });
+}
+
 async function exportToExcelReal() {
   if (!lastCalculationData) return;
+  const ok = await ensureExcelJS();
+  if (!ok || typeof ExcelJS === 'undefined') {
+    showToast(currentLang === 'ar' ? 'تعذر تحميل مكتبة الإكسل' : 'Failed to load Excel library', 'error');
+    return;
+  }
   const d = lastCalculationData;
   const t = i18n[currentLang];
   const isRTL = currentLang === 'ar';
@@ -1965,6 +2531,193 @@ function shareWhatsApp() {
 function formatKWD(amount) {
   return amount.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + i18n[currentLang].unitKWD;
 }
+
+/* ===== Demo example ===== */
+function fillDemoExample() {
+  const end = new Date();
+  const start = new Date();
+  start.setFullYear(end.getFullYear() - 6);
+  start.setMonth(end.getMonth() - 3);
+  const lastVac = new Date(end);
+  lastVac.setMonth(lastVac.getMonth() - 8);
+
+  document.getElementById('calcMode').value = 'both';
+  handleCalcModeChange();
+  document.getElementById('empName').value = currentLang === 'ar' ? 'أحمد محمد العتيبي' : 'Ahmed M. Al-Otaibi';
+  document.getElementById('startDate').value = start.toISOString().slice(0, 10);
+  document.getElementById('endDate').value = end.toISOString().slice(0, 10);
+  document.getElementById('lastVacationReturn').value = lastVac.toISOString().slice(0, 10);
+  document.getElementById('unpaidLeaveDays').value = '0';
+  document.getElementById('salary').value = '850';
+  document.getElementById('reason').value = 'resignation';
+  document.getElementById('unpaidSalary').value = '0';
+  document.getElementById('deductions').value = '50';
+  autoCalcVacation();
+  saveDraft();
+  showToast(i18n[currentLang].demoFilled, 'success');
+}
+
+/* ===== Mini rates ===== */
+function updateMiniRates() {
+  const s = parseFloat(document.getElementById('miniSalary').value) || 0;
+  const daily = s / 26;
+  const hourly = s / 208;
+  document.getElementById('dailyOut').innerText = formatKWD(daily);
+  document.getElementById('hourlyOut').innerText = formatKWD(hourly);
+  document.getElementById('eosbDayOut').innerText = formatKWD(daily);
+}
+
+/* ===== History ===== */
+const HISTORY_KEY = 'kw_calc_history_v1';
+
+function getHistory() {
+  if (!canUseStorage()) return [];
+  try {
+    return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+  } catch (e) { return []; }
+}
+
+function saveToHistory(d) {
+  if (!d || !canUseStorage()) return;
+  try {
+    let list = getHistory();
+    const entry = {
+      ts: Date.now(),
+      empName: d.empName,
+      grandTotal: d.grandTotal,
+      mode: d.mode,
+      form: collectFormData()
+    };
+    list = [entry, ...list.filter(x => x.empName !== entry.empName || Math.abs(x.grandTotal - entry.grandTotal) > 0.01)].slice(0, 5);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+    renderHistory();
+  } catch (e) { /* ignore */ }
+}
+
+function renderHistory() {
+  const card = document.getElementById('historyCard');
+  const listEl = document.getElementById('historyList');
+  if (!card || !listEl) return;
+  const t = i18n[currentLang];
+  const list = getHistory();
+  if (!list.length) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = 'block';
+  listEl.innerHTML = '';
+  list.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    const dateStr = new Date(item.ts).toLocaleString(currentLang === 'ar' ? 'ar-KW' : 'en-GB');
+    div.innerHTML = `<div><span class="hi-name">${item.empName || '—'}</span><div class="hi-meta">${dateStr} · ${Number(item.grandTotal).toFixed(3)}</div></div>`;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.innerText = t.historyLoad;
+    btn.onclick = () => {
+      applyFormData(item.form);
+      showToast(t.demoFilled, 'success');
+    };
+    div.appendChild(btn);
+    listEl.appendChild(div);
+  });
+}
+
+/* ===== Compare scenarios ===== */
+function resignationRatio(years) {
+  if (years < 3) return 0;
+  if (years < 5) return 0.5;
+  if (years < 10) return 2 / 3;
+  return 1;
+}
+
+function updateComparePanel(d) {
+  const box = document.getElementById('compareBox');
+  if (!box || !d) return;
+  if (d.mode !== 'both' && d.mode !== 'eosb') {
+    box.classList.remove('show');
+    return;
+  }
+  const years = (d.totalDays || 0) / 365.25;
+  const termAmt = d.rawEOSB;
+  const resAmt = d.rawEOSB * resignationRatio(years);
+  document.getElementById('compareTermVal').innerText = formatKWD(termAmt);
+  document.getElementById('compareResVal').innerText = formatKWD(resAmt);
+  document.getElementById('compareTermCol').classList.toggle('winner', termAmt >= resAmt);
+  document.getElementById('compareResCol').classList.toggle('winner', resAmt > termAmt);
+  const diff = termAmt - resAmt;
+  const t = i18n[currentLang];
+  document.getElementById('compareNote').innerText =
+    (currentLang === 'ar'
+      ? `الفرق بين السيناريوهين: ${formatKWD(Math.abs(diff))} · مدة الخدمة ≈ ${years.toFixed(2)} سنة · نسبة الاستقالة ${(resignationRatio(years) * 100).toFixed(1)}%`
+      : `Difference: ${formatKWD(Math.abs(diff))} · Tenure ≈ ${years.toFixed(2)} yrs · Resignation ratio ${(resignationRatio(years) * 100).toFixed(1)}%`);
+}
+
+function toggleCompare() {
+  if (!lastCalculationData) {
+    showToast(i18n[currentLang].compareNeedEosb, 'error');
+    return;
+  }
+  if (lastCalculationData.mode !== 'both' && lastCalculationData.mode !== 'eosb') {
+    showToast(i18n[currentLang].compareNeedEosb, 'error');
+    return;
+  }
+  const box = document.getElementById('compareBox');
+  updateComparePanel(lastCalculationData);
+  box.classList.toggle('show');
+  if (box.classList.contains('show')) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ===== Email template ===== */
+function copyEmailTemplate() {
+  if (!lastCalculationData) return;
+  const d = lastCalculationData;
+  const t = i18n[currentLang];
+  let body = '';
+  if (currentLang === 'ar') {
+    body = `السلام عليكم،\n\nأرفق ملخص مستحقات نهاية الخدمة للموظف: ${d.empName}\n`;
+    if (d.serviceText && d.serviceText !== t.notSpecified) body += `مدة الخدمة: ${d.serviceText}\n`;
+    body += `الراتب الشامل: ${d.salary.toFixed(3)} د.ك\n`;
+    if (d.mode === 'both' || d.mode === 'eosb') body += `صافي مكافأة نهاية الخدمة: ${d.finalEOSB.toFixed(3)} د.ك\n`;
+    if (d.mode === 'both' || d.mode === 'vacation') body += `بدل الإجازات: ${d.vacationAmount.toFixed(3)} د.ك\n`;
+    if (d.unpaidSalary > 0) body += `رواتب متأخرة: ${d.unpaidSalary.toFixed(3)} د.ك\n`;
+    if (d.deductions > 0) body += `خصومات: ${d.deductions.toFixed(3)} د.ك\n`;
+    body += `\nإجمالي الصافي المستحق: ${d.grandTotal.toFixed(3)} د.ك\n\nملاحظة: حساب استرشادي وفق قانون العمل 6/2010.\n\nمع التحية`;
+  } else {
+    body = `Dear HR,\n\nPlease find the end-of-service entitlement summary for: ${d.empName}\n`;
+    if (d.serviceText && d.serviceText !== t.notSpecified) body += `Service period: ${d.serviceText}\n`;
+    body += `Total salary: ${d.salary.toFixed(3)} KWD\n`;
+    if (d.mode === 'both' || d.mode === 'eosb') body += `Net indemnity: ${d.finalEOSB.toFixed(3)} KWD\n`;
+    if (d.mode === 'both' || d.mode === 'vacation') body += `Vacation pay: ${d.vacationAmount.toFixed(3)} KWD\n`;
+    if (d.unpaidSalary > 0) body += `Unpaid salary: ${d.unpaidSalary.toFixed(3)} KWD\n`;
+    if (d.deductions > 0) body += `Deductions: ${d.deductions.toFixed(3)} KWD\n`;
+    body += `\nGrand net payable: ${d.grandTotal.toFixed(3)} KWD\n\nNote: Indicative calculation per Labor Law 6/2010.\n\nBest regards`;
+  }
+  navigator.clipboard.writeText(body).then(() => {
+    showToast(t.emailCopied, 'success');
+  }).catch(() => {
+    const area = document.createElement('textarea');
+    area.value = body;
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand('copy');
+    document.body.removeChild(area);
+    showToast(t.emailCopied, 'success');
+  });
+}
+
+/* ===== Keyboard shortcuts ===== */
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeReceiptModal();
+  }
+});
+
+/* ===== Init extras ===== */
+window.addEventListener('DOMContentLoaded', () => {
+  renderHistory();
+  updateMiniRates();
+});
 </script>
 
 </body>
