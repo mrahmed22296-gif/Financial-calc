@@ -20,7 +20,7 @@
 <meta property="og:title" content="حاسبة نهاية الخدمة ورصيد الإجازات في الكويت">
 <meta property="og:description" content="حساب مكافأة نهاية الخدمة وبدل الإجازات وفقاً لقانون العمل الكويتي رقم 6 لسنة 2010 مجاناً وبدقة متناهية.">
 
-<!-- Structured Data (JSON-LD) لمساعدة جوجل على تصدر البحث -->
+<!-- Structured Data (JSON-LD) -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -464,7 +464,7 @@
           </select>
         </div>
 
-        <!-- حقول بدل العمل الإضافي (الأوفر تايم) -->
+        <!-- حقول بدل العمل الإضافي -->
         <div class="form-group" id="grpNormalOT" style="display: none;">
           <label for="normalOT" id="lblNormalOT">ساعات عمل إضافي (أيام عادية - 125%)</label>
           <input type="number" id="normalOT" min="0" value="0" step="0.5">
@@ -634,7 +634,14 @@ const i18n = {
     andText: "و",
     dateAlert: "تاريخ نهاية العمل يجب أن يكون بعد تاريخ البداية!",
     notSpecified: "لم يحدد",
-    notCalculated: "غير مشمول بالحساب"
+    notCalculated: "غير مشمول بالحساب",
+    notesHeader: "📝 ملاحظات وتفاصيل الحسابات الرياضية:",
+    noteDailyRate: "أجر اليوم = الراتب الشامل ÷ 26 يوم عمل",
+    noteHourlyRate: "أجر الساعة = الراتب الشامل ÷ (26 × 8) = الراتب ÷ 208 ساعة",
+    noteEOSBRule: "حساب نهاية الخدمة: 15 يوماً عن كل سنة من الـ 5 سنوات الأولى، و30 يوماً عن كل سنة تالية (بحد أقصى 18 شهراً).",
+    noteResignationRule: "نسبة الاستحقاق في الاستقالة: أقل من سنتين (0%)، من 2-5 سنوات (50%)، من 5-10 سنوات (66.67%)، أكثر من 10 سنوات (100%).",
+    noteVacationRule: "بدل الإجازات = رصيد الأيام × أجر اليوم (معدل الاستحقاق السنوي 30 يوماً).",
+    noteOvertimeRule: "العمل الإضافي: عادي (125%)، عطلة أسبوعية (150%)، عطل رسمية (200%)."
   },
   en: {
     docTitle: "Indemnity & Vacation Calculator - Kuwait Labor Law 6/2010",
@@ -696,7 +703,14 @@ const i18n = {
     andText: "and",
     dateAlert: "End date must be after the start date!",
     notSpecified: "Not Specified",
-    notCalculated: "Not Calculated"
+    notCalculated: "Not Calculated",
+    notesHeader: "📝 Calculation Notes & Formulas:",
+    noteDailyRate: "Daily Rate = Total Salary ÷ 26 working days",
+    noteHourlyRate: "Hourly Rate = Total Salary ÷ (26 × 8) = Total Salary ÷ 208 hours",
+    noteEOSBRule: "Indemnity Rule: 15 days per year for first 5 years, 30 days per year for subsequent years (Max 18 months cap).",
+    noteResignationRule: "Resignation Entitlement: <2 yrs (0%), 2-5 yrs (50%), 5-10 yrs (66.67%), >10 yrs (100%).",
+    noteVacationRule: "Vacation Pay = Remaining Days × Daily Rate (Accrual rate 30 days/year).",
+    noteOvertimeRule: "Overtime Rates: Normal (125%), Weekends (150%), Public Holidays (200%)."
   }
 };
 
@@ -1007,6 +1021,8 @@ function calculate(e) {
     lastVacationReturnVal: lastVacationReturnVal || t.notSpecified,
     unpaidLeaveDays,
     salary,
+    dailySalary,
+    hourlyRate,
     reasonText: (mode !== 'vacation' && mode !== 'overtime') ? reasonText : t.notSpecified,
     vacationDays: (mode === 'both' || mode === 'vacation') ? vacationDays.toFixed(2) : t.notCalculated,
     rawEOSBDays: (mode === 'both' || mode === 'eosb') ? rawEOSBDays.toFixed(2) : t.notCalculated,
@@ -1120,6 +1136,28 @@ function exportToExcel() {
   rows.push([d.unpaidSalary.toFixed(3) + t.unitKWD, t.lblUnpaidSalary]);
   rows.push([d.grandTotal.toFixed(3) + t.unitKWD, t.lblGrandTotal]);
 
+  // إعداد Meno/Notes العملية الحسابية
+  const notes = [];
+  notes.push(t.notesHeader);
+  notes.push(`1. ${t.noteDailyRate} (${d.salary.toFixed(3)} ÷ 26 = ${d.dailySalary.toFixed(3)}${t.unitKWD})`);
+
+  if (d.mode === 'overtime') {
+    notes.push(`2. ${t.noteHourlyRate} (${d.salary.toFixed(3)} ÷ 208 = ${d.hourlyRate.toFixed(3)}${t.unitKWD})`);
+  }
+
+  if (d.mode === 'both' || d.mode === 'eosb') {
+    notes.push(`3. ${t.noteEOSBRule}`);
+    notes.push(`4. ${t.noteResignationRule}`);
+  }
+
+  if (d.mode === 'both' || d.mode === 'vacation') {
+    notes.push(`5. ${t.noteVacationRule}`);
+  }
+
+  if (d.mode === 'overtime') {
+    notes.push(`6. ${t.noteOvertimeRule}`);
+  }
+
   let tableHTML = `
     <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
     <head>
@@ -1163,6 +1201,29 @@ function exportToExcel() {
     tableHTML += `<td style="${cellStyle} width: 350px;">${row[1]}</td>`;
     tableHTML += `</tr>`;
   });
+
+  tableHTML += `</table>`;
+
+  // إضافة جدول الملاحظات الرياضية
+  tableHTML += `
+    <br/>
+    <table border="1" style="border-collapse: collapse; font-family: Arial, sans-serif; text-align: right; width: 100%; background-color: #FFF2CC;">
+      <tr>
+        <td colspan="2" style="padding: 10px; font-weight: bold; background-color: #D6B656; color: #000; font-size: 14px;">
+          ${notes[0]}
+        </td>
+      </tr>
+  `;
+
+  for (let i = 1; i < notes.length; i++) {
+    tableHTML += `
+      <tr>
+        <td colspan="2" style="padding: 8px; font-size: 13px; color: #333; border: 1px solid #D6B656;">
+          ${notes[i]}
+        </td>
+      </tr>
+    `;
+  }
 
   tableHTML += `
       </table>
