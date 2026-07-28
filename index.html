@@ -964,7 +964,7 @@ function formatKWD(amount) {
   return amount.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + i18n[currentLang].unitKWD;
 }
 
-// دالة التصدير المحدثة للتوافق الكامل مع الهواتف الذكية (Android / iOS)
+// دالة التصدير المحدثة مع التنسيق المأخوذ من الصورة
 function exportToExcel() {
   if (!lastCalculationData) return;
   const d = lastCalculationData;
@@ -980,63 +980,105 @@ function exportToExcel() {
     return `${dd}-${mm}-${yy}`;
   };
 
-  // إعداد البيانات كمنظومة صفوف
+  // إعداد البيانات كمنظومة صفوف (في العربية: القيمة أولاً ثم الوصف ليتطابق مع الصورة)
   const excelData = [];
-  excelData.push([t.lblEmpName, d.empName]);
+  excelData.push([d.empName, t.lblEmpName]);
 
   if (d.mode !== 'vacation') {
-    excelData.push([t.lblStartDate, formatDateShort(d.startDateVal)]);
-    excelData.push([t.lblEndDate, formatDateShort(d.endDateVal)]);
-    excelData.push([t.servicePeriodText.replace(': ', ''), d.serviceText]);
+    excelData.push([formatDateShort(d.startDateVal), t.lblStartDate]);
+    excelData.push([formatDateShort(d.endDateVal), t.lblEndDate]);
+    excelData.push([d.serviceText, t.servicePeriodText.replace(': ', '')]);
   } else {
-    excelData.push([t.lblEndDate, formatDateShort(d.endDateVal)]);
+    excelData.push([formatDateShort(d.endDateVal), t.lblEndDate]);
   }
 
   if (d.mode !== 'eosb') {
-    excelData.push([t.lblLastVacation, formatDateShort(d.lastVacationReturnVal)]);
-    excelData.push([t.lblUnpaidLeave, d.unpaidLeaveDays + t.unitDays]);
+    excelData.push([formatDateShort(d.lastVacationReturnVal), t.lblLastVacation]);
+    excelData.push([d.unpaidLeaveDays + t.unitDays, t.lblUnpaidLeave]);
   }
 
-  excelData.push([t.lblSalary, d.salary.toFixed(3) + t.unitKWD]);
+  excelData.push([d.salary.toFixed(3) + t.unitKWD, t.lblSalary]);
 
   if (d.mode !== 'vacation') {
-    excelData.push([t.lblReason, d.reasonText]);
+    excelData.push([d.reasonText, t.lblReason]);
   }
 
   if (d.mode === 'both' || d.mode === 'eosb') {
-    excelData.push([t.lblRawEOSBDays, d.rawEOSBDays + t.unitDays]);
-    excelData.push([t.lblEntitlementRatio, d.ratioText]);
-    excelData.push([t.lblNetEOSBDays, d.netEOSBDays + t.unitDays]);
-    excelData.push([t.lblRawEOSB, d.rawEOSB.toFixed(3) + t.unitKWD]);
-    excelData.push([t.lblFinalEOSB, d.finalEOSB.toFixed(3) + t.unitKWD]);
+    excelData.push([d.rawEOSBDays + t.unitDays, t.lblRawEOSBDays]);
+    excelData.push([d.ratioText, t.lblEntitlementRatio]);
+    excelData.push([d.netEOSBDays + t.unitDays, t.lblNetEOSBDays]);
+    excelData.push([d.rawEOSB.toFixed(3) + t.unitKWD, t.lblRawEOSB]);
+    excelData.push([d.finalEOSB.toFixed(3) + t.unitKWD, t.lblFinalEOSB]);
   }
 
   if (d.mode === 'both' || d.mode === 'vacation') {
-    excelData.push([t.lblVacationDays, d.vacationDays + t.unitDays]);
-    excelData.push([t.lblVacationAmount, d.vacationAmount.toFixed(3) + t.unitKWD]);
+    excelData.push([d.vacationDays + t.unitDays, t.lblVacationDays]);
+    excelData.push([d.vacationAmount.toFixed(3) + t.unitKWD, t.lblVacationAmount]);
   }
 
-  excelData.push([t.lblUnpaidSalary, d.unpaidSalary.toFixed(3) + t.unitKWD]);
-  excelData.push([t.lblGrandTotal, d.grandTotal.toFixed(3) + t.unitKWD]);
+  excelData.push([d.unpaidSalary.toFixed(3) + t.unitKWD, t.lblUnpaidSalary]);
+  excelData.push([d.grandTotal.toFixed(3) + t.unitKWD, t.lblGrandTotal]);
 
-  // إنشاء ورقة عمل SheetJS
+  // إنشاء ورقة العمل
   const worksheet = XLSX.utils.aoa_to_sheet(excelData);
 
-  // ضبط عرض الأعمدة ليتناسب مع شاشة الهاتف
+  // ضبط عرض الأعمدة
   worksheet['!cols'] = [
-    { wch: 35 }, // العمود الأول (الوصف)
-    { wch: 30 }  // العمود الثاني (القيمة)
+    { wch: 30 }, // العمود الأول (القيم)
+    { wch: 40 }  // العمود الثاني (العناوين)
   ];
 
-  // تفعيل خيار اليمين لليسار عند التصدير باللغة العربية
+  // تفعيل الاتجاه من اليمين لليسار
   if (currentLang === 'ar') {
     worksheet['!views'] = [{ RTL: true }];
+  }
+
+  // --- تطبيق التنسيق (الألوان والحدود والخطوط) ---
+  const range = XLSX.utils.decode_range(worksheet['!ref']);
+  const totalRows = range.e.r;
+
+  for (let R = range.s.r; R <= range.e.r; ++R) {
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
+      if (!worksheet[cellRef]) continue;
+
+      // التنسيق الافتراضي لكل الخلية
+      let cellStyle = {
+        font: { name: "Arial", sz: 12 },
+        alignment: { vertical: "center", horizontal: "center" },
+        border: {
+          top: { style: "thin", color: { rgb: "D9D9D9" } },
+          bottom: { style: "thin", color: { rgb: "D9D9D9" } },
+          left: { style: "thin", color: { rgb: "D9D9D9" } },
+          right: { style: "thin", color: { rgb: "D9D9D9" } }
+        }
+      };
+
+      if (R === 0) {
+        // الصف الأول (الكحلي الغامق)
+        cellStyle.fill = { fgColor: { rgb: "002060" } };
+        cellStyle.font = { name: "Arial", sz: 12, bold: true, color: { rgb: "FFFFFF" } };
+      } else if (R === totalRows) {
+        // الصف الأخير الإجمالي (الأخضر)
+        cellStyle.fill = { fgColor: { rgb: "70AD47" } };
+        cellStyle.font = { name: "Arial", sz: 13, bold: true, color: { rgb: "000000" } };
+      } else {
+        // الصفوف التبادلية (أزرق فاتح / أبيض)
+        if (R % 2 === 1) {
+          cellStyle.fill = { fgColor: { rgb: "F2F5F9" } };
+        } else {
+          cellStyle.fill = { fgColor: { rgb: "FFFFFF" } };
+        }
+      }
+
+      worksheet[cellRef].s = cellStyle;
+    }
   }
 
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "التقرير");
 
-  // التصدير المباشر بصيغة .xlsx متوافقة 100% مع الأجهزة المحمولة
+  // تصدير الملف
   const fileName = `تقرير_مستحقات_${d.empName.replace(/\s+/g, '_')}.xlsx`;
   XLSX.writeFile(workbook, fileName);
 }
