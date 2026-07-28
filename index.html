@@ -1544,7 +1544,7 @@
     <form id="calcForm" onsubmit="calculate(event)">
       <div class="grid">
         
-        <div class="form-group full-width">
+        <div class="form-group">
           <label for="calcMode" id="lblCalcMode">نوع الحساب المطلوب</label>
           <select id="calcMode" onchange="handleCalcModeChange()" required>
             <option value="both" id="optBoth">حساب نهاية الخدمة + رصيد الإجازات معاً</option>
@@ -1552,6 +1552,15 @@
             <option value="vacation" id="optVacationOnly">حساب بدل رصيد الإجازات فقط</option>
             <option value="overtime" id="optOvertimeOnly">حساب بدل العمل الإضافي (الأوفر تايم) فقط</option>
           </select>
+        </div>
+
+        <div class="form-group">
+          <label for="sectorType" id="lblSectorType">نوع العقد / القطاع</label>
+          <select id="sectorType" onchange="handleSectorChange(); saveDraft();" required>
+            <option value="private" id="optPrivate">أهلي (قانون العمل 6/2010)</option>
+            <option value="government" id="optGovernment">حكومي (التأمينات / الخدمة المدنية)</option>
+          </select>
+          <span class="hint" id="hintSector">يغيّر معادلة مكافأة نهاية الخدمة حسب القانون المعمول به</span>
         </div>
 
         <div class="form-group full-width">
@@ -1886,6 +1895,13 @@ const i18n = {
     lblVisitors: "👥 عدد زوار الموقع:",
     formTitle: "📋 بيانات الموظف والعقد",
     lblCalcMode: "نوع الحساب المطلوب",
+    lblSectorType: "نوع العقد / القطاع",
+    optPrivate: "أهلي (قانون العمل 6/2010)",
+    optGovernment: "حكومي (التأمينات / الخدمة المدنية)",
+    hintSector: "يغيّر معادلة مكافأة نهاية الخدمة حسب القانون المعمول به",
+    noteGovEOSBRule: "القطاع الحكومي (غير مستحقي المعاش — تقدير): 10% ثم 12% ثم 15% ثم 20% × 12 × الراتب عن شرائح السنوات (5+5+5+الباقي). الراتب المدخل يُعامل كراتب تسوية المعاش.",
+    noteDailyRateGov: "أجر اليوم (حكومي تقديري) = الراتب ÷ 30",
+    headerSubGov: "وفقاً لقواعد التأمينات الاجتماعية / الخدمة المدنية (تقدير)",
     optBoth: "حساب نهاية الخدمة + رصيد الإجازات معاً",
     optEosbOnly: "حساب مكافأة نهاية الخدمة فقط",
     optVacationOnly: "حساب بدل رصيد الإجازات فقط",
@@ -2027,6 +2043,13 @@ const i18n = {
     lblVisitors: "👥 Total Visitors:",
     formTitle: "📋 Employee & Contract Details",
     lblCalcMode: "Calculation Mode",
+    lblSectorType: "Contract / Sector type",
+    optPrivate: "Private (Labor Law 6/2010)",
+    optGovernment: "Government (Social Security / Civil Service)",
+    hintSector: "Switches the end-of-service formula based on applicable rules",
+    noteGovEOSBRule: "Government (non-pension estimate): 10%, then 12%, then 15%, then 20% × 12 × salary across year bands (5+5+5+remainder). Entered salary is treated as pension settlement salary.",
+    noteDailyRateGov: "Daily rate (gov. estimate) = Salary ÷ 30",
+    headerSubGov: "Per Social Security / Civil Service rules (estimate)",
     optBoth: "End of Service + Vacation Balance Both",
     optEosbOnly: "End of Service Indemnity Only",
     optVacationOnly: "Vacation Balance Pay Only",
@@ -2249,6 +2272,7 @@ function toggleDarkMode() {
 function collectFormData() {
   return {
     calcMode: document.getElementById('calcMode').value,
+    sectorType: document.getElementById('sectorType').value,
     empName: document.getElementById('empName').value,
     startDate: document.getElementById('startDate').value,
     endDate: document.getElementById('endDate').value,
@@ -2270,6 +2294,7 @@ function collectFormData() {
 
 function applyFormData(d) {
   if (d.calcMode) document.getElementById('calcMode').value = d.calcMode;
+  if (d.sectorType) document.getElementById('sectorType').value = d.sectorType;
   if (d.empName) document.getElementById('empName').value = d.empName;
   if (d.startDate) document.getElementById('startDate').value = d.startDate;
   if (d.endDate) document.getElementById('endDate').value = d.endDate;
@@ -2287,6 +2312,7 @@ function applyFormData(d) {
   if (d.civilId != null) document.getElementById('civilId').value = d.civilId;
   if (d.empNumber != null) document.getElementById('empNumber').value = d.empNumber;
   handleCalcModeChange();
+  handleSectorChange();
   document.getElementById('resultsBox').style.display = 'none';
 }
 
@@ -2319,6 +2345,18 @@ function loadDraft() {
 }
 
 window.addEventListener('DOMContentLoaded', loadDraft);
+
+function handleSectorChange() {
+  const t = i18n[currentLang];
+  const isGov = document.getElementById('sectorType').value === 'government';
+  const sub = document.getElementById('headerSub');
+  if (sub) sub.innerText = isGov ? t.headerSubGov : t.headerSub;
+  const reasonGrp = document.getElementById('grpReason');
+  if (reasonGrp) {
+    // نسب الاستقالة خاصة بالأهل؛ نبقي الحقل ظاهراً لكنه لا يؤثر على الحكومي
+    reasonGrp.style.opacity = isGov ? '0.55' : '1';
+  }
+}
 
 function handleCalcModeChange() {
   const mode = document.getElementById('calcMode').value;
@@ -2357,7 +2395,7 @@ function handleCalcModeChange() {
     grpEndDate.style.display = 'flex';
     grpReason.style.display = 'flex';
     grpLastVacation.style.display = 'none';
-    grpUnpaidLeave.style.display = 'none';
+    grpUnpaidLeave.style.display = 'flex';
     grpVacationDays.style.display = 'none';
     grpNormalOT.style.display = 'none';
     grpWeekendOT.style.display = 'none';
@@ -2411,9 +2449,14 @@ function toggleLanguage() {
   document.getElementById('langBtn').innerText = t.langBtn;
   document.getElementById('headerTitle').innerText = t.headerTitle;
   document.getElementById('headerSub').innerText = t.headerSub;
+  handleSectorChange();
   document.getElementById('lblVisitors').innerText = t.lblVisitors;
   document.getElementById('formTitle').innerText = t.formTitle;
   document.getElementById('lblCalcMode').innerText = t.lblCalcMode;
+  document.getElementById('lblSectorType').innerText = t.lblSectorType;
+  document.getElementById('optPrivate').innerText = t.optPrivate;
+  document.getElementById('optGovernment').innerText = t.optGovernment;
+  document.getElementById('hintSector').innerText = t.hintSector;
   document.getElementById('optBoth').innerText = t.optBoth;
   document.getElementById('optEosbOnly').innerText = t.optEosbOnly;
   document.getElementById('optVacationOnly').innerText = t.optVacationOnly;
@@ -2605,6 +2648,8 @@ function calculate(e) {
 
     const diffTime = Math.abs(endDate - startDate);
     totalDays = diffTime / (1000 * 60 * 60 * 24);
+    // استبعاد أيام الإجازة بدون أجر من مدة الخدمة الفعلية
+    totalDays = Math.max(0, totalDays - unpaidLeaveDays);
     years = totalDays / 365.25;
 
     const displayYears = Math.floor(years);
@@ -2612,6 +2657,11 @@ function calculate(e) {
     const remainingDays = Math.floor(totalDays % 30.4375);
 
     serviceText = `${displayYears} ${t.yearText} ${t.andText} ${remainingMonths} ${t.monthText} ${t.andText} ${remainingDays} ${t.dayText}`;
+    if (unpaidLeaveDays > 0) {
+      serviceText += currentLang === 'ar'
+        ? ` (بعد خصم ${unpaidLeaveDays} يوم بدون أجر)`
+        : ` (after deducting ${unpaidLeaveDays} unpaid leave days)`;
+    }
     document.getElementById('servicePeriodText').style.display = 'inline';
     document.getElementById('servicePeriodText').innerText = `${t.servicePeriodText}${serviceText}`;
   } else {
@@ -2620,8 +2670,10 @@ function calculate(e) {
 
   document.getElementById('resEmpName').innerText = `${t.resEmpName}${empName}`;
 
-  const dailySalary = salary / 26; 
-  const hourlyRate = salary / 208;
+  const sector = document.getElementById('sectorType').value;
+  const isGov = sector === 'government';
+  const dailySalary = isGov ? (salary / 30) : (salary / 26);
+  const hourlyRate = isGov ? (salary / (30 * 8)) : (salary / 208);
 
   let rawEOSBDays = 0;
   let ratio = 1.0;
@@ -2630,35 +2682,57 @@ function calculate(e) {
   let finalEOSB = 0;
 
   if (mode === 'both' || mode === 'eosb') {
-    if (years <= 5) {
-      rawEOSBDays = years * 15;
-    } else {
-      const first5YearsDays = 5 * 15;
-      const restYearsDays = (years - 5) * 30;
-      rawEOSBDays = first5YearsDays + restYearsDays;
-    }
-
-    const maxCapDays = 18 * 26; 
-    if (rawEOSBDays > maxCapDays) {
-      rawEOSBDays = maxCapDays;
-    }
-
-    rawEOSB = rawEOSBDays * dailySalary;
-
-    if (reason === 'resignation') {
-      if (years < 3) {
-        ratio = 0;
-      } else if (years >= 3 && years < 5) {
-        ratio = 0.5;
-      } else if (years >= 5 && years < 10) {
-        ratio = 2 / 3;
-      } else {
-        ratio = 1.0;
+    if (isGov) {
+      // تقدير مكافأة القطاع الحكومي (غير مستحقي المعاش) وفق شرائح النسب السنوية
+      let yLeft = years;
+      const bands = [
+        { max: 5, rate: 0.10 },
+        { max: 5, rate: 0.12 },
+        { max: 5, rate: 0.15 },
+        { max: Infinity, rate: 0.20 }
+      ];
+      rawEOSB = 0;
+      for (const b of bands) {
+        if (yLeft <= 0) break;
+        const take = Math.min(b.max, yLeft);
+        rawEOSB += salary * 12 * b.rate * take;
+        yLeft -= take;
       }
-    }
+      rawEOSBDays = salary > 0 ? (rawEOSB / dailySalary) : 0;
+      ratio = 1.0; // نسب الاستقالة (م53) خاصة بالقطاع الأهلي
+      netEOSBDays = rawEOSBDays;
+      finalEOSB = rawEOSB;
+    } else {
+      if (years <= 5) {
+        rawEOSBDays = years * 15;
+      } else {
+        const first5YearsDays = 5 * 15;
+        const restYearsDays = (years - 5) * 30;
+        rawEOSBDays = first5YearsDays + restYearsDays;
+      }
 
-    netEOSBDays = rawEOSBDays * ratio;
-    finalEOSB = rawEOSB * ratio;
+      const maxCapDays = 18 * 26;
+      if (rawEOSBDays > maxCapDays) {
+        rawEOSBDays = maxCapDays;
+      }
+
+      rawEOSB = rawEOSBDays * dailySalary;
+
+      if (reason === 'resignation') {
+        if (years < 3) {
+          ratio = 0;
+        } else if (years >= 3 && years < 5) {
+          ratio = 0.5;
+        } else if (years >= 5 && years < 10) {
+          ratio = 2 / 3;
+        } else {
+          ratio = 1.0;
+        }
+      }
+
+      netEOSBDays = rawEOSBDays * ratio;
+      finalEOSB = rawEOSB * ratio;
+    }
   }
 
   let vacationAmount = 0;
@@ -2677,6 +2751,7 @@ function calculate(e) {
 
   lastCalculationData = {
     mode,
+    sector,
     empName,
     startDateVal: (mode !== 'vacation' && mode !== 'overtime') ? startDateVal : t.notSpecified,
     endDateVal: (mode !== 'vacation' && mode !== 'overtime') ? endDateVal : (endDateVal || t.notSpecified),
@@ -2708,10 +2783,10 @@ function calculate(e) {
   const showVacation = mode === 'both' || mode === 'vacation';
   const showOT = mode === 'overtime';
 
-  document.getElementById('rowRawEOSBDays').style.display = showEOSB ? 'flex' : 'none';
-  document.getElementById('rowEntitlementRatio').style.display = showEOSB ? 'flex' : 'none';
-  document.getElementById('rowNetEOSBDays').style.display = showEOSB ? 'flex' : 'none';
-  document.getElementById('rowRawEOSB').style.display = showEOSB ? 'flex' : 'none';
+  document.getElementById('rowRawEOSBDays').style.display = showEOSB && !isGov ? 'flex' : 'none';
+  document.getElementById('rowEntitlementRatio').style.display = showEOSB && !isGov ? 'flex' : 'none';
+  document.getElementById('rowNetEOSBDays').style.display = showEOSB && !isGov ? 'flex' : 'none';
+  document.getElementById('rowRawEOSB').style.display = showEOSB && !isGov ? 'flex' : 'none';
   document.getElementById('rowFinalEOSB').style.display = showEOSB ? 'flex' : 'none';
   document.getElementById('rowVacationAmount').style.display = showVacation ? 'flex' : 'none';
   document.getElementById('rowOvertimeAmount').style.display = showOT ? 'flex' : 'none';
@@ -2751,30 +2826,37 @@ function calculate(e) {
   calcNotesList.innerHTML = '';
 
   const note1 = document.createElement('li');
-  note1.innerText = `${t.noteDailyRate} (${salary.toFixed(3)} ÷ 26 = ${dailySalary.toFixed(3)}${t.unitKWD})`;
+  if (isGov) {
+    note1.innerText = `${t.noteDailyRateGov} (${salary.toFixed(3)} ÷ 30 = ${dailySalary.toFixed(3)}${t.unitKWD})`;
+  } else {
+    note1.innerText = `${t.noteDailyRate} (${salary.toFixed(3)} ÷ 26 = ${dailySalary.toFixed(3)}${t.unitKWD})`;
+  }
   calcNotesList.appendChild(note1);
 
   if (mode === 'overtime') {
     const noteOT = document.createElement('li');
-    noteOT.innerText = `${t.noteHourlyRate} (${salary.toFixed(3)} ÷ 208 = ${hourlyRate.toFixed(3)}${t.unitKWD})`;
+    const divHours = isGov ? 240 : 208;
+    noteOT.innerText = `${t.noteHourlyRate} (${salary.toFixed(3)} ÷ ${divHours} = ${hourlyRate.toFixed(3)}${t.unitKWD})`;
     calcNotesList.appendChild(noteOT);
   }
 
   if (showEOSB) {
     const noteEOSB = document.createElement('li');
-    noteEOSB.innerText = t.noteEOSBRule;
+    noteEOSB.innerText = isGov ? t.noteGovEOSBRule : t.noteEOSBRule;
     calcNotesList.appendChild(noteEOSB);
 
-    const noteResign = document.createElement('li');
-    noteResign.innerText = t.noteResignationRule;
-    calcNotesList.appendChild(noteResign);
+    if (!isGov) {
+      const noteResign = document.createElement('li');
+      noteResign.innerText = t.noteResignationRule;
+      calcNotesList.appendChild(noteResign);
 
-    if (totalDays > 0 && totalDays < 100) {
-      const noteProb = document.createElement('li');
-      noteProb.style.color = 'var(--red)';
-      noteProb.style.fontWeight = 'bold';
-      noteProb.innerText = t.noteProbationRule;
-      calcNotesList.appendChild(noteProb);
+      if (totalDays > 0 && totalDays < 100) {
+        const noteProb = document.createElement('li');
+        noteProb.style.color = 'var(--red)';
+        noteProb.style.fontWeight = 'bold';
+        noteProb.innerText = t.noteProbationRule;
+        calcNotesList.appendChild(noteProb);
+      }
     }
   }
 
@@ -3241,7 +3323,7 @@ function resignationRatio(years) {
 function updateComparePanel(d) {
   const box = document.getElementById('compareBox');
   if (!box || !d) return;
-  if (d.mode !== 'both' && d.mode !== 'eosb') {
+  if (d.sector === 'government' || (d.mode !== 'both' && d.mode !== 'eosb')) {
     box.classList.remove('show');
     return;
   }
@@ -3265,7 +3347,7 @@ function toggleCompare() {
     showToast(i18n[currentLang].compareNeedEosb, 'error');
     return;
   }
-  if (lastCalculationData.mode !== 'both' && lastCalculationData.mode !== 'eosb') {
+  if (lastCalculationData.sector === 'government' || (lastCalculationData.mode !== 'both' && lastCalculationData.mode !== 'eosb')) {
     showToast(i18n[currentLang].compareNeedEosb, 'error');
     return;
   }
@@ -3323,6 +3405,7 @@ document.addEventListener('keydown', (e) => {
 /* ===== Init extras ===== */
 window.addEventListener('DOMContentLoaded', () => {
   renderHistory();
+  handleSectorChange();
 });
 </script>
 
