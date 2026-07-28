@@ -577,16 +577,6 @@
 <main>
   <div class="card">
     <div class="card-title" id="formTitle">📋 بيانات الموظف والعقد</div>
-    <div class="form-group full-width" style="flex-direction: row; align-items: flex-end; gap: 8px; margin-bottom: 16px;">
-      <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
-        <label for="savedEmployees" id="lblSavedEmployees">📁 السجلات المحفوظة</label>
-        <select id="savedEmployees" onchange="loadSavedEmployee()">
-          <option value="" id="optNewRecord">-- سجل جديد --</option>
-        </select>
-      </div>
-      <button type="button" class="btn-action btn-export" style="background: var(--brass); color: var(--green-dark);" onclick="saveEmployeeRecord()" id="btnSaveRecord">💾 حفظ</button>
-      <button type="button" class="btn-action btn-reset" onclick="deleteSavedEmployee()" id="btnDeleteRecord">🗑️ حذف</button>
-    </div>
     <form id="calcForm" onsubmit="calculate(event)">
       <div class="grid">
         
@@ -847,13 +837,6 @@ const i18n = {
     headerSub: "وفقاً لقانون العمل الكويتي في القطاع الأهلي (رقم 6 لسنة 2010)",
     lblVisitors: "👥 عدد زوار الموقع:",
     formTitle: "📋 بيانات الموظف والعقد",
-    lblSavedEmployees: "📁 السجلات المحفوظة",
-    optNewRecord: "-- سجل جديد --",
-    btnSaveRecord: "💾 حفظ",
-    btnDeleteRecord: "🗑️ حذف",
-    emptyNameAlert: "الرجاء إدخال اسم الموظف أولاً قبل الحفظ.",
-    recordSavedMsg: "تم حفظ بيانات الموظف بنجاح!",
-    deleteConfirmMsg: "هل أنت متأكد من حذف هذا السجل المحفوظ؟",
     lblCalcMode: "نوع الحساب المطلوب",
     optBoth: "حساب نهاية الخدمة + رصيد الإجازات معاً",
     optEosbOnly: "حساب مكافأة نهاية الخدمة فقط",
@@ -938,13 +921,6 @@ const i18n = {
     headerSub: "According to Kuwait Labor Law in Private Sector (No. 6 of 2010)",
     lblVisitors: "👥 Total Visitors:",
     formTitle: "📋 Employee & Contract Details",
-    lblSavedEmployees: "📁 Saved Records",
-    optNewRecord: "-- New Record --",
-    btnSaveRecord: "💾 Save",
-    btnDeleteRecord: "🗑️ Delete",
-    emptyNameAlert: "Please enter the employee name before saving.",
-    recordSavedMsg: "Employee record saved successfully!",
-    deleteConfirmMsg: "Are you sure you want to delete this saved record?",
     lblCalcMode: "Calculation Mode",
     optBoth: "End of Service + Vacation Balance Both",
     optEosbOnly: "End of Service Indemnity Only",
@@ -1095,96 +1071,7 @@ function loadDraft() {
   }
 }
 
-/* ------- إدارة سجلات الموظفين المحفوظة (أكثر من موظف) ------- */
-function getSavedRecords() {
-  try {
-    return JSON.parse(localStorage.getItem('kw_calc_records') || '[]');
-  } catch (e) {
-    return [];
-  }
-}
-
-function setSavedRecords(records) {
-  localStorage.setItem('kw_calc_records', JSON.stringify(records));
-}
-
-function refreshSavedEmployeesList() {
-  const select = document.getElementById('savedEmployees');
-  if (!select) return;
-  const t = i18n[currentLang];
-  const records = getSavedRecords();
-  const currentVal = select.value;
-  select.innerHTML = '';
-  const optNew = document.createElement('option');
-  optNew.value = '';
-  optNew.innerText = t.optNewRecord;
-  select.appendChild(optNew);
-  records.forEach((r, idx) => {
-    const opt = document.createElement('option');
-    opt.value = idx;
-    opt.innerText = r.empName || (t.optNewRecord + ' ' + (idx + 1));
-    select.appendChild(opt);
-  });
-  select.value = currentVal || '';
-}
-
-function saveEmployeeRecord() {
-  const t = i18n[currentLang];
-  const formData = collectFormData();
-  if (!formData.empName) {
-    alert(t.emptyNameAlert);
-    return;
-  }
-  const records = getSavedRecords();
-  const select = document.getElementById('savedEmployees');
-  const idx = select.value;
-  if (idx !== '') {
-    records[idx] = formData;
-  } else {
-    records.push(formData);
-  }
-  setSavedRecords(records);
-  refreshSavedEmployeesList();
-  select.value = idx !== '' ? idx : (records.length - 1);
-  alert(t.recordSavedMsg);
-}
-
-function loadSavedEmployee() {
-  const select = document.getElementById('savedEmployees');
-  const idx = select.value;
-  if (idx === '') {
-    document.getElementById('calcForm').reset();
-    handleCalcModeChange();
-    document.getElementById('resultsBox').style.display = 'none';
-    return;
-  }
-  const records = getSavedRecords();
-  const d = records[idx];
-  if (!d) return;
-  document.getElementById('calcForm').reset();
-  applyFormData(d);
-}
-
-function deleteSavedEmployee() {
-  const t = i18n[currentLang];
-  const select = document.getElementById('savedEmployees');
-  const idx = select.value;
-  if (idx === '') return;
-  if (!confirm(t.deleteConfirmMsg)) return;
-  const records = getSavedRecords();
-  records.splice(idx, 1);
-  setSavedRecords(records);
-  refreshSavedEmployeesList();
-  select.value = '';
-  document.getElementById('calcForm').reset();
-  handleCalcModeChange();
-  document.getElementById('resultsBox').style.display = 'none';
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  loadDraft();
-  refreshSavedEmployeesList();
-});
+window.addEventListener('DOMContentLoaded', loadDraft);
 
 function handleCalcModeChange() {
   const mode = document.getElementById('calcMode').value;
@@ -1279,10 +1166,6 @@ function toggleLanguage() {
   document.getElementById('headerSub').innerText = t.headerSub;
   document.getElementById('lblVisitors').innerText = t.lblVisitors;
   document.getElementById('formTitle').innerText = t.formTitle;
-  document.getElementById('lblSavedEmployees').innerText = t.lblSavedEmployees;
-  document.getElementById('btnSaveRecord').innerText = t.btnSaveRecord;
-  document.getElementById('btnDeleteRecord').innerText = t.btnDeleteRecord;
-  refreshSavedEmployeesList();
   document.getElementById('lblCalcMode').innerText = t.lblCalcMode;
   document.getElementById('optBoth').innerText = t.optBoth;
   document.getElementById('optEosbOnly').innerText = t.optEosbOnly;
