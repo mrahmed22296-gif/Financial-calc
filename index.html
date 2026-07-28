@@ -317,9 +317,9 @@
   .result-row:last-child { border-bottom: none; }
   .result-row.total {
     background: rgba(176, 141, 87, 0.12);
-    margin: 12px -20px -20px;
+    margin: 12px -20px 0;
     padding: 16px 20px;
-    border-radius: 0 0 6px 6px;
+    border-radius: 0;
     border-top: 2px solid var(--brass);
     font-weight: 700;
     font-size: 17px;
@@ -335,7 +335,36 @@
     font-size: 20px;
     color: var(--green-dark);
   }
-  
+
+  /* تنسيق قسم الملاحظات للطباعة والشاشة */
+  .calc-notes-box {
+    margin: 0 -20px -20px;
+    background-color: #FFF2CC;
+    border-top: 2px solid #D6B656;
+    border-radius: 0 0 6px 6px;
+    padding: 15px 20px;
+    font-size: 13.5px;
+    color: #333;
+  }
+  .calc-notes-title {
+    font-weight: bold;
+    color: #1A2B4C;
+    margin-bottom: 8px;
+    font-size: 14.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .calc-notes-list {
+    margin: 0;
+    padding-right: 20px;
+    line-height: 1.6;
+  }
+  html[dir="ltr"] .calc-notes-list {
+    padding-right: 0;
+    padding-left: 20px;
+  }
+
   .action-bar {
     margin-top: 20px;
     display: flex;
@@ -445,6 +474,12 @@
       background: #ddd !important;
       border-top: 2px solid #000 !important;
       color: #000 !important;
+    }
+    .calc-notes-box {
+      background-color: #FFF2CC !important;
+      border-top: 2px solid #000 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
   }
 </style>
@@ -622,6 +657,14 @@
         <div class="result-row total">
           <span id="lblGrandTotal">إجمالي الصافي المستحق للصرف:</span>
           <span class="amount" id="grandTotal">0.000 د.ك</span>
+        </div>
+
+        <!-- قسم الملاحظات الحسابية الديناميكية للطباعة والعرض -->
+        <div class="calc-notes-box" id="calcNotesBox">
+          <div class="calc-notes-title" id="calcNotesTitle">📝 ملاحظات وتفاصيل الحسابات الرياضية:</div>
+          <ol class="calc-notes-list" id="calcNotesList">
+            <!-- يتم تعبئته تلقائياً عبر JavaScript -->
+          </ol>
         </div>
 
       </div>
@@ -1187,6 +1230,43 @@ function calculate(e) {
 
   document.getElementById('unpaidSalaryAmount').innerText = formatKWD(unpaidSalary);
   document.getElementById('grandTotal').innerText = formatKWD(grandTotal);
+
+  // تحديث وعرض الملاحظات الحسابية ديناميكياً
+  document.getElementById('calcNotesTitle').innerText = t.notesHeader;
+  const calcNotesList = document.getElementById('calcNotesList');
+  calcNotesList.innerHTML = '';
+
+  const note1 = document.createElement('li');
+  note1.innerText = `${t.noteDailyRate} (${salary.toFixed(3)} ÷ 26 = ${dailySalary.toFixed(3)}${t.unitKWD})`;
+  calcNotesList.appendChild(note1);
+
+  if (mode === 'overtime') {
+    const noteOT = document.createElement('li');
+    noteOT.innerText = `${t.noteHourlyRate} (${salary.toFixed(3)} ÷ 208 = ${hourlyRate.toFixed(3)}${t.unitKWD})`;
+    calcNotesList.appendChild(noteOT);
+  }
+
+  if (showEOSB) {
+    const noteEOSB = document.createElement('li');
+    noteEOSB.innerText = t.noteEOSBRule;
+    calcNotesList.appendChild(noteEOSB);
+
+    const noteResign = document.createElement('li');
+    noteResign.innerText = t.noteResignationRule;
+    calcNotesList.appendChild(noteResign);
+  }
+
+  if (showVacation) {
+    const noteVac = document.createElement('li');
+    noteVac.innerText = t.noteVacationRule;
+    calcNotesList.appendChild(noteVac);
+  }
+
+  if (showOT) {
+    const noteOTRule = document.createElement('li');
+    noteOTRule.innerText = t.noteOvertimeRule;
+    calcNotesList.appendChild(noteOTRule);
+  }
 
   document.getElementById('resultsBox').style.display = 'block';
   document.getElementById('resultsBox').scrollIntoView({ behavior: 'smooth' });
