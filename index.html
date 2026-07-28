@@ -40,8 +40,8 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-<!-- مكتبة تصدير الإكسل الحقيقية -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- مكتبة تصدير الإكسل الحقيقية (مع دعم التنسيق والألوان) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 
 <style>
   :root {
@@ -766,10 +766,10 @@
     
     <table border="1" style="width:100%; border-collapse:collapse; margin: 15px 0; text-align: center;">
       <tr style="background:#f2f2f2;"><th>البيان</th><th>المبلغ المحسوب (د.ك)</th></tr>
-      <tr><td>صافي مكافأة نهاية الخدمة</td><td id="rcpEosb"></td></tr>
-      <tr><td>بدل رصيد الإجازات السنوية</td><td id="rcpVac"></td></tr>
-      <tr><td>الرواتب المتأخرة / المتبقية</td><td id="rcpSal"></td></tr>
-      <tr><td>الخصومات والسلف (إن وجدت)</td><td id="rcpDed"></td></tr>
+      <tr id="rcpRowEosb"><td>صافي مكافأة نهاية الخدمة</td><td id="rcpEosb"></td></tr>
+      <tr id="rcpRowVac"><td>بدل رصيد الإجازات السنوية</td><td id="rcpVac"></td></tr>
+      <tr id="rcpRowSal"><td>الرواتب المتأخرة / المتبقية</td><td id="rcpSal"></td></tr>
+      <tr id="rcpRowDed"><td>الخصومات والسلف (إن وجدت)</td><td id="rcpDed"></td></tr>
       <tr style="font-weight:bold; background:#e6f3ff;"><td>الصافي المستحق النهائي</td><td id="rcpTotal"></td></tr>
     </table>
 
@@ -1382,6 +1382,7 @@ function calculate(e) {
   document.getElementById('rowVacationAmount').style.display = showVacation ? 'flex' : 'none';
   document.getElementById('rowOvertimeAmount').style.display = showOT ? 'flex' : 'none';
   document.getElementById('rowDeductionsAmount').style.display = deductions > 0 ? 'flex' : 'none';
+  document.getElementById('rowUnpaidSalaryAmount').style.display = unpaidSalary > 0 ? 'flex' : 'none';
 
   if (showEOSB) {
     document.getElementById('rawEOSBDays').innerText = rawEOSBDays.toFixed(2) + t.unitDays;
@@ -1465,10 +1466,22 @@ function openReceiptModal() {
   document.getElementById('rcpName').innerText = d.empName;
   document.getElementById('rcpStart').innerText = d.startDateVal;
   document.getElementById('rcpEnd').innerText = d.endDateVal;
+
+  const showEOSB = d.mode === 'both' || d.mode === 'eosb';
+  const showVacation = d.mode === 'both' || d.mode === 'vacation';
+
   document.getElementById('rcpEosb').innerText = formatKWD(d.finalEOSB);
+  document.getElementById('rcpRowEosb').style.display = showEOSB ? '' : 'none';
+
   document.getElementById('rcpVac').innerText = formatKWD(d.vacationAmount);
+  document.getElementById('rcpRowVac').style.display = showVacation ? '' : 'none';
+
   document.getElementById('rcpSal').innerText = formatKWD(d.unpaidSalary);
+  document.getElementById('rcpRowSal').style.display = d.unpaidSalary > 0 ? '' : 'none';
+
   document.getElementById('rcpDed').innerText = formatKWD(d.deductions);
+  document.getElementById('rcpRowDed').style.display = d.deductions > 0 ? '' : 'none';
+
   document.getElementById('rcpTotal').innerText = formatKWD(d.grandTotal);
   document.getElementById('receiptModal').style.display = 'block';
 }
@@ -1477,31 +1490,115 @@ function closeReceiptModal() {
   document.getElementById('receiptModal').style.display = 'none';
 }
 
-function exportToExcelReal() {
+async function exportToExcelReal() {
   if (!lastCalculationData) return;
   const d = lastCalculationData;
   const t = i18n[currentLang];
+  const isRTL = currentLang === 'ar';
 
-  const data = [
-    [t.lblEmpName, d.empName],
-    [t.lblSalary, d.salary.toFixed(3) + t.unitKWD],
-    [t.lblStartDate, d.startDateVal],
-    [t.lblEndDate, d.endDateVal],
-    [t.servicePeriodText.replace(': ', ''), d.serviceText],
-    [t.lblReason, d.reasonText],
-    ["-------------------", "-------------------"],
-    [t.lblFinalEOSB, d.finalEOSB.toFixed(3) + t.unitKWD],
-    [t.lblVacationAmount, d.vacationAmount.toFixed(3) + t.unitKWD],
-    [t.lblOvertimeAmount, d.overtimeAmount.toFixed(3) + t.unitKWD],
-    [t.lblUnpaidSalaryAmount, d.unpaidSalary.toFixed(3) + t.unitKWD],
-    [t.lblDeductionsAmount, d.deductions.toFixed(3) + t.unitKWD],
-    [t.lblGrandTotal, d.grandTotal.toFixed(3) + t.unitKWD]
-  ];
+  // ألوان الهوية البصرية للحاسبة
+  const COLOR_GREEN_DARK = 'FF1B3320';
+  const COLOR_GREEN      = 'FF2F5233';
+  const COLOR_BRASS      = 'FFB08D57';
+  const COLOR_BRASS_LT   = 'FFDCC79A';
+  const COLOR_PAPER      = 'FFEDF1E6';
+  const COLOR_WHITE      = 'FFFAFAF7';
+  const COLOR_RED        = 'FFA63D40';
 
-  const ws = XLSX.utils.aoa_to_sheet(data);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "تقرير المستحقات");
-  XLSX.writeFile(wb, `مستحقات_${d.empName}.xlsx`);
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = 'Ahmed Abdelkarim';
+  const sheet = workbook.addWorksheet(t.headerTitle.substring(0, 28) || 'تقرير المستحقات', {
+    views: [{ rightToLeft: isRTL, showGridLines: false }]
+  });
+
+  sheet.columns = [{ width: 42 }, { width: 26 }];
+
+  const thinBorder = { style: 'thin', color: { argb: 'FFC7D6C4' } };
+  const allBorders = { top: thinBorder, left: thinBorder, right: thinBorder, bottom: thinBorder };
+
+  function addTitleRow(text) {
+    const row = sheet.addRow([text]);
+    sheet.mergeCells(row.number, 1, row.number, 2);
+    row.height = 32;
+    row.getCell(1).font = { name: 'Calibri', size: 15, bold: true, color: { argb: COLOR_WHITE } };
+    row.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+    row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_GREEN_DARK } };
+    return row;
+  }
+
+  function addSectionRow(text) {
+    const row = sheet.addRow([text]);
+    sheet.mergeCells(row.number, 1, row.number, 2);
+    row.height = 22;
+    row.getCell(1).font = { name: 'Calibri', size: 12, bold: true, color: { argb: COLOR_WHITE } };
+    row.getCell(1).alignment = { vertical: 'middle', horizontal: isRTL ? 'right' : 'left', indent: 1 };
+    row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_GREEN } };
+    return row;
+  }
+
+  function addDataRow(label, value, opts = {}) {
+    const row = sheet.addRow([label, value]);
+    row.height = 20;
+    row.eachCell(cell => {
+      cell.border = allBorders;
+      cell.alignment = { vertical: 'middle', horizontal: isRTL ? 'right' : 'left', indent: 1 };
+    });
+    row.getCell(1).font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF1C2620' } };
+    row.getCell(2).font = { name: 'Calibri', size: 11, color: { argb: opts.color || 'FF1C2620' } };
+    row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: opts.stripe ? COLOR_PAPER : COLOR_WHITE } };
+    row.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: opts.stripe ? COLOR_PAPER : COLOR_WHITE } };
+    return row;
+  }
+
+  function addTotalRow(label, value) {
+    const row = sheet.addRow([label, value]);
+    row.height = 24;
+    row.eachCell(cell => {
+      cell.border = allBorders;
+      cell.alignment = { vertical: 'middle', horizontal: isRTL ? 'right' : 'left', indent: 1 };
+      cell.font = { name: 'Calibri', size: 12, bold: true, color: { argb: 'FF1C2620' } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_BRASS_LT } };
+    });
+    return row;
+  }
+
+  // العنوان الرئيسي
+  addTitleRow(t.headerTitle);
+  sheet.addRow([]);
+
+  // بيانات الموظف والعقد (تُستبعد الحقول غير المحددة/الفارغة)
+  addSectionRow(t.formTitle);
+  let stripe = false;
+  if (d.empName) { addDataRow(t.lblEmpName, d.empName, { stripe }); stripe = !stripe; }
+  addDataRow(t.lblSalary, d.salary.toFixed(3) + t.unitKWD, { stripe }); stripe = !stripe;
+  if (d.startDateVal && d.startDateVal !== t.notSpecified) { addDataRow(t.lblStartDate, d.startDateVal, { stripe }); stripe = !stripe; }
+  if (d.endDateVal && d.endDateVal !== t.notSpecified) { addDataRow(t.lblEndDate, d.endDateVal, { stripe }); stripe = !stripe; }
+  if (d.serviceText && d.serviceText !== t.notSpecified) { addDataRow(t.servicePeriodText.replace(': ', ''), d.serviceText, { stripe }); stripe = !stripe; }
+  if (d.reasonText && d.reasonText !== t.notSpecified) { addDataRow(t.lblReason, d.reasonText, { stripe }); stripe = !stripe; }
+
+  sheet.addRow([]);
+
+  // النتائج المالية (تُستبعد البنود غير المشمولة بالحساب أو الصفرية)
+  addSectionRow(isRTL ? '💰 النتائج المالية' : '💰 Financial Results');
+  stripe = false;
+  if (d.mode === 'both' || d.mode === 'eosb') { addDataRow(t.lblFinalEOSB, d.finalEOSB.toFixed(3) + t.unitKWD, { stripe }); stripe = !stripe; }
+  if (d.mode === 'both' || d.mode === 'vacation') { addDataRow(t.lblVacationAmount, d.vacationAmount.toFixed(3) + t.unitKWD, { stripe }); stripe = !stripe; }
+  if (d.mode === 'overtime') { addDataRow(t.lblOvertimeAmount, d.overtimeAmount.toFixed(3) + t.unitKWD, { stripe }); stripe = !stripe; }
+  if (d.unpaidSalary > 0) { addDataRow(t.lblUnpaidSalaryAmount, d.unpaidSalary.toFixed(3) + t.unitKWD, { stripe }); stripe = !stripe; }
+  if (d.deductions > 0) { addDataRow(t.lblDeductionsAmount, '-' + d.deductions.toFixed(3) + t.unitKWD, { stripe, color: COLOR_RED }); stripe = !stripe; }
+
+  sheet.addRow([]);
+  addTotalRow(t.lblGrandTotal, d.grandTotal.toFixed(3) + t.unitKWD);
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: 'application/octet-stream' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `مستحقات_${d.empName || 'موظف'}.xlsx`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
 }
 
 function generateSummaryText() {
