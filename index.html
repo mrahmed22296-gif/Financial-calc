@@ -1270,7 +1270,13 @@
 
   <!-- History -->
   <div class="card info-section" id="historyCard" style="display:none;">
-    <div class="card-title" id="historyTitle">🕘 سجل الحسابات الأخيرة</div>
+    <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <span id="historyTitle">🕘 سجل الحسابات الأخيرة</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button type="button" class="btn-action btn-export" id="btnExportHistory" onclick="exportHistoryToExcel()" style="padding:8px 14px;font-size:0.8rem;">📊 تصدير السجل</button>
+        <button type="button" class="btn-action btn-reset" id="btnClearHistory" onclick="clearAllHistory()" style="padding:8px 14px;font-size:0.8rem;box-shadow:none;">🗑️ حذف السجل</button>
+      </div>
+    </div>
     <div class="history-list" id="historyList"></div>
   </div>
 
@@ -1498,6 +1504,13 @@ const i18n = {
     historyTitle: "🕘 سجل الحسابات الأخيرة",
     historyEmpty: "لا يوجد سجل بعد",
     historyLoad: "تحميل",
+    historyDelete: "حذف",
+    historyClear: "🗑️ حذف السجل",
+    historyCleared: "تم حذف السجل بالكامل",
+    historyItemDeleted: "تم حذف العنصر من السجل",
+    historyExport: "📊 تصدير السجل",
+    historyExportEmpty: "لا يوجد سجل لتصديره",
+    historyExportOk: "تم تصدير السجل إلى إكسل",
     rateTitle: "💵 حاسبة أجر اليوم والساعة",
     lblMiniSalary: "الراتب الشامل (د.ك)",
     lblDailyOut: "أجر اليوم (÷26)",
@@ -1625,6 +1638,13 @@ const i18n = {
     historyTitle: "🕘 Recent Calculations",
     historyEmpty: "No history yet",
     historyLoad: "Load",
+    historyDelete: "Delete",
+    historyClear: "🗑️ Clear history",
+    historyCleared: "History cleared",
+    historyItemDeleted: "Item removed from history",
+    historyExport: "📊 Export history",
+    historyExportEmpty: "No history to export",
+    historyExportOk: "History exported to Excel",
     rateTitle: "💵 Daily & Hourly Rate Calculator",
     lblMiniSalary: "Total Salary (KWD)",
     lblDailyOut: "Daily Rate (÷26)",
@@ -1971,6 +1991,8 @@ function toggleLanguage() {
   setTxt('disclaimerTitle', 'disclaimerTitle');
   setTxt('disclaimerText', 'disclaimerText');
   setTxt('historyTitle', 'historyTitle');
+  setTxt('btnClearHistory', 'historyClear');
+  setTxt('btnExportHistory', 'historyExport');
   setTxt('rateTitle', 'rateTitle');
   setTxt('lblMiniSalary', 'lblMiniSalary');
   setTxt('lblDailyOut', 'lblDailyOut');
@@ -2605,22 +2627,132 @@ function renderHistory() {
     return;
   }
   card.style.display = 'block';
+  const clearBtn = document.getElementById('btnClearHistory');
+  if (clearBtn) clearBtn.innerText = t.historyClear;
+  const expBtn = document.getElementById('btnExportHistory');
+  if (expBtn) expBtn.innerText = t.historyExport;
   listEl.innerHTML = '';
   list.forEach((item, idx) => {
     const div = document.createElement('div');
     div.className = 'history-item';
     const dateStr = new Date(item.ts).toLocaleString(currentLang === 'ar' ? 'ar-KW' : 'en-GB');
-    div.innerHTML = `<div><span class="hi-name">${item.empName || '—'}</span><div class="hi-meta">${dateStr} · ${Number(item.grandTotal).toFixed(3)}</div></div>`;
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.innerText = t.historyLoad;
-    btn.onclick = () => {
+    const info = document.createElement('div');
+    info.innerHTML = `<span class="hi-name">${item.empName || '—'}</span><div class="hi-meta">${dateStr} · ${Number(item.grandTotal).toFixed(3)}</div>`;
+    const actions = document.createElement('div');
+    actions.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;';
+    const loadBtn = document.createElement('button');
+    loadBtn.type = 'button';
+    loadBtn.innerText = t.historyLoad;
+    loadBtn.onclick = () => {
       applyFormData(item.form);
       showToast(t.demoFilled, 'success');
     };
-    div.appendChild(btn);
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.innerText = t.historyDelete;
+    delBtn.style.background = 'var(--danger)';
+    delBtn.onclick = () => deleteHistoryItem(idx);
+    actions.appendChild(loadBtn);
+    actions.appendChild(delBtn);
+    div.appendChild(info);
+    div.appendChild(actions);
     listEl.appendChild(div);
   });
+}
+
+function deleteHistoryItem(index) {
+  if (!canUseStorage()) return;
+  try {
+    let list = getHistory();
+    list.splice(index, 1);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+    renderHistory();
+    showToast(i18n[currentLang].historyItemDeleted, 'success');
+  } catch (e) { /* ignore */ }
+}
+
+function clearAllHistory() {
+  if (!canUseStorage()) return;
+  try {
+    localStorage.removeItem(HISTORY_KEY);
+    renderHistory();
+    showToast(i18n[currentLang].historyCleared, 'success');
+  } catch (e) { /* ignore */ }
+}
+
+async function exportHistoryToExcel() {
+  const t = i18n[currentLang];
+  const list = getHistory();
+  if (!list.length) {
+    showToast(t.historyExportEmpty, 'error');
+    return;
+  }
+  const ok = await ensureExcelJS();
+  if (!ok || typeof ExcelJS === 'undefined') {
+    showToast(currentLang === 'ar' ? 'تعذر تحميل مكتبة الإكسل' : 'Failed to load Excel library', 'error');
+    return;
+  }
+
+  const isRTL = currentLang === 'ar';
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = 'Ahmed Abdelkarim';
+  const sheet = workbook.addWorksheet(isRTL ? 'سجل الحسابات' : 'History', {
+    views: [{ rightToLeft: isRTL, showGridLines: false }]
+  });
+
+  const headers = isRTL
+    ? ['#', 'اسم الموظف', 'التاريخ', 'الإجمالي (د.ك)', 'نوع الحساب', 'الراتب', 'تاريخ البداية', 'تاريخ النهاية', 'سبب الترك']
+    : ['#', 'Employee', 'Date', 'Total (KWD)', 'Mode', 'Salary', 'Start date', 'End date', 'Reason'];
+
+  const headerRow = sheet.addRow(headers);
+  headerRow.eachCell(cell => {
+    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F766E' } };
+    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+  });
+  headerRow.height = 22;
+
+  const modeLabel = (m) => {
+    const map = {
+      both: isRTL ? 'نهاية خدمة + إجازات' : 'EOS + Vacation',
+      eosb: isRTL ? 'نهاية خدمة فقط' : 'EOS only',
+      vacation: isRTL ? 'إجازات فقط' : 'Vacation only',
+      overtime: isRTL ? 'أوفر تايم فقط' : 'Overtime only'
+    };
+    return map[m] || m || '—';
+  };
+
+  list.forEach((item, i) => {
+    const f = item.form || {};
+    const dateStr = new Date(item.ts).toLocaleString(isRTL ? 'ar-KW' : 'en-GB');
+    sheet.addRow([
+      i + 1,
+      item.empName || f.empName || '—',
+      dateStr,
+      Number(item.grandTotal || 0).toFixed(3),
+      modeLabel(item.mode || f.calcMode),
+      f.salary || '—',
+      f.startDate || '—',
+      f.endDate || '—',
+      f.reason === 'resignation' ? (isRTL ? 'استقالة' : 'Resignation')
+        : f.reason === 'termination' ? (isRTL ? 'إنهاء خدمات' : 'Termination') : (f.reason || '—')
+    ]);
+  });
+
+  sheet.columns.forEach(col => { col.width = 16; });
+  sheet.getColumn(2).width = 24;
+  sheet.getColumn(3).width = 22;
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: 'application/octet-stream' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = isRTL ? 'سجل_الحسابات.xlsx' : 'calculation_history.xlsx';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
+  showToast(t.historyExportOk, 'success');
 }
 
 /* ===== Compare scenarios ===== */
