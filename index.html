@@ -279,6 +279,52 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
+
+  /* الإضافة الإضافية: تنسيقات كروت الأرقام المجمعة (Detailed Result Cards) */
+  .summary-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    padding: 20px 20px 10px;
+    background: #F4F7F2;
+    border-bottom: 1px solid var(--paper-line);
+  }
+  .summary-card {
+    background: var(--white);
+    border: 1px solid var(--paper-line);
+    border-radius: 8px;
+    padding: 12px 15px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .summary-card.grand-total-card {
+    background: linear-gradient(135deg, var(--green-dark), var(--green));
+    border-color: var(--brass);
+    color: var(--white);
+  }
+  .summary-card .card-label {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #555;
+    margin-bottom: 6px;
+  }
+  .summary-card.grand-total-card .card-label {
+    color: var(--brass-light);
+  }
+  .summary-card .card-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--green-dark);
+    direction: ltr;
+  }
+  .summary-card.grand-total-card .card-value {
+    color: #FFF;
+    font-size: 18px;
+  }
   
   .result-header {
     background: var(--green-dark);
@@ -463,6 +509,22 @@
       border: 1px solid #000 !important;
       box-shadow: none !important;
     }
+    .summary-cards-grid {
+      background: #fff !important;
+      border-bottom: 1px solid #000 !important;
+    }
+    .summary-card {
+      border: 1px solid #000 !important;
+      box-shadow: none !important;
+    }
+    .summary-card.grand-total-card {
+      background: #eee !important;
+      color: #000 !important;
+    }
+    .summary-card.grand-total-card .card-label,
+    .summary-card.grand-total-card .card-value {
+      color: #000 !important;
+    }
     .result-header {
       background: #eee !important;
       color: #000 !important;
@@ -604,6 +666,27 @@
         <h3 id="resEmpName">📊 تفاصيل المستحقات المالية: -</h3>
         <span class="service-period" id="servicePeriodText">مدة الخدمة: -</span>
       </div>
+
+      <!-- الإضافة الإضافية: قسم الأرقام المجمع المفصل (Detailed Result Card) -->
+      <div class="summary-cards-grid">
+        <div class="summary-card">
+          <span class="card-label" id="cardLblEosb">مكافأة نهاية الخدمة</span>
+          <span class="card-value" id="cardValEosb">0.000 د.ك</span>
+        </div>
+        <div class="summary-card">
+          <span class="card-label" id="cardLblVacation">بدل الإجازات المستحقة</span>
+          <span class="card-value" id="cardValVacation">0.000 د.ك</span>
+        </div>
+        <div class="summary-card">
+          <span class="card-label" id="cardLblOvertime">بدل العمل الإضافي</span>
+          <span class="card-value" id="cardValOvertime">0.000 د.ك</span>
+        </div>
+        <div class="summary-card grand-total-card">
+          <span class="card-label" id="cardLblGrandTotal">المجموع الكلي المالي</span>
+          <span class="card-value" id="cardValGrandTotal">0.000 د.ك</span>
+        </div>
+      </div>
+
       <div class="result-body">
         
         <div class="result-row" id="rowRawEOSBDays">
@@ -738,6 +821,10 @@ const i18n = {
     lblOvertimeAmount: "بدل العمل الإضافي (الأوفر تايم):",
     lblUnpaidSalaryAmount: "الراتب المتبقي / المتأخرات:",
     lblGrandTotal: "إجمالي الصافي المستحق للصرف:",
+    cardLblEosb: "إجمالي مكافأة نهاية الخدمة",
+    cardLblVacation: "بدل الإجازات المستحقة",
+    cardLblOvertime: "بدل العمل الإضافي",
+    cardLblGrandTotal: "المجموع الكلي المالي",
     btnExport: "📊 تصدير إكسل",
     btnPrint: "🖨️ طباعة / PDF",
     btnCopy: "📋 نسخ الملخص",
@@ -812,6 +899,10 @@ const i18n = {
     lblOvertimeAmount: "Overtime Compensation:",
     lblUnpaidSalaryAmount: "Unpaid Salary / Arrears:",
     lblGrandTotal: "Grand Net Payable Amount:",
+    cardLblEosb: "Total End of Service",
+    cardLblVacation: "Vacation Pay Due",
+    cardLblOvertime: "Overtime Pay",
+    cardLblGrandTotal: "Total Net Financial Amount",
     btnExport: "📊 Export Excel",
     btnPrint: "🖨️ Print / PDF",
     btnCopy: "📋 Copy Summary",
@@ -987,6 +1078,13 @@ function toggleLanguage() {
   document.getElementById('lblOvertimeAmount').innerText = t.lblOvertimeAmount;
   document.getElementById('lblUnpaidSalaryAmount').innerText = t.lblUnpaidSalaryAmount;
   document.getElementById('lblGrandTotal').innerText = t.lblGrandTotal;
+  
+  // ترجمة عناوين الكروت المجمعة
+  document.getElementById('cardLblEosb').innerText = t.cardLblEosb;
+  document.getElementById('cardLblVacation').innerText = t.cardLblVacation;
+  document.getElementById('cardLblOvertime').innerText = t.cardLblOvertime;
+  document.getElementById('cardLblGrandTotal').innerText = t.cardLblGrandTotal;
+
   document.getElementById('btnExport').innerText = t.btnExport;
   document.getElementById('btnPrint').innerText = t.btnPrint;
   document.getElementById('btnCopy').innerText = t.btnCopy;
@@ -1205,6 +1303,12 @@ function calculate(e) {
 
   document.getElementById('unpaidSalaryAmount').innerText = formatKWD(unpaidSalary);
   document.getElementById('grandTotal').innerText = formatKWD(grandTotal);
+
+  // الإضافة الإضافية: تحديث أرقام كروت النتائج المجمعة العلوية (Summary Cards)
+  document.getElementById('cardValEosb').innerText = formatKWD(finalEOSB);
+  document.getElementById('cardValVacation').innerText = formatKWD(vacationAmount);
+  document.getElementById('cardValOvertime').innerText = formatKWD(overtimeAmount);
+  document.getElementById('cardValGrandTotal').innerText = formatKWD(grandTotal);
 
   // تحديث وعرض الملاحظات الحسابية ديناميكياً
   document.getElementById('calcNotesTitle').innerText = t.notesHeader;
