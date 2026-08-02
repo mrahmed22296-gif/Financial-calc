@@ -1597,6 +1597,16 @@
           <span class="hint" id="vacationHint">عدد الأيام المستحقة للموظف</span>
         </div>
 
+        <div class="form-group" id="grpVacationBasis">
+          <label for="vacationDayBasis" id="lblVacationBasis">أساس حساب أجر يوم الإجازة</label>
+          <select id="vacationDayBasis" onchange="saveDraft()">
+            <option value="auto" id="optVacationBasisAuto" selected>تلقائي (حسب نوع القطاع)</option>
+            <option value="26" id="optVacationBasis26">على أساس 26 يوم</option>
+            <option value="30" id="optVacationBasis30">على أساس 30 يوم</option>
+          </select>
+          <span class="hint" id="hintVacationBasis">اختياري: يمكنك تجاوز الأساس الافتراضي عند حساب بدل رصيد الإجازات فقط</span>
+        </div>
+
         <div class="form-group">
           <label for="salary" id="lblSalary">
             الأجر الأخير الشامل (د.ك)
@@ -1918,6 +1928,12 @@ const i18n = {
     lblVacationDays: "رصيد الإجازات المتبقي (بالأيام)",
     vacationHintDefault: "عدد الأيام المستحقة للموظف",
     vacationHintAuto: "تم حساب الأيام تلقائياً بناءً على تاريخ آخر عودة بعد خصم الإجازة بدون أجر",
+    lblVacationBasis: "أساس حساب أجر يوم الإجازة",
+    optVacationBasisAuto: "تلقائي (حسب نوع القطاع)",
+    optVacationBasis26: "على أساس 26 يوم",
+    optVacationBasis30: "على أساس 30 يوم",
+    hintVacationBasis: "اختياري: يمكنك تجاوز الأساس الافتراضي عند حساب بدل رصيد الإجازات فقط",
+    noteVacationBasisOverride: "تم احتساب بدل الإجازات على أساس {n} يوماً بدلاً من الأساس الافتراضي",
     lblSalary: "الأجر الأخير الشامل (د.ك)",
     phSalary: "مثال: 750",
     hintSalary: "يشمل الراتب الأساسي + جميع البدلات الثابتة",
@@ -2066,6 +2082,12 @@ const i18n = {
     lblVacationDays: "Remaining Vacation Days",
     vacationHintDefault: "Number of accrued vacation days",
     vacationHintAuto: "Calculated automatically after deducting unpaid leave",
+    lblVacationBasis: "Vacation Daily-Rate Basis",
+    optVacationBasisAuto: "Auto (based on sector)",
+    optVacationBasis26: "Based on 26 days",
+    optVacationBasis30: "Based on 30 days",
+    hintVacationBasis: "Optional: override the default basis for the vacation pay calculation only",
+    noteVacationBasisOverride: "Vacation pay was calculated on a {n}-day basis instead of the default",
     lblSalary: "Last Total Salary (KWD)",
     phSalary: "e.g. 750",
     hintSalary: "Includes basic salary + all fixed allowances",
@@ -2280,6 +2302,7 @@ function collectFormData() {
     lastVacationReturn: document.getElementById('lastVacationReturn').value,
     unpaidLeaveDays: document.getElementById('unpaidLeaveDays').value,
     vacationDays: document.getElementById('vacationDays').value,
+    vacationDayBasis: document.getElementById('vacationDayBasis') ? document.getElementById('vacationDayBasis').value : 'auto',
     salary: document.getElementById('salary').value,
     reason: document.getElementById('reason').value,
     normalOT: document.getElementById('normalOT').value,
@@ -2302,6 +2325,7 @@ function applyFormData(d) {
   if (d.lastVacationReturn) document.getElementById('lastVacationReturn').value = d.lastVacationReturn;
   if (d.unpaidLeaveDays) document.getElementById('unpaidLeaveDays').value = d.unpaidLeaveDays;
   if (d.vacationDays) document.getElementById('vacationDays').value = d.vacationDays;
+  if (d.vacationDayBasis && document.getElementById('vacationDayBasis')) document.getElementById('vacationDayBasis').value = d.vacationDayBasis;
   if (d.salary) document.getElementById('salary').value = d.salary;
   if (d.reason) document.getElementById('reason').value = d.reason;
   if (d.normalOT) document.getElementById('normalOT').value = d.normalOT;
@@ -2436,6 +2460,9 @@ function handleCalcModeChange() {
     reason.required = false;
   }
 
+  const grpVacationBasis = document.getElementById('grpVacationBasis');
+  if (grpVacationBasis) grpVacationBasis.style.display = (mode === 'vacation') ? 'flex' : 'none';
+
   autoCalcVacation();
 }
 
@@ -2471,6 +2498,11 @@ function toggleLanguage() {
   document.getElementById('lblUnpaidLeave').innerText = t.lblUnpaidLeave;
   document.getElementById('hintUnpaidLeave').innerText = t.hintUnpaidLeave;
   document.getElementById('lblVacationDays').innerText = t.lblVacationDays;
+  document.getElementById('lblVacationBasis').innerText = t.lblVacationBasis;
+  document.getElementById('optVacationBasisAuto').innerText = t.optVacationBasisAuto;
+  document.getElementById('optVacationBasis26').innerText = t.optVacationBasis26;
+  document.getElementById('optVacationBasis30').innerText = t.optVacationBasis30;
+  document.getElementById('hintVacationBasis').innerText = t.hintVacationBasis;
   document.getElementById('lblSalary').innerText = t.lblSalary;
   document.getElementById('salary').placeholder = t.phSalary;
   document.getElementById('hintSalary').innerText = t.hintSalary;
@@ -2615,6 +2647,8 @@ function calculate(e) {
   const reason = reasonSelect.value;
   const reasonText = reasonSelect.options[reasonSelect.selectedIndex].text;
   const vacationDays = parseFloat(document.getElementById('vacationDays').value) || 0;
+  const vacationBasisSel = document.getElementById('vacationDayBasis');
+  const vacationBasisVal = vacationBasisSel ? vacationBasisSel.value : 'auto';
   
   const normalOT = parseFloat(document.getElementById('normalOT').value) || 0;
   const weekendOT = parseFloat(document.getElementById('weekendOT').value) || 0;
@@ -2675,6 +2709,14 @@ function calculate(e) {
   const isGov = sector === 'government';
   const dailySalary = isGov ? (salary / 30) : (salary / 26);
   const hourlyRate = isGov ? (salary / (30 * 8)) : (salary / 208);
+
+  // أساس اختياري لأجر يوم الإجازة فقط (26 أو 30) — لا يؤثر على حساب نهاية الخدمة
+  let vacationDailySalary = dailySalary;
+  if (vacationBasisVal === '26') {
+    vacationDailySalary = salary / 26;
+  } else if (vacationBasisVal === '30') {
+    vacationDailySalary = salary / 30;
+  }
 
   let rawEOSBDays = 0;
   let ratio = 1.0;
@@ -2738,7 +2780,7 @@ function calculate(e) {
 
   let vacationAmount = 0;
   if (mode === 'both' || mode === 'vacation') {
-    vacationAmount = vacationDays * dailySalary;
+    vacationAmount = vacationDays * vacationDailySalary;
   }
 
   let overtimeAmount = 0;
@@ -2865,6 +2907,12 @@ function calculate(e) {
     const noteVac = document.createElement('li');
     noteVac.innerText = t.noteVacationRule;
     calcNotesList.appendChild(noteVac);
+
+    if (vacationBasisVal !== 'auto') {
+      const noteVacBasis = document.createElement('li');
+      noteVacBasis.innerText = t.noteVacationBasisOverride.replace('{n}', vacationBasisVal);
+      calcNotesList.appendChild(noteVacBasis);
+    }
   }
 
   if (showOT) {
