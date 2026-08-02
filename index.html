@@ -2869,7 +2869,9 @@ function calculate(e) {
   calcNotesList.innerHTML = '';
 
   const note1 = document.createElement('li');
-  if (isGov) {
+  if (mode === 'vacation' && vacationBasisVal !== 'auto') {
+    note1.innerText = `${t.noteDailyRate} (${salary.toFixed(3)} ÷ ${vacationBasisVal} = ${vacationDailySalary.toFixed(3)}${t.unitKWD})`;
+  } else if (isGov) {
     note1.innerText = `${t.noteDailyRateGov} (${salary.toFixed(3)} ÷ 30 = ${dailySalary.toFixed(3)}${t.unitKWD})`;
   } else {
     note1.innerText = `${t.noteDailyRate} (${salary.toFixed(3)} ÷ 26 = ${dailySalary.toFixed(3)}${t.unitKWD})`;
