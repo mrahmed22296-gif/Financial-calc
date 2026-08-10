@@ -1519,6 +1519,54 @@
     min-height: 32px;
   }
 
+  /* ===== Global Daily Basis Switch ===== */
+  .global-basis-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface-2);
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .global-basis-selector label {
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin: 0;
+    color: var(--ink);
+  }
+  .global-basis-selector select {
+    width: auto;
+    min-width: 120px;
+    padding: 8px 12px;
+    min-height: 38px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+  }
+  .global-basis-selector select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+  }
+  .global-basis-selector .hint {
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+    margin: 0;
+  }
+  @media (max-width: 560px) {
+    .global-basis-selector {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+    }
+    .global-basis-selector select {
+      width: 100%;
+    }
+  }
 </style>
 <base target="_blank">
 <base target="_blank">
@@ -1545,6 +1593,17 @@
 <main>
   <div class="card">
     <div class="card-title" id="formTitle">📋 بيانات الموظف والعقد</div>
+    
+    <!-- Global Daily Basis Switch -->
+    <div class="global-basis-selector" id="globalBasisSelector">
+      <label for="globalDailyBasis" id="lblGlobalDailyBasis">📅 أساس حساب أجر اليوم:</label>
+      <select id="globalDailyBasis" onchange="handleGlobalBasisChange()">
+        <option value="26">26 يوم (القانون الأهلي)</option>
+        <option value="30" selected>30 يوم (الحكومي / افتراضي)</option>
+      </select>
+      <span class="hint" id="hintGlobalDailyBasis">يُستخدم في كل الحسابات: نهاية الخدمة، الإجازات، والأوفر تايم</span>
+    </div>
+
     <form id="calcForm" onsubmit="calculate(event)">
       <div class="grid">
         
@@ -1600,7 +1659,8 @@
           <span class="hint" id="vacationHint">عدد الأيام المستحقة للموظف</span>
         </div>
 
-        <div class="form-group" id="grpVacationBasis">
+        <!-- حقل أساس الإجازات أصبح غير ضروري مع المفتاح العام، لكن نبقيه مخفياً للتوافق -->
+        <div class="form-group" id="grpVacationBasis" style="display:none;">
           <label for="vacationDayBasis" id="lblVacationBasis">أساس حساب أجر يوم الإجازة</label>
           <select id="vacationDayBasis" onchange="saveDraft()">
             <option value="auto" id="optVacationBasisAuto" selected>تلقائي (حسب نوع القطاع)</option>
@@ -1900,6 +1960,9 @@
 let currentLang = 'ar';
 let lastCalculationData = null;
 
+// Default daily basis (global)
+let globalDailyBasis = 30; // 26 or 30
+
 const i18n = {
   ar: {
     docTitle: "حاسبة نهاية الخدمة ورصيد الإجازات في الكويت | قانون العمل 6/2010",
@@ -1996,8 +2059,8 @@ const i18n = {
     notSpecified: "لم يحدد",
     notCalculated: "غير مشمول بالحساب",
     notesHeader: "📝 ملاحظات وتفاصيل الحسابات الرياضية:",
-    noteDailyRate: "أجر اليوم = الراتب الشامل ÷ 26 يوم عمل",
-    noteHourlyRate: "أجر الساعة = الراتب الشامل ÷ (26 × 8) = الراتب ÷ 208 ساعة",
+    noteDailyRate: "أجر اليوم = الراتب الشامل ÷ عدد أيام العمل الأساسية (26 أو 30 حسب اختيارك)",
+    noteHourlyRate: "أجر الساعة = الراتب الشامل ÷ (عدد أيام العمل × 8 ساعات)",
     noteEOSBRule: "حساب نهاية الخدمة (وفق المادة 51): 15 يوماً عن كل سنة من الـ 5 سنوات الأولى، و30 يوماً عن كل سنة تالية (بحد أقصى 18 شهراً).",
     noteResignationRule: "نسبة الاستحقاق في الاستقالة (وفق المادة 53): أقل من 3 سنوات (0%)، من 3-5 سنوات (50%)، من 5-10 سنوات (66.67%)، أكثر من 10 سنوات (100%).",
     noteVacationRule: "بدل الإجازات = رصيد الأيام × أجر اليوم.",
@@ -2021,8 +2084,8 @@ const i18n = {
     historyExportOk: "تم تصدير السجل إلى إكسل",
     rateTitle: "💵 حاسبة أجر اليوم والساعة",
     lblMiniSalary: "الراتب الشامل (د.ك)",
-    lblDailyOut: "أجر اليوم (÷26)",
-    lblHourlyOut: "أجر الساعة (÷208)",
+    lblDailyOut: "أجر اليوم",
+    lblHourlyOut: "أجر الساعة",
     lblMonthDays: "قيمة يوم مكافأة (تقريبي)",
     howTitle: "📘 كيف يُحسب؟",
     howBadge: "قانون 6/2010",
@@ -2053,7 +2116,9 @@ const i18n = {
     demoFilled: "تم تعبئة مثال تجريبي — اضغط احسب.",
     footerUpdated: "آخر مراجعة للحسابات: يوليو 2026",
     footerPrivacy: "🔒 الحسابات محلية — لا تُرسل بياناتك لأي خادم",
-    footerNote: "أداة مجانية مستقلة وغير تابعة لأي جهة حكومية."
+    footerNote: "أداة مجانية مستقلة وغير تابعة لأي جهة حكومية.",
+    lblGlobalDailyBasis: "📅 أساس حساب أجر اليوم:",
+    hintGlobalDailyBasis: "يُستخدم في كل الحسابات: نهاية الخدمة، الإجازات، والأوفر تايم"
   },
   en: {
     docTitle: "Indemnity & Vacation Calculator - Kuwait Labor Law 6/2010",
@@ -2150,8 +2215,8 @@ const i18n = {
     notSpecified: "Not Specified",
     notCalculated: "Not Calculated",
     notesHeader: "📝 Calculation Notes & Formulas:",
-    noteDailyRate: "Daily Rate = Total Salary ÷ 26 working days",
-    noteHourlyRate: "Hourly Rate = Total Salary ÷ (26 × 8) = Total Salary ÷ 208 hours",
+    noteDailyRate: "Daily Rate = Total Salary ÷ Working Days Basis (26 or 30 per your selection)",
+    noteHourlyRate: "Hourly Rate = Total Salary ÷ (Working Days Basis × 8 hours)",
     noteEOSBRule: "Indemnity Rule (Article 51): 15 days per year for first 5 years, 30 days per year for subsequent years (Max 18 months cap).",
     noteResignationRule: "Resignation Entitlement (Article 53): <3 yrs (0%), 3-5 yrs (50%), 5-10 yrs (66.67%), >10 yrs (100%).",
     noteVacationRule: "Vacation Pay = Remaining Days × Daily Rate.",
@@ -2175,8 +2240,8 @@ const i18n = {
     historyExportOk: "History exported to Excel",
     rateTitle: "💵 Daily & Hourly Rate Calculator",
     lblMiniSalary: "Total Salary (KWD)",
-    lblDailyOut: "Daily Rate (÷26)",
-    lblHourlyOut: "Hourly Rate (÷208)",
+    lblDailyOut: "Daily Rate",
+    lblHourlyOut: "Hourly Rate",
     lblMonthDays: "Approx. indemnity day value",
     howTitle: "📘 How is it calculated?",
     howBadge: "Law 6/2010",
@@ -2207,7 +2272,9 @@ const i18n = {
     demoFilled: "Demo data filled — press Calculate.",
     footerUpdated: "Calculations last reviewed: July 2026",
     footerPrivacy: "🔒 Local calculations — your data is never sent to a server",
-    footerNote: "Free independent tool, not affiliated with any government body."
+    footerNote: "Free independent tool, not affiliated with any government body.",
+    lblGlobalDailyBasis: "📅 Daily Rate Basis:",
+    hintGlobalDailyBasis: "Used for all calculations: EOS, vacation, and overtime"
   }
 };
 
@@ -2315,7 +2382,8 @@ function collectFormData() {
     deductions: document.getElementById('deductions').value,
     companyName: document.getElementById('companyName').value,
     civilId: document.getElementById('civilId').value,
-    empNumber: document.getElementById('empNumber').value
+    empNumber: document.getElementById('empNumber').value,
+    globalDailyBasis: document.getElementById('globalDailyBasis').value
   };
 }
 
@@ -2339,6 +2407,10 @@ function applyFormData(d) {
   if (d.companyName != null) document.getElementById('companyName').value = d.companyName;
   if (d.civilId != null) document.getElementById('civilId').value = d.civilId;
   if (d.empNumber != null) document.getElementById('empNumber').value = d.empNumber;
+  if (d.globalDailyBasis) {
+    document.getElementById('globalDailyBasis').value = d.globalDailyBasis;
+    globalDailyBasis = parseInt(d.globalDailyBasis, 10);
+  }
   handleCalcModeChange();
   handleSectorChange();
   document.getElementById('resultsBox').style.display = 'none';
@@ -2374,6 +2446,16 @@ function loadDraft() {
 
 window.addEventListener('DOMContentLoaded', loadDraft);
 
+function handleGlobalBasisChange() {
+  const sel = document.getElementById('globalDailyBasis');
+  globalDailyBasis = parseInt(sel.value, 10);
+  saveDraft();
+  // إعادة الحساب تلقائياً إذا كانت النتائج معروضة
+  if (document.getElementById('resultsBox').style.display === 'block') {
+    document.getElementById('calcForm').dispatchEvent(new Event('submit'));
+  }
+}
+
 function handleSectorChange() {
   const t = i18n[currentLang];
   const isGov = document.getElementById('sectorType').value === 'government';
@@ -2381,7 +2463,6 @@ function handleSectorChange() {
   if (sub) sub.innerText = isGov ? t.headerSubGov : t.headerSub;
   const reasonGrp = document.getElementById('grpReason');
   if (reasonGrp) {
-    // نسب الاستقالة خاصة بالأهل؛ نبقي الحقل ظاهراً لكنه لا يؤثر على الحكومي
     reasonGrp.style.opacity = isGov ? '0.55' : '1';
   }
 }
@@ -2464,7 +2545,7 @@ function handleCalcModeChange() {
   }
 
   const grpVacationBasis = document.getElementById('grpVacationBasis');
-  if (grpVacationBasis) grpVacationBasis.style.display = (mode === 'vacation') ? 'flex' : 'none';
+  if (grpVacationBasis) grpVacationBasis.style.display = 'none'; // مخفي لأن المفتاح العام يحل محله
 
   autoCalcVacation();
 }
@@ -2501,11 +2582,7 @@ function toggleLanguage() {
   document.getElementById('lblUnpaidLeave').innerText = t.lblUnpaidLeave;
   document.getElementById('hintUnpaidLeave').innerText = t.hintUnpaidLeave;
   document.getElementById('lblVacationDays').innerText = t.lblVacationDays;
-  document.getElementById('lblVacationBasis').innerText = t.lblVacationBasis;
-  document.getElementById('optVacationBasisAuto').innerText = t.optVacationBasisAuto;
-  document.getElementById('optVacationBasis26').innerText = t.optVacationBasis26;
-  document.getElementById('optVacationBasis30').innerText = t.optVacationBasis30;
-  document.getElementById('hintVacationBasis').innerText = t.hintVacationBasis;
+  // lblVacationBasis مخفي
   document.getElementById('lblSalary').innerText = t.lblSalary;
   document.getElementById('salary').placeholder = t.phSalary;
   document.getElementById('hintSalary').innerText = t.hintSalary;
@@ -2523,7 +2600,7 @@ function toggleLanguage() {
   document.getElementById('lblDeductions').innerText = t.lblDeductions;
   document.getElementById('hintDeductions').innerText = t.hintDeductions;
   document.getElementById('btnCalc').innerText = t.btnCalc;
-    document.getElementById('btnReset').innerText = t.btnReset;
+  document.getElementById('btnReset').innerText = t.btnReset;
   document.getElementById('lblRawEOSBDays').innerText = t.lblRawEOSBDays;
   document.getElementById('lblEntitlementRatio').innerText = t.lblEntitlementRatio;
   document.getElementById('lblNetEOSBDays').innerText = t.lblNetEOSBDays;
@@ -2547,6 +2624,9 @@ function toggleLanguage() {
   document.getElementById('btnReceipt').innerText = t.btnReceipt;
   document.getElementById('footerLaw').innerText = t.footerLaw;
   document.getElementById('footerDev').innerText = t.footerDev;
+
+  document.getElementById('lblGlobalDailyBasis').innerText = t.lblGlobalDailyBasis;
+  document.getElementById('hintGlobalDailyBasis').innerText = t.hintGlobalDailyBasis;
 
   const setTxt = (id, key) => { const el = document.getElementById(id); if (el && t[key] != null) el.innerText = t[key]; };
   setTxt('btnEmail', 'btnEmail');
@@ -2633,6 +2713,9 @@ function resetForm() {
   clearFieldInvalid('salary');
   clearFieldInvalid('endDate');
   handleCalcModeChange();
+  // إعادة تعيين المفتاح العام إلى 30
+  document.getElementById('globalDailyBasis').value = '30';
+  globalDailyBasis = 30;
 }
 
 function calculate(e) {
@@ -2650,8 +2733,6 @@ function calculate(e) {
   const reason = reasonSelect.value;
   const reasonText = reasonSelect.options[reasonSelect.selectedIndex].text;
   const vacationDays = parseFloat(document.getElementById('vacationDays').value) || 0;
-  const vacationBasisSel = document.getElementById('vacationDayBasis');
-  const vacationBasisVal = vacationBasisSel ? vacationBasisSel.value : 'auto';
   
   const normalOT = parseFloat(document.getElementById('normalOT').value) || 0;
   const weekendOT = parseFloat(document.getElementById('weekendOT').value) || 0;
@@ -2659,6 +2740,9 @@ function calculate(e) {
 
   const unpaidSalary = parseFloat(document.getElementById('unpaidSalary').value) || 0;
   const deductions = parseFloat(document.getElementById('deductions').value) || 0;
+
+  // استخدام المفتاح العام
+  const dailyBasis = globalDailyBasis;
 
   if (!salary || salary <= 0) {
     markFieldInvalid('salary', t.zeroSalaryAlert);
@@ -2686,7 +2770,6 @@ function calculate(e) {
 
     const diffTime = Math.abs(endDate - startDate);
     totalDays = diffTime / (1000 * 60 * 60 * 24);
-    // استبعاد أيام الإجازة بدون أجر من مدة الخدمة الفعلية
     totalDays = Math.max(0, totalDays - unpaidLeaveDays);
     years = totalDays / 365.25;
 
@@ -2710,16 +2793,12 @@ function calculate(e) {
 
   const sector = document.getElementById('sectorType').value;
   const isGov = sector === 'government';
-  const dailySalary = isGov ? (salary / 30) : (salary / 26);
-  const hourlyRate = isGov ? (salary / (30 * 8)) : (salary / 208);
+  // استخدام الأساس العام بدلاً من 26 أو 30 الثابت
+  const dailySalary = salary / dailyBasis;
+  const hourlyRate = salary / (dailyBasis * 8);
 
-  // أساس اختياري لأجر يوم الإجازة فقط (26 أو 30) — لا يؤثر على حساب نهاية الخدمة
-  let vacationDailySalary = dailySalary;
-  if (vacationBasisVal === '26') {
-    vacationDailySalary = salary / 26;
-  } else if (vacationBasisVal === '30') {
-    vacationDailySalary = salary / 30;
-  }
+  // أجر الإجازة يستخدم نفس الأساس العام
+  const vacationDailySalary = dailySalary;
 
   let rawEOSBDays = 0;
   let ratio = 1.0;
@@ -2729,7 +2808,6 @@ function calculate(e) {
 
   if (mode === 'both' || mode === 'eosb') {
     if (isGov) {
-      // تقدير مكافأة القطاع الحكومي (غير مستحقي المعاش) وفق شرائح النسب السنوية
       let yLeft = years;
       const bands = [
         { max: 5, rate: 0.10 },
@@ -2745,7 +2823,7 @@ function calculate(e) {
         yLeft -= take;
       }
       rawEOSBDays = salary > 0 ? (rawEOSB / dailySalary) : 0;
-      ratio = 1.0; // نسب الاستقالة (م53) خاصة بالقطاع الأهلي
+      ratio = 1.0;
       netEOSBDays = rawEOSBDays;
       finalEOSB = rawEOSB;
     } else {
@@ -2757,7 +2835,7 @@ function calculate(e) {
         rawEOSBDays = first5YearsDays + restYearsDays;
       }
 
-      const maxCapDays = 18 * 26;
+      const maxCapDays = 18 * 26; // الحد الأقصى ثابت بالقانون
       if (rawEOSBDays > maxCapDays) {
         rawEOSBDays = maxCapDays;
       }
@@ -2822,7 +2900,8 @@ function calculate(e) {
     ratioText: (mode === 'both' || mode === 'eosb') ? ((ratio * 100).toFixed(1).replace('.0', '') + '%') : t.notCalculated,
     finalEOSB,
     vacationAmount,
-    grandTotal
+    grandTotal,
+    dailyBasisUsed: dailyBasis
   };
 
   const showEOSB = mode === 'both' || mode === 'eosb';
@@ -2872,19 +2951,12 @@ function calculate(e) {
   calcNotesList.innerHTML = '';
 
   const note1 = document.createElement('li');
-  if (mode === 'vacation' && vacationBasisVal !== 'auto') {
-    note1.innerText = `${t.noteDailyRate} (${salary.toFixed(3)} ÷ ${vacationBasisVal} = ${vacationDailySalary.toFixed(3)}${t.unitKWD})`;
-  } else if (isGov) {
-    note1.innerText = `${t.noteDailyRateGov} (${salary.toFixed(3)} ÷ 30 = ${dailySalary.toFixed(3)}${t.unitKWD})`;
-  } else {
-    note1.innerText = `${t.noteDailyRate} (${salary.toFixed(3)} ÷ 26 = ${dailySalary.toFixed(3)}${t.unitKWD})`;
-  }
+  note1.innerText = `${t.noteDailyRate} (${salary.toFixed(3)} ÷ ${dailyBasis} = ${dailySalary.toFixed(3)}${t.unitKWD})`;
   calcNotesList.appendChild(note1);
 
   if (mode === 'overtime') {
     const noteOT = document.createElement('li');
-    const divHours = isGov ? 240 : 208;
-    noteOT.innerText = `${t.noteHourlyRate} (${salary.toFixed(3)} ÷ ${divHours} = ${hourlyRate.toFixed(3)}${t.unitKWD})`;
+    noteOT.innerText = `${t.noteHourlyRate} (${salary.toFixed(3)} ÷ ${dailyBasis * 8} = ${hourlyRate.toFixed(3)}${t.unitKWD})`;
     calcNotesList.appendChild(noteOT);
   }
 
@@ -2912,12 +2984,6 @@ function calculate(e) {
     const noteVac = document.createElement('li');
     noteVac.innerText = t.noteVacationRule;
     calcNotesList.appendChild(noteVac);
-
-    if (vacationBasisVal !== 'auto') {
-      const noteVacBasis = document.createElement('li');
-      noteVacBasis.innerText = t.noteVacationBasisOverride.replace('{n}', vacationBasisVal);
-      calcNotesList.appendChild(noteVacBasis);
-    }
   }
 
   if (showOT) {
@@ -3016,11 +3082,9 @@ function fitPrintContentToOnePage() {
     : document.getElementById('resultsBox');
   if (!target) return;
 
-  // إزالة أي تحجيم سابق قبل القياس
   target.style.transform = 'none';
   target.style.width = '';
 
-  // ارتفاع صفحة A4 القابل للطباعة تقريباً (297مم - هوامش 8مم × 2) بالبكسل عند 96dpi
   const usablePageHeightPx = Math.round((297 - 16) * (96 / 25.4));
   const contentHeight = target.scrollHeight;
 
@@ -3065,7 +3129,6 @@ async function exportToExcelReal() {
   const t = i18n[currentLang];
   const isRTL = currentLang === 'ar';
 
-  // ألوان الهوية البصرية للحاسبة
   const COLOR_GREEN_DARK = 'FF1B3320';
   const COLOR_GREEN      = 'FF2F5233';
   const COLOR_BRASS      = 'FFB08D57';
@@ -3131,15 +3194,14 @@ async function exportToExcelReal() {
     return row;
   }
 
-  // العنوان الرئيسي
   addTitleRow(t.headerTitle);
   sheet.addRow([]);
 
-  // بيانات الموظف والعقد (تُستبعد الحقول غير المحددة/الفارغة)
   addSectionRow(t.formTitle);
   let stripe = false;
   if (d.empName) { addDataRow(t.lblEmpName, d.empName, { stripe }); stripe = !stripe; }
   addDataRow(t.lblSalary, d.salary.toFixed(3) + t.unitKWD, { stripe }); stripe = !stripe;
+  addDataRow(t.lblGlobalDailyBasis, d.dailyBasisUsed + ' يوم', { stripe }); stripe = !stripe;
   if (d.startDateVal && d.startDateVal !== t.notSpecified) { addDataRow(t.lblStartDate, d.startDateVal, { stripe }); stripe = !stripe; }
   if (d.endDateVal && d.endDateVal !== t.notSpecified) { addDataRow(t.lblEndDate, d.endDateVal, { stripe }); stripe = !stripe; }
   if (d.serviceText && d.serviceText !== t.notSpecified) { addDataRow(t.servicePeriodText.replace(': ', ''), d.serviceText, { stripe }); stripe = !stripe; }
@@ -3147,7 +3209,6 @@ async function exportToExcelReal() {
 
   sheet.addRow([]);
 
-  // النتائج المالية (تُستبعد البنود غير المشمولة بالحساب أو الصفرية)
   addSectionRow(isRTL ? '💰 النتائج المالية' : '💰 Financial Results');
   stripe = false;
   if (d.mode === 'both' || d.mode === 'eosb') { addDataRow(t.lblFinalEOSB, d.finalEOSB.toFixed(3) + t.unitKWD, { stripe }); stripe = !stripe; }
@@ -3159,7 +3220,6 @@ async function exportToExcelReal() {
   sheet.addRow([]);
   addTotalRow(t.lblGrandTotal, d.grandTotal.toFixed(3) + t.unitKWD);
 
-  // ملاحظات وتفاصيل الحسابات الرياضية (أسفل الحسبة)
   if (Array.isArray(d.notesList) && d.notesList.length) {
     sheet.addRow([]);
     addSectionRow(t.notesHeader);
@@ -3196,6 +3256,7 @@ function generateSummaryText() {
     text += `⏱️ ${t.servicePeriodText}${d.serviceText}\n`;
   }
   text += `💰 ${t.lblSalary}: ${d.salary.toFixed(3)}${t.unitKWD}\n`;
+  text += `📅 ${t.lblGlobalDailyBasis}: ${d.dailyBasisUsed} يوم\n`;
   text += `-----------------------------------\n`;
 
   if (d.mode === 'both' || d.mode === 'eosb') {
@@ -3219,7 +3280,7 @@ function generateSummaryText() {
   text += `-----------------------------------\n`;
 
   text += `📌 *${t.notesHeader}*\n`;
-  text += `1️⃣ ${t.noteDailyRate} (${d.salary.toFixed(3)} ÷ 26 = ${d.dailySalary.toFixed(3)}${t.unitKWD})\n`;
+  text += `1️⃣ ${t.noteDailyRate} (${d.salary.toFixed(3)} ÷ ${d.dailyBasisUsed} = ${d.dailySalary.toFixed(3)}${t.unitKWD})\n`;
 
   return text;
 }
@@ -3271,6 +3332,7 @@ function saveToHistory(d) {
       empName: d.empName,
       grandTotal: d.grandTotal,
       mode: d.mode,
+      dailyBasisUsed: d.dailyBasisUsed || globalDailyBasis,
       form: collectFormData()
     };
     list = [entry, ...list.filter(x => x.empName !== entry.empName || Math.abs(x.grandTotal - entry.grandTotal) > 0.01)].slice(0, 5);
@@ -3300,7 +3362,7 @@ function renderHistory() {
     div.className = 'history-item';
     const dateStr = new Date(item.ts).toLocaleString(currentLang === 'ar' ? 'ar-KW' : 'en-GB');
     const info = document.createElement('div');
-    info.innerHTML = `<span class="hi-name">${item.empName || '—'}</span><div class="hi-meta">${dateStr} · ${Number(item.grandTotal).toFixed(3)}</div>`;
+    info.innerHTML = `<span class="hi-name">${item.empName || '—'}</span><div class="hi-meta">${dateStr} · ${Number(item.grandTotal).toFixed(3)} · أساس ${item.dailyBasisUsed || 30} يوم</div>`;
     const actions = document.createElement('div');
     actions.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;';
     const loadBtn = document.createElement('button');
@@ -3364,8 +3426,8 @@ async function exportHistoryToExcel() {
   });
 
   const headers = isRTL
-    ? ['#', 'اسم الموظف', 'التاريخ', 'الإجمالي (د.ك)', 'نوع الحساب', 'الراتب', 'تاريخ البداية', 'تاريخ النهاية', 'سبب الترك']
-    : ['#', 'Employee', 'Date', 'Total (KWD)', 'Mode', 'Salary', 'Start date', 'End date', 'Reason'];
+    ? ['#', 'اسم الموظف', 'التاريخ', 'الإجمالي (د.ك)', 'نوع الحساب', 'الراتب', 'تاريخ البداية', 'تاريخ النهاية', 'سبب الترك', 'أساس الأجر']
+    : ['#', 'Employee', 'Date', 'Total (KWD)', 'Mode', 'Salary', 'Start date', 'End date', 'Reason', 'Daily Basis'];
 
   const headerRow = sheet.addRow(headers);
   headerRow.eachCell(cell => {
@@ -3398,13 +3460,15 @@ async function exportHistoryToExcel() {
       f.startDate || '—',
       f.endDate || '—',
       f.reason === 'resignation' ? (isRTL ? 'استقالة' : 'Resignation')
-        : f.reason === 'termination' ? (isRTL ? 'إنهاء خدمات' : 'Termination') : (f.reason || '—')
+        : f.reason === 'termination' ? (isRTL ? 'إنهاء خدمات' : 'Termination') : (f.reason || '—'),
+      f.globalDailyBasis || item.dailyBasisUsed || 30
     ]);
   });
 
   sheet.columns.forEach(col => { col.width = 16; });
   sheet.getColumn(2).width = 24;
   sheet.getColumn(3).width = 22;
+  sheet.getColumn(10).width = 14;
 
   const buffer = await workbook.xlsx.writeBuffer();
   const blob = new Blob([buffer], { type: 'application/octet-stream' });
@@ -3473,6 +3537,7 @@ function copyEmailTemplate() {
     body = `السلام عليكم،\n\nأرفق ملخص مستحقات نهاية الخدمة للموظف: ${d.empName}\n`;
     if (d.serviceText && d.serviceText !== t.notSpecified) body += `مدة الخدمة: ${d.serviceText}\n`;
     body += `الراتب الشامل: ${d.salary.toFixed(3)} د.ك\n`;
+    body += `أساس حساب الأجر: ${d.dailyBasisUsed} يوم\n`;
     if (d.mode === 'both' || d.mode === 'eosb') body += `صافي مكافأة نهاية الخدمة: ${d.finalEOSB.toFixed(3)} د.ك\n`;
     if (d.mode === 'both' || d.mode === 'vacation') body += `بدل الإجازات: ${d.vacationAmount.toFixed(3)} د.ك\n`;
     if (d.unpaidSalary > 0) body += `رواتب متأخرة: ${d.unpaidSalary.toFixed(3)} د.ك\n`;
@@ -3482,6 +3547,7 @@ function copyEmailTemplate() {
     body = `Dear HR,\n\nPlease find the end-of-service entitlement summary for: ${d.empName}\n`;
     if (d.serviceText && d.serviceText !== t.notSpecified) body += `Service period: ${d.serviceText}\n`;
     body += `Total salary: ${d.salary.toFixed(3)} KWD\n`;
+    body += `Daily basis: ${d.dailyBasisUsed} days\n`;
     if (d.mode === 'both' || d.mode === 'eosb') body += `Net indemnity: ${d.finalEOSB.toFixed(3)} KWD\n`;
     if (d.mode === 'both' || d.mode === 'vacation') body += `Vacation pay: ${d.vacationAmount.toFixed(3)} KWD\n`;
     if (d.unpaidSalary > 0) body += `Unpaid salary: ${d.unpaidSalary.toFixed(3)} KWD\n`;
@@ -3510,6 +3576,9 @@ document.addEventListener('keydown', (e) => {
 
 /* ===== Init extras ===== */
 window.addEventListener('DOMContentLoaded', () => {
+  // تعيين الأساس العام الافتراضي من القائمة
+  const basisSel = document.getElementById('globalDailyBasis');
+  globalDailyBasis = parseInt(basisSel.value, 10);
   renderHistory();
   handleSectorChange();
 });
