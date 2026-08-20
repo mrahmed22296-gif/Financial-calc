@@ -78,56 +78,56 @@
 
 <style>
   :root {
-    --bg: #f0f4f8;
-    --bg-accent: #e8eef5;
+    --bg: #f5f3ee;
+    --bg-accent: #eee8da;
     --surface: #ffffff;
-    --surface-2: #f8fafc;
-    --ink: #0f172a;
-    --ink-muted: #64748b;
-    --primary: #0d9488;
-    --primary-dark: #0f766e;
-    --primary-light: #ccfbf1;
-    --accent: #f59e0b;
-    --accent-soft: #fef3c7;
-    --danger: #e11d48;
-    --danger-soft: #ffe4e6;
-    --success: #059669;
-    --border: #e2e8f0;
-    --border-strong: #cbd5e1;
-    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
-    --shadow: 0 4px 16px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
-    --shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.1);
+    --surface-2: #faf8f3;
+    --ink: #17242f;
+    --ink-muted: #6b6a63;
+    --primary: #163a5f;
+    --primary-dark: #0e2540;
+    --primary-light: #dde6f0;
+    --accent: #b8862f;
+    --accent-soft: #f4e8cd;
+    --danger: #b3271e;
+    --danger-soft: #f8e3e1;
+    --success: #2f6b4f;
+    --border: #e4ddcd;
+    --border-strong: #cfc4a9;
+    --shadow-sm: 0 1px 2px rgba(23, 36, 47, 0.05);
+    --shadow: 0 4px 16px rgba(23, 36, 47, 0.07), 0 1px 3px rgba(23, 36, 47, 0.05);
+    --shadow-lg: 0 12px 40px rgba(23, 36, 47, 0.12);
     --radius: 16px;
     --radius-sm: 10px;
     --radius-xs: 8px;
-    --header-from: #0f766e;
-    --header-to: #134e4a;
-    --navy: #1e3a5f;
+    --header-from: #0e2540;
+    --header-to: #081729;
+    --navy: #6b4a8a;
   }
 
   body.dark-mode {
-    --bg: #0b1220;
-    --bg-accent: #111827;
-    --surface: #151e2e;
-    --surface-2: #1a2438;
-    --ink: #e8eef7;
-    --ink-muted: #94a3b8;
-    --primary: #2dd4bf;
-    --primary-dark: #14b8a6;
-    --primary-light: #134e4a;
-    --accent: #fbbf24;
-    --accent-soft: #422006;
-    --danger: #fb7185;
-    --danger-soft: #4c0519;
-    --success: #34d399;
-    --border: #243044;
-    --border-strong: #334155;
+    --bg: #0d1420;
+    --bg-accent: #121b29;
+    --surface: #16202f;
+    --surface-2: #1b2636;
+    --ink: #eceef2;
+    --ink-muted: #97a1ae;
+    --primary: #5b8fce;
+    --primary-dark: #4577b3;
+    --primary-light: #1f3a56;
+    --accent: #dcae52;
+    --accent-soft: #3a2c10;
+    --danger: #e8837a;
+    --danger-soft: #47201d;
+    --success: #57ab84;
+    --border: #263447;
+    --border-strong: #384a63;
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
     --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.45);
-    --header-from: #0f766e;
-    --header-to: #042f2e;
-    --navy: #3b82f6;
+    --header-from: #0e2540;
+    --header-to: #050d18;
+    --navy: #9b7fc4;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -966,6 +966,155 @@
   .wa-float:hover {
     transform: scale(1.08);
     box-shadow: 0 8px 28px rgba(37, 211, 102, 0.55);
+  }
+
+  /* ===== CHAT ASSISTANT ===== */
+  .chat-float {
+    position: fixed;
+    bottom: 92px;
+    left: 24px;
+    z-index: 9000;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(14, 37, 64, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  html[dir="ltr"] .chat-float { left: auto; right: 24px; }
+  .chat-float:hover { transform: scale(1.08); box-shadow: 0 8px 28px rgba(14, 37, 64, 0.5); }
+
+  .chat-panel {
+    position: fixed;
+    bottom: 160px;
+    left: 24px;
+    z-index: 9500;
+    width: min(92vw, 380px);
+    max-height: min(70vh, 560px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .chat-panel.open { display: flex; animation: fadeUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  html[dir="ltr"] .chat-panel { left: auto; right: 24px; }
+  @media (max-width: 480px) {
+    .chat-panel { width: 92vw; bottom: 150px; }
+  }
+
+  .chat-header {
+    background: linear-gradient(135deg, var(--header-from), var(--header-to));
+    color: #fff;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 800;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+  }
+  .chat-close-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 2px 6px;
+  }
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--surface-2);
+  }
+  .chat-msg {
+    max-width: 85%;
+    padding: 10px 13px;
+    border-radius: var(--radius-sm);
+    font-size: 0.87rem;
+    line-height: 1.65;
+    white-space: pre-wrap;
+  }
+  .chat-msg.user {
+    align-self: flex-end;
+    background: var(--primary);
+    color: #fff;
+    border-bottom-left-radius: 4px;
+  }
+  .chat-msg.bot {
+    align-self: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    border-bottom-right-radius: 4px;
+  }
+  html[dir="ltr"] .chat-msg.user { border-bottom-left-radius: var(--radius-sm); border-bottom-right-radius: 4px; }
+  html[dir="ltr"] .chat-msg.bot { border-bottom-right-radius: var(--radius-sm); border-bottom-left-radius: 4px; }
+  .chat-msg.bot.typing { color: var(--ink-muted); font-style: italic; }
+  .chat-disclaimer {
+    font-size: 0.7rem;
+    color: var(--ink-muted);
+    padding: 8px 16px;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+  .chat-input-row {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+  .chat-input-row textarea {
+    flex: 1;
+    resize: none;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-xs);
+    padding: 10px 12px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.88rem;
+    background: var(--surface-2);
+    color: var(--ink);
+    max-height: 90px;
+    outline: none;
+  }
+  .chat-input-row textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(22, 58, 95, 0.15);
+  }
+  .chat-send-btn {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-xs);
+    width: 42px;
+    flex-shrink: 0;
+    cursor: pointer;
+    font-size: 18px;
+    transition: filter 0.2s;
+  }
+  .chat-send-btn:hover { filter: brightness(1.1); }
+  .chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  @media print {
+    .chat-float, .chat-panel { display: none !important; }
   }
 
   .meta-bar {
@@ -1956,6 +2105,21 @@
 
 <a class="wa-float" id="waFloat" href="https://wa.me/96560085043" title="واتساب" aria-label="WhatsApp">💬</a>
 
+<button type="button" class="chat-float" id="chatFloatBtn" onclick="toggleChatPanel()" title="مساعد قانون العمل" aria-label="Labor Law Assistant">⚖️</button>
+
+<div class="chat-panel" id="chatPanel" role="dialog" aria-modal="false" aria-labelledby="chatHeaderTitle">
+  <div class="chat-header">
+    <span id="chatHeaderTitle">⚖️ مساعد قانون العمل</span>
+    <button type="button" class="chat-close-btn" onclick="toggleChatPanel()" aria-label="إغلاق">×</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-disclaimer" id="chatDisclaimer">إجابات آلية استرشادية من الذكاء الاصطناعي، وليست استشارة قانونية رسمية.</div>
+  <div class="chat-input-row">
+    <textarea id="chatInput" rows="1" placeholder="اسأل عن قانون العمل الكويتي..." onkeydown="handleChatKeydown(event)"></textarea>
+    <button type="button" class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()" aria-label="إرسال">➤</button>
+  </div>
+</div>
+
 <script>
 let currentLang = 'ar';
 let lastCalculationData = null;
@@ -2118,7 +2282,15 @@ const i18n = {
     footerPrivacy: "🔒 الحسابات محلية — لا تُرسل بياناتك لأي خادم",
     footerNote: "أداة مجانية مستقلة وغير تابعة لأي جهة حكومية.",
     lblGlobalDailyBasis: "📅 أساس حساب أجر اليوم:",
-    hintGlobalDailyBasis: "يُستخدم في كل الحسابات: نهاية الخدمة، الإجازات، والأوفر تايم"
+    hintGlobalDailyBasis: "يُستخدم في كل الحسابات: نهاية الخدمة، الإجازات، والأوفر تايم",
+    chatFloatTitle: "مساعد قانون العمل",
+    chatHeaderTitle: "⚖️ مساعد قانون العمل",
+    chatDisclaimer: "إجابات آلية استرشادية من الذكاء الاصطناعي، وليست استشارة قانونية رسمية.",
+    chatPlaceholder: "اسأل عن قانون العمل الكويتي...",
+    chatWelcome: "أهلاً 👋 اسألني عن أي شيء يخص قانون العمل الكويتي رقم 6/2010 (نهاية الخدمة، الإجازات، الأوفر تايم، الإجازة المرضية...).",
+    chatThinking: "يفكّر...",
+    chatError: "تعذر الوصول للمساعد حالياً، حاول لاحقاً.",
+    chatEmptyError: "اكتب سؤالك أولاً"
   },
   en: {
     docTitle: "Indemnity & Vacation Calculator - Kuwait Labor Law 6/2010",
@@ -2274,7 +2446,15 @@ const i18n = {
     footerPrivacy: "🔒 Local calculations — your data is never sent to a server",
     footerNote: "Free independent tool, not affiliated with any government body.",
     lblGlobalDailyBasis: "📅 Daily Rate Basis:",
-    hintGlobalDailyBasis: "Used for all calculations: EOS, vacation, and overtime"
+    hintGlobalDailyBasis: "Used for all calculations: EOS, vacation, and overtime",
+    chatFloatTitle: "Labor Law Assistant",
+    chatHeaderTitle: "⚖️ Labor Law Assistant",
+    chatDisclaimer: "Automated AI answers for guidance only — not formal legal advice.",
+    chatPlaceholder: "Ask about Kuwait Labor Law...",
+    chatWelcome: "Hi 👋 Ask me anything about Kuwait Labor Law No. 6/2010 (end of service, vacation, overtime, sick leave...).",
+    chatThinking: "Thinking...",
+    chatError: "Couldn't reach the assistant right now, please try again later.",
+    chatEmptyError: "Type your question first"
   }
 };
 
@@ -2626,6 +2806,11 @@ function toggleLanguage() {
   document.getElementById('footerDev').innerText = t.footerDev;
 
   document.getElementById('lblGlobalDailyBasis').innerText = t.lblGlobalDailyBasis;
+  document.getElementById('chatFloatBtn').title = t.chatFloatTitle;
+  document.getElementById('chatFloatBtn').setAttribute('aria-label', t.chatFloatTitle);
+  document.getElementById('chatHeaderTitle').innerText = t.chatHeaderTitle;
+  document.getElementById('chatDisclaimer').innerText = t.chatDisclaimer;
+  document.getElementById('chatInput').placeholder = t.chatPlaceholder;
   document.getElementById('hintGlobalDailyBasis').innerText = t.hintGlobalDailyBasis;
 
   const setTxt = (id, key) => { const el = document.getElementById(id); if (el && t[key] != null) el.innerText = t[key]; };
@@ -3565,6 +3750,94 @@ function copyEmailTemplate() {
     document.body.removeChild(area);
     showToast(t.emailCopied, 'success');
   });
+}
+
+/* ===== Chat Assistant (Gemini) ===== */
+let chatHistory = []; // {role: 'user'|'model', text: string}
+let chatOpened = false;
+let chatSending = false;
+
+function toggleChatPanel() {
+  const panel = document.getElementById('chatPanel');
+  const isOpen = panel.classList.toggle('open');
+  if (isOpen && !chatOpened) {
+    chatOpened = true;
+    appendChatMessage('bot', i18n[currentLang].chatWelcome);
+    setTimeout(() => document.getElementById('chatInput').focus(), 150);
+  } else if (isOpen) {
+    setTimeout(() => document.getElementById('chatInput').focus(), 150);
+  }
+}
+
+function handleChatKeydown(e) {
+  const ta = e.target;
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendChatMessage();
+    return;
+  }
+  setTimeout(() => {
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight, 90) + 'px';
+  }, 0);
+}
+
+function appendChatMessage(role, text, opts = {}) {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + (role === 'user' ? 'user' : 'bot') + (opts.typing ? ' typing' : '');
+  div.innerText = text;
+  if (opts.id) div.id = opts.id;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+async function sendChatMessage() {
+  if (chatSending) return;
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  const t = i18n[currentLang];
+  if (!text) {
+    showToast(t.chatEmptyError, 'error');
+    return;
+  }
+
+  appendChatMessage('user', text);
+  chatHistory.push({ role: 'user', text });
+  input.value = '';
+  input.style.height = 'auto';
+
+  const typingEl = appendChatMessage('bot', t.chatThinking, { typing: true, id: 'chatTypingIndicator' });
+  chatSending = true;
+  document.getElementById('chatSendBtn').disabled = true;
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: text,
+        history: chatHistory.slice(0, -1).slice(-10), // آخر 10 رسائل كسياق، بدون آخر رسالة (مُرسلة أعلاه)
+        lang: currentLang
+      })
+    });
+
+    if (!res.ok) throw new Error('bad_response');
+    const data = await res.json();
+    const reply = (data && data.reply) ? data.reply : t.chatError;
+
+    typingEl.classList.remove('typing');
+    typingEl.innerText = reply;
+    chatHistory.push({ role: 'model', text: reply });
+  } catch (err) {
+    typingEl.classList.remove('typing');
+    typingEl.innerText = t.chatError;
+  } finally {
+    chatSending = false;
+    document.getElementById('chatSendBtn').disabled = false;
+    document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+  }
 }
 
 /* ===== Keyboard shortcuts ===== */
