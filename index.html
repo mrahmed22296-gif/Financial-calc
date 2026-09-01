@@ -78,66 +78,81 @@
 
 <style>
   :root {
-    --bg: #f5f3ee;
-    --bg-accent: #eee8da;
+    --bg: #f0f9ff;
+    --bg-accent: #e0f2fe;
     --surface: #ffffff;
-    --surface-2: #faf8f3;
-    --ink: #17242f;
-    --ink-muted: #6b6a63;
-    --primary: #163a5f;
-    --primary-dark: #0e2540;
-    --primary-light: #dde6f0;
-    --accent: #b8862f;
-    --accent-soft: #f4e8cd;
-    --danger: #b3271e;
-    --danger-soft: #f8e3e1;
-    --success: #2f6b4f;
-    --border: #e4ddcd;
-    --border-strong: #cfc4a9;
-    --shadow-sm: 0 1px 2px rgba(23, 36, 47, 0.05);
-    --shadow: 0 4px 16px rgba(23, 36, 47, 0.07), 0 1px 3px rgba(23, 36, 47, 0.05);
-    --shadow-lg: 0 12px 40px rgba(23, 36, 47, 0.12);
+    --surface-2: #f6fbff;
+    --ink: #0c2942;
+    --ink-muted: #5b7285;
+    --primary: #0ea5e9;
+    --primary-dark: #0369a1;
+    --primary-light: #e0f2fe;
+    --accent: #f97316;
+    --accent-soft: #ffedd5;
+    --danger: #dc2626;
+    --danger-soft: #fee2e2;
+    --success: #16a34a;
+    --border: #dbeafe;
+    --border-strong: #7dd3fc;
+    --shadow-sm: 0 1px 2px rgba(14, 165, 233, 0.08);
+    --shadow: 0 4px 18px rgba(14, 165, 233, 0.12), 0 1px 3px rgba(12, 41, 66, 0.06);
+    --shadow-lg: 0 16px 44px rgba(3, 105, 161, 0.18);
     --radius: 16px;
     --radius-sm: 10px;
     --radius-xs: 8px;
-    --header-from: #0e2540;
-    --header-to: #081729;
-    --navy: #6b4a8a;
+    --header-from: #0ea5e9;
+    --header-to: #1e3a8a;
+    --glow-primary: 14, 165, 233;
+    --glow-accent: 249, 115, 22;
+    --btn-export: #0284c7;
+    --btn-share: #0e7490;
+    --btn-email: #0369a1;
+    --btn-compare: #075985;
+    --btn-receipt: #0c4a6e;
   }
 
   body.dark-mode {
-    --bg: #0d1420;
-    --bg-accent: #121b29;
-    --surface: #16202f;
-    --surface-2: #1b2636;
-    --ink: #eceef2;
-    --ink-muted: #97a1ae;
-    --primary: #5b8fce;
-    --primary-dark: #4577b3;
-    --primary-light: #1f3a56;
-    --accent: #dcae52;
-    --accent-soft: #3a2c10;
-    --danger: #e8837a;
+    --bg: #071324;
+    --bg-accent: #0c1b30;
+    --surface: #101f36;
+    --surface-2: #142943;
+    --ink: #eaf4ff;
+    --ink-muted: #8ea8c2;
+    --primary: #38bdf8;
+    --primary-dark: #0ea5e9;
+    --primary-light: #123350;
+    --accent: #fb923c;
+    --accent-soft: #3a2410;
+    --danger: #f47171;
     --danger-soft: #47201d;
-    --success: #57ab84;
-    --border: #263447;
-    --border-strong: #384a63;
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-    --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.45);
-    --header-from: #0e2540;
-    --header-to: #050d18;
-    --navy: #9b7fc4;
+    --success: #4ade80;
+    --border: #1c3552;
+    --border-strong: #2f5578;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+    --shadow: 0 4px 22px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.5);
+    --header-from: #0c4a6e;
+    --header-to: #050b18;
+    --glow-primary: 56, 189, 248;
+    --glow-accent: 251, 146, 60;
+    --btn-export: #0ea5e9;
+    --btn-share: #06b6d4;
+    --btn-email: #0284c7;
+    --btn-compare: #0369a1;
+    --btn-receipt: #075985;
   }
 
+  html {
+    font-size: clamp(16px, 0.6vw + 13.5px, 19px);
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
     color: var(--ink);
     background:
-      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(13, 148, 136, 0.12), transparent),
-      radial-gradient(ellipse 60% 40% at 100% 0%, rgba(245, 158, 11, 0.06), transparent),
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(var(--glow-primary), 0.12), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgba(var(--glow-accent), 0.06), transparent),
       var(--bg);
     min-height: 100vh;
     display: flex;
@@ -183,18 +198,103 @@
     position: relative;
   }
 
-  .top-controls {
-    position: absolute;
-    top: 18px;
-    left: 20px;
+  /* ===== NAVBAR ===== */
+  html { scroll-behavior: smooth; }
+  .site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 800;
+    background: rgba(3, 42, 74, 0.94);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(125, 211, 252, 0.18);
+  }
+  .nav-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 20px;
+    height: 60px;
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    position: relative;
+  }
+  .nav-brand {
+    display: flex;
+    align-items: center;
     gap: 8px;
-    z-index: 2;
+    color: #fff;
+    font-weight: 900;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    text-decoration: none;
   }
-  html[dir="ltr"] .top-controls {
-    left: auto;
-    right: 20px;
+  .nav-brand .nav-logo { font-size: 1.25rem; }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
+  .nav-links a {
+    display: block;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 9px 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+    transition: background 0.2s, color 0.2s;
+  }
+  .nav-links a:hover {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+  }
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .nav-toggle {
+    display: none;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    width: 38px;
+    height: 38px;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-xs);
+    font-size: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  @media (max-width: 820px) {
+    .nav-links {
+      position: absolute;
+      top: 60px;
+      inset-inline: 0;
+      flex-direction: column;
+      align-items: stretch;
+      background: rgba(8, 23, 41, 0.98);
+      padding: 8px 16px 14px;
+      gap: 2px;
+      display: none;
+      box-shadow: var(--shadow-lg);
+    }
+    .nav-links.open { display: flex; }
+    .nav-links a { padding: 12px 14px; border-radius: var(--radius-xs); }
+    .nav-toggle { display: flex; }
+    .nav-brand span.nav-text { display: none; }
+  }
+  @media print {
+    .site-nav { display: none !important; }
+  }
+
   .control-btn {
     background: rgba(255,255,255,0.12);
     backdrop-filter: blur(8px);
@@ -233,9 +333,13 @@
     color: var(--accent);
   }
 
+  #calcCard, #howSection, #contactSection, #historyCard {
+    scroll-margin-top: 76px;
+  }
+
   /* ===== MAIN ===== */
   main {
-    max-width: 880px;
+    max-width: 1180px;
     margin: -24px auto 0;
     padding: 0 20px 40px;
     position: relative;
@@ -313,12 +417,12 @@
   }
   input:focus, select:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+    box-shadow: 0 0 0 3px rgba(var(--glow-primary), 0.15);
     background: var(--surface);
   }
   body.dark-mode input:focus,
   body.dark-mode select:focus {
-    box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.2);
+    box-shadow: 0 0 0 3px rgba(var(--glow-primary), 0.2);
   }
   input:disabled, select:disabled {
     opacity: 0.55;
@@ -360,13 +464,13 @@
     padding: 15px 20px;
     border-radius: var(--radius-sm);
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35);
+    box-shadow: 0 4px 14px rgba(var(--glow-primary), 0.35);
     transition: transform 0.15s, box-shadow 0.2s, filter 0.2s;
   }
   .btn-calc:hover {
     filter: brightness(1.08);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
+    box-shadow: 0 6px 20px rgba(var(--glow-primary), 0.4);
   }
   .btn-calc:active { transform: translateY(0); }
   .btn-reset {
@@ -513,11 +617,11 @@
   }
 
   .calc-notes-box {
-    margin: 16px -22px -22px;
+    margin: 16px -26px -24px;
     background: var(--surface-2);
     border-top: 1px solid var(--border);
     border-radius: 0 0 var(--radius) var(--radius);
-    padding: 16px 22px;
+    padding: 16px 26px;
     font-size: 0.85rem;
   }
   .calc-notes-title {
@@ -566,11 +670,11 @@
     filter: brightness(1.08);
     box-shadow: var(--shadow);
   }
-  .btn-export { background: var(--navy); }
+  .btn-export { background: var(--btn-export); }
   .btn-print { background: var(--primary-dark); }
-  .btn-share { background: #22c55e; }
+  .btn-share { background: var(--btn-share); }
   .btn-copy { background: var(--accent); color: #1c1917; }
-  .btn-receipt { background: #7c3aed; }
+  .btn-receipt { background: var(--btn-receipt); }
 
   /* ===== FOOTER ===== */
   footer {
@@ -725,7 +829,6 @@
     body:not(.printing-receipt) .card:has(#calcForm),
     body:not(.printing-receipt) .action-bar,
     body:not(.printing-receipt) footer,
-    body:not(.printing-receipt) .top-controls,
     body:not(.printing-receipt) #receiptModal { display: none !important; }
     body:not(.printing-receipt) .results { display: block !important; }
     body:not(.printing-receipt) .card { border: 1px solid #000 !important; box-shadow: none !important; }
@@ -750,7 +853,7 @@
     margin-top: 16px;
     padding: 14px 18px;
     background: var(--accent-soft);
-    border: 1px solid rgba(245, 158, 11, 0.35);
+    border: 1px solid rgba(var(--glow-accent), 0.35);
     border-radius: var(--radius-sm);
     font-size: 0.8rem;
     color: var(--ink-muted);
@@ -941,7 +1044,7 @@
   body.dark-mode .compare-col .cv { color: var(--primary); }
   .compare-col.winner {
     border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+    box-shadow: 0 0 0 2px rgba(var(--glow-primary), 0.2);
   }
 
   .wa-float {
@@ -968,155 +1071,6 @@
     box-shadow: 0 8px 28px rgba(37, 211, 102, 0.55);
   }
 
-  /* ===== CHAT ASSISTANT ===== */
-  .chat-float {
-    position: fixed;
-    bottom: 92px;
-    left: 24px;
-    z-index: 9000;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 6px 20px rgba(14, 37, 64, 0.4);
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-  html[dir="ltr"] .chat-float { left: auto; right: 24px; }
-  .chat-float:hover { transform: scale(1.08); box-shadow: 0 8px 28px rgba(14, 37, 64, 0.5); }
-
-  .chat-panel {
-    position: fixed;
-    bottom: 160px;
-    left: 24px;
-    z-index: 9500;
-    width: min(92vw, 380px);
-    max-height: min(70vh, 560px);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-lg);
-    display: none;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  .chat-panel.open { display: flex; animation: fadeUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-  html[dir="ltr"] .chat-panel { left: auto; right: 24px; }
-  @media (max-width: 480px) {
-    .chat-panel { width: 92vw; bottom: 150px; }
-  }
-
-  .chat-header {
-    background: linear-gradient(135deg, var(--header-from), var(--header-to));
-    color: #fff;
-    padding: 14px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: 800;
-    font-size: 0.95rem;
-    flex-shrink: 0;
-  }
-  .chat-close-btn {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 20px;
-    cursor: pointer;
-    line-height: 1;
-    padding: 2px 6px;
-  }
-  .chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 14px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    background: var(--surface-2);
-  }
-  .chat-msg {
-    max-width: 85%;
-    padding: 10px 13px;
-    border-radius: var(--radius-sm);
-    font-size: 0.87rem;
-    line-height: 1.65;
-    white-space: pre-wrap;
-  }
-  .chat-msg.user {
-    align-self: flex-end;
-    background: var(--primary);
-    color: #fff;
-    border-bottom-left-radius: 4px;
-  }
-  .chat-msg.bot {
-    align-self: flex-start;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--ink);
-    border-bottom-right-radius: 4px;
-  }
-  html[dir="ltr"] .chat-msg.user { border-bottom-left-radius: var(--radius-sm); border-bottom-right-radius: 4px; }
-  html[dir="ltr"] .chat-msg.bot { border-bottom-right-radius: var(--radius-sm); border-bottom-left-radius: 4px; }
-  .chat-msg.bot.typing { color: var(--ink-muted); font-style: italic; }
-  .chat-disclaimer {
-    font-size: 0.7rem;
-    color: var(--ink-muted);
-    padding: 8px 16px;
-    text-align: center;
-    border-top: 1px solid var(--border);
-    background: var(--surface);
-    flex-shrink: 0;
-  }
-  .chat-input-row {
-    display: flex;
-    gap: 8px;
-    padding: 12px;
-    border-top: 1px solid var(--border);
-    background: var(--surface);
-    flex-shrink: 0;
-  }
-  .chat-input-row textarea {
-    flex: 1;
-    resize: none;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-xs);
-    padding: 10px 12px;
-    font-family: 'Tajawal', sans-serif;
-    font-size: 0.88rem;
-    background: var(--surface-2);
-    color: var(--ink);
-    max-height: 90px;
-    outline: none;
-  }
-  .chat-input-row textarea:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(22, 58, 95, 0.15);
-  }
-  .chat-send-btn {
-    background: var(--primary);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-xs);
-    width: 42px;
-    flex-shrink: 0;
-    cursor: pointer;
-    font-size: 18px;
-    transition: filter 0.2s;
-  }
-  .chat-send-btn:hover { filter: brightness(1.1); }
-  .chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  @media print {
-    .chat-float, .chat-panel { display: none !important; }
-  }
-
   .meta-bar {
     display: flex;
     flex-wrap: wrap;
@@ -1134,8 +1088,8 @@
     opacity: 0.75;
   }
 
-  .btn-email { background: #0ea5e9; }
-  .btn-compare { background: #6366f1; }
+  .btn-email { background: var(--btn-email); }
+  .btn-compare { background: var(--btn-compare); }
 
   .section-badge {
     display: inline-block;
@@ -1159,16 +1113,16 @@
 
   body {
     background:
-      radial-gradient(ellipse 90% 55% at 50% -25%, rgba(13, 148, 136, 0.14), transparent 55%),
-      radial-gradient(ellipse 50% 35% at 100% 10%, rgba(245, 158, 11, 0.07), transparent 50%),
-      radial-gradient(ellipse 40% 30% at 0% 60%, rgba(13, 148, 136, 0.05), transparent 45%),
+      radial-gradient(ellipse 90% 55% at 50% -25%, rgba(var(--glow-primary), 0.14), transparent 55%),
+      radial-gradient(ellipse 50% 35% at 100% 10%, rgba(var(--glow-accent), 0.07), transparent 50%),
+      radial-gradient(ellipse 40% 30% at 0% 60%, rgba(var(--glow-primary), 0.05), transparent 45%),
       var(--bg);
   }
 
   header {
     padding: 52px 24px 42px;
     border-radius: 0 0 28px 28px;
-    box-shadow: 0 12px 40px rgba(15, 118, 110, 0.25);
+    box-shadow: 0 12px 40px rgba(var(--glow-primary), 0.25);
   }
   body.dark-mode header {
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
@@ -1200,7 +1154,7 @@
   }
 
   main {
-    max-width: 900px;
+    max-width: 1180px;
     margin-top: -28px;
     padding: 0 18px 48px;
   }
@@ -1295,7 +1249,7 @@
     border-radius: 12px;
     padding: 16px 22px;
     letter-spacing: 0.02em;
-    box-shadow: 0 6px 20px rgba(13, 148, 136, 0.32);
+    box-shadow: 0 6px 20px rgba(var(--glow-primary), 0.32);
   }
   .btn-reset {
     border-radius: 12px;
@@ -1317,7 +1271,7 @@
     letter-spacing: -0.02em;
   }
   .summary-card.grand-total-card {
-    box-shadow: 0 8px 24px rgba(13, 148, 136, 0.28);
+    box-shadow: 0 8px 24px rgba(var(--glow-primary), 0.28);
   }
   .summary-card.grand-total-card .card-value {
     font-size: 1.2rem;
@@ -1340,13 +1294,13 @@
     border-bottom: 1px solid var(--border);
   }
   .result-row:hover {
-    background: rgba(13, 148, 136, 0.03);
+    background: rgba(var(--glow-primary), 0.03);
     margin-inline: -8px;
     padding-inline: 12px;
     border-radius: 8px;
   }
   body.dark-mode .result-row:hover {
-    background: rgba(45, 212, 191, 0.05);
+    background: rgba(var(--glow-primary), 0.05);
   }
   .result-row.total {
     margin-top: 10px;
@@ -1527,31 +1481,22 @@
 
 
   .btn-close-modal {
-    background: #fff;
-    color: #0f172a;
-    border: 2px solid #94a3b8;
+    background: var(--surface);
+    color: var(--ink);
+    border: 2px solid var(--border-strong);
     font-family: 'Tajawal', sans-serif;
     font-weight: 800;
     font-size: 0.95rem;
     padding: 11px 28px;
     border-radius: 10px;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    box-shadow: var(--shadow-sm);
     transition: background 0.2s, border-color 0.2s, transform 0.15s;
   }
   .btn-close-modal:hover {
-    background: #f1f5f9;
-    border-color: #64748b;
+    background: var(--surface-2);
+    border-color: var(--primary);
     transform: translateY(-1px);
-  }
-  body.dark-mode .btn-close-modal {
-    background: #1e293b;
-    color: #e2e8f0;
-    border-color: #64748b;
-  }
-  body.dark-mode .btn-close-modal:hover {
-    background: #334155;
-    border-color: #94a3b8;
   }
 
 
@@ -1570,33 +1515,25 @@
   }
 
   .btn-calc {
-    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%) !important;
+    background: linear-gradient(135deg, var(--primary) 0%, #1e3a8a 100%) !important;
     color: #ffffff !important;
     border: none !important;
     font-weight: 900;
-    box-shadow: 0 6px 18px rgba(15, 118, 110, 0.4);
+    box-shadow: 0 6px 20px rgba(var(--glow-primary), 0.45);
   }
   .btn-calc:hover {
     filter: brightness(1.1);
+    box-shadow: 0 8px 26px rgba(var(--glow-primary), 0.55);
   }
 
   .btn-reset {
-    background: #fff1f2 !important;
-    color: #be123c !important;
-    border: 2px solid #e11d48 !important;
+    background: var(--danger-soft) !important;
+    color: var(--danger) !important;
+    border: 2px solid var(--danger) !important;
     font-weight: 800;
   }
   .btn-reset:hover {
-    background: #e11d48 !important;
-    color: #fff !important;
-  }
-  body.dark-mode .btn-reset {
-    background: #4c0519 !important;
-    color: #fecdd3 !important;
-    border-color: #fb7185 !important;
-  }
-  body.dark-mode .btn-reset:hover {
-    background: #e11d48 !important;
+    background: var(--danger) !important;
     color: #fff !important;
   }
 
@@ -1607,60 +1544,53 @@
     text-shadow: 0 1px 1px rgba(0,0,0,0.15);
   }
   .btn-export {
-    background: #1e3a5f !important;
+    background: var(--btn-export) !important;
   }
   .btn-print {
-    background: #0f766e !important;
+    background: var(--primary-dark) !important;
   }
   .btn-share {
-    background: #16a34a !important;
+    background: var(--btn-share) !important;
   }
   .btn-copy {
-    background: #d97706 !important;
-    color: #fff !important;
+    background: var(--accent) !important;
+    color: #1c1917 !important;
     text-shadow: none;
   }
   .btn-receipt {
-    background: #6d28d9 !important;
+    background: var(--btn-receipt) !important;
   }
   .btn-email {
-    background: #0284c7 !important;
+    background: var(--btn-email) !important;
   }
   .btn-compare {
-    background: #4f46e5 !important;
+    background: var(--btn-compare) !important;
   }
-  body.dark-mode .btn-export { background: #2563eb !important; }
-  body.dark-mode .btn-print { background: #14b8a6 !important; color: #042f2e !important; text-shadow: none; }
-  body.dark-mode .btn-copy { background: #f59e0b !important; color: #1c1917 !important; }
-  body.dark-mode .btn-receipt { background: #8b5cf6 !important; }
-  body.dark-mode .btn-share { background: #22c55e !important; }
-  body.dark-mode .btn-email { background: #0ea5e9 !important; }
-  body.dark-mode .btn-compare { background: #818cf8 !important; color: #1e1b4b !important; text-shadow: none; }
 
   .btn-close-modal {
-    background: #334155 !important;
+    background: var(--primary-dark) !important;
     color: #ffffff !important;
-    border: 2px solid #1e293b !important;
+    border: 2px solid var(--primary-dark) !important;
     font-family: 'Tajawal', sans-serif;
     font-weight: 800;
     font-size: 0.95rem;
     padding: 11px 28px;
     border-radius: 10px;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+    box-shadow: var(--shadow);
     transition: background 0.2s, transform 0.15s;
   }
   .btn-close-modal:hover {
-    background: #0f172a !important;
+    background: var(--primary) !important;
     transform: translateY(-1px);
   }
   body.dark-mode .btn-close-modal {
-    background: #e2e8f0 !important;
-    color: #0f172a !important;
-    border-color: #cbd5e1 !important;
+    background: var(--primary) !important;
+    color: #ffffff !important;
+    border-color: var(--primary) !important;
   }
   body.dark-mode .btn-close-modal:hover {
-    background: #fff !important;
+    background: var(--primary-dark) !important;
   }
 
   .history-item button {
@@ -1699,7 +1629,7 @@
   }
   .global-basis-selector select:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+    box-shadow: 0 0 0 3px rgba(var(--glow-primary), 0.15);
   }
   .global-basis-selector .hint {
     font-size: 0.75rem;
@@ -1725,11 +1655,24 @@
 <div class="margin-line"></div>
 <div class="toast-container" id="toastContainer"></div>
 
-<header>
-  <div class="top-controls">
-    <button class="control-btn" onclick="toggleLanguage()" id="langBtn">English 🌐</button>
-    <button class="control-btn" onclick="toggleDarkMode()" id="darkBtn">🌙</button>
+<nav class="site-nav" id="siteNav">
+  <div class="nav-inner">
+    <a href="#top" class="nav-brand"><span class="nav-logo">⚖️</span><span class="nav-text" id="navBrandText">حاسبة نهاية الخدمة</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#calcCard" id="navLinkCalc" onclick="closeMobileNav()">الحاسبة</a></li>
+      <li><a href="#howSection" id="navLinkHow" onclick="closeMobileNav()">كيف يُحسب؟</a></li>
+      <li><a href="#historyCard" id="navLinkHistory" onclick="closeMobileNav()">السجل</a></li>
+      <li><a href="#contactSection" id="navLinkContact" onclick="closeMobileNav()">تواصل معنا</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="control-btn" onclick="toggleLanguage()" id="langBtn">English 🌐</button>
+      <button class="control-btn" onclick="toggleDarkMode()" id="darkBtn">🌙</button>
+      <button class="nav-toggle" id="navToggleBtn" onclick="toggleMobileNav()" aria-label="القائمة" aria-expanded="false">☰</button>
+    </div>
   </div>
+</nav>
+
+<header id="top">
   <h1 id="headerTitle">حاسبة مستحقات نهاية الخدمة ورصيد الاجازات</h1>
   <p id="headerSub">وفقاً لقانون العمل الكويتي في القطاع الأهلي (رقم 6 لسنة 2010)</p>
   
@@ -1740,7 +1683,7 @@
 </header>
 
 <main>
-  <div class="card">
+  <div class="card" id="calcCard">
     <div class="card-title" id="formTitle">📋 بيانات الموظف والعقد</div>
     
     <!-- Global Daily Basis Switch -->
@@ -2020,7 +1963,7 @@
   </div>
 
   <!-- How it works -->
-  <div class="card info-section">
+  <div class="card info-section" id="howSection">
     <div class="card-title"><span id="howTitle">📘 كيف يُحسب؟</span> <span class="section-badge" id="howBadge">قانون 6/2010</span></div>
     <div class="how-grid">
       <div class="how-card">
@@ -2058,12 +2001,12 @@
     <p>أقر أنا الموظف/ <strong><span id="rcpName"></span></strong>، وأحمل الرقم المدني/<strong id="rcpCivilInline">.........................</strong>، بأنني قد استلمت كافة مستحقاتي المالية والتنفيذية الناتجة عن فترة عملي لدى <strong id="rcpCompanyInline">الشركة</strong> من تاريخ <strong><span id="rcpStart"></span></strong> إلى تاريخ <strong><span id="rcpEnd"></span></strong>.</p>
     
     <table border="1" style="width:100%; border-collapse:collapse; margin: 15px 0; text-align: center;">
-      <tr style="background:#f2f2f2;"><th>البيان</th><th>المبلغ المحسوب (د.ك)</th></tr>
+      <tr style="background:#e0f2fe;"><th>البيان</th><th>المبلغ المحسوب (د.ك)</th></tr>
       <tr id="rcpRowEosb"><td>صافي مكافأة نهاية الخدمة</td><td id="rcpEosb"></td></tr>
       <tr id="rcpRowVac"><td>بدل رصيد الإجازات السنوية</td><td id="rcpVac"></td></tr>
       <tr id="rcpRowSal"><td>الرواتب المتأخرة / المتبقية</td><td id="rcpSal"></td></tr>
       <tr id="rcpRowDed"><td>الخصومات والسلف (إن وجدت)</td><td id="rcpDed"></td></tr>
-      <tr style="font-weight:bold; background:#e6f3ff;"><td>الصافي المستحق النهائي</td><td id="rcpTotal"></td></tr>
+      <tr style="font-weight:bold; background:#bae6fd;"><td>الصافي المستحق النهائي</td><td id="rcpTotal"></td></tr>
     </table>
 
     <p>وهذا إقرار مني باستلام الكامل والصافي، وأن ذمة الشركة أصبحت مبرأة تماماً من أي حقوق مالية أو قانونية، وأعتبر هذا النموذج بمثابة إخلاء طرف واستلام نهائي.</p>
@@ -2086,7 +2029,7 @@
   </div>
 </div>
 
-<footer>
+<footer id="contactSection">
   <div id="footerLaw">برمجية حساب المستحقات وفق قانون العمل الكويتي رقم 6/2010</div>
   <div class="meta-bar">
     <span id="footerUpdated">آخر مراجعة للحسابات: يوليو 2026</span>
@@ -2104,21 +2047,6 @@
 </footer>
 
 <a class="wa-float" id="waFloat" href="https://wa.me/96560085043" title="واتساب" aria-label="WhatsApp">💬</a>
-
-<button type="button" class="chat-float" id="chatFloatBtn" onclick="toggleChatPanel()" title="مساعد قانون العمل" aria-label="Labor Law Assistant">⚖️</button>
-
-<div class="chat-panel" id="chatPanel" role="dialog" aria-modal="false" aria-labelledby="chatHeaderTitle">
-  <div class="chat-header">
-    <span id="chatHeaderTitle">⚖️ مساعد قانون العمل</span>
-    <button type="button" class="chat-close-btn" onclick="toggleChatPanel()" aria-label="إغلاق">×</button>
-  </div>
-  <div class="chat-messages" id="chatMessages"></div>
-  <div class="chat-disclaimer" id="chatDisclaimer">إجابات آلية استرشادية من الذكاء الاصطناعي، وليست استشارة قانونية رسمية.</div>
-  <div class="chat-input-row">
-    <textarea id="chatInput" rows="1" placeholder="اسأل عن قانون العمل الكويتي..." onkeydown="handleChatKeydown(event)"></textarea>
-    <button type="button" class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()" aria-label="إرسال">➤</button>
-  </div>
-</div>
 
 <script>
 let currentLang = 'ar';
@@ -2283,14 +2211,12 @@ const i18n = {
     footerNote: "أداة مجانية مستقلة وغير تابعة لأي جهة حكومية.",
     lblGlobalDailyBasis: "📅 أساس حساب أجر اليوم:",
     hintGlobalDailyBasis: "يُستخدم في كل الحسابات: نهاية الخدمة، الإجازات، والأوفر تايم",
-    chatFloatTitle: "مساعد قانون العمل",
-    chatHeaderTitle: "⚖️ مساعد قانون العمل",
-    chatDisclaimer: "إجابات آلية استرشادية من الذكاء الاصطناعي، وليست استشارة قانونية رسمية.",
-    chatPlaceholder: "اسأل عن قانون العمل الكويتي...",
-    chatWelcome: "أهلاً 👋 اسألني عن أي شيء يخص قانون العمل الكويتي رقم 6/2010 (نهاية الخدمة، الإجازات، الأوفر تايم، الإجازة المرضية...).",
-    chatThinking: "يفكّر...",
-    chatError: "تعذر الوصول للمساعد حالياً، حاول لاحقاً.",
-    chatEmptyError: "اكتب سؤالك أولاً"
+    navBrandText: "حاسبة نهاية الخدمة",
+    navLinkCalc: "الحاسبة",
+    navLinkHow: "كيف يُحسب؟",
+    navLinkHistory: "السجل",
+    navLinkContact: "تواصل معنا",
+
   },
   en: {
     docTitle: "Indemnity & Vacation Calculator - Kuwait Labor Law 6/2010",
@@ -2447,14 +2373,12 @@ const i18n = {
     footerNote: "Free independent tool, not affiliated with any government body.",
     lblGlobalDailyBasis: "📅 Daily Rate Basis:",
     hintGlobalDailyBasis: "Used for all calculations: EOS, vacation, and overtime",
-    chatFloatTitle: "Labor Law Assistant",
-    chatHeaderTitle: "⚖️ Labor Law Assistant",
-    chatDisclaimer: "Automated AI answers for guidance only — not formal legal advice.",
-    chatPlaceholder: "Ask about Kuwait Labor Law...",
-    chatWelcome: "Hi 👋 Ask me anything about Kuwait Labor Law No. 6/2010 (end of service, vacation, overtime, sick leave...).",
-    chatThinking: "Thinking...",
-    chatError: "Couldn't reach the assistant right now, please try again later.",
-    chatEmptyError: "Type your question first"
+    navBrandText: "EOS Calculator",
+    navLinkCalc: "Calculator",
+    navLinkHow: "How it works",
+    navLinkHistory: "History",
+    navLinkContact: "Contact",
+
   }
 };
 
@@ -2730,6 +2654,18 @@ function handleCalcModeChange() {
   autoCalcVacation();
 }
 
+function toggleMobileNav() {
+  const links = document.getElementById('navLinks');
+  const btn = document.getElementById('navToggleBtn');
+  const isOpen = links.classList.toggle('open');
+  btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+}
+
+function closeMobileNav() {
+  document.getElementById('navLinks').classList.remove('open');
+  document.getElementById('navToggleBtn').setAttribute('aria-expanded', 'false');
+}
+
 function toggleLanguage() {
   currentLang = currentLang === 'ar' ? 'en' : 'ar';
   const t = i18n[currentLang];
@@ -2739,6 +2675,11 @@ function toggleLanguage() {
 
   document.getElementById('docTitle').innerText = t.docTitle;
   document.getElementById('langBtn').innerText = t.langBtn;
+  document.getElementById('navBrandText').innerText = t.navBrandText;
+  document.getElementById('navLinkCalc').innerText = t.navLinkCalc;
+  document.getElementById('navLinkHow').innerText = t.navLinkHow;
+  document.getElementById('navLinkHistory').innerText = t.navLinkHistory;
+  document.getElementById('navLinkContact').innerText = t.navLinkContact;
   document.getElementById('headerTitle').innerText = t.headerTitle;
   document.getElementById('headerSub').innerText = t.headerSub;
   handleSectorChange();
@@ -2806,11 +2747,6 @@ function toggleLanguage() {
   document.getElementById('footerDev').innerText = t.footerDev;
 
   document.getElementById('lblGlobalDailyBasis').innerText = t.lblGlobalDailyBasis;
-  document.getElementById('chatFloatBtn').title = t.chatFloatTitle;
-  document.getElementById('chatFloatBtn').setAttribute('aria-label', t.chatFloatTitle);
-  document.getElementById('chatHeaderTitle').innerText = t.chatHeaderTitle;
-  document.getElementById('chatDisclaimer').innerText = t.chatDisclaimer;
-  document.getElementById('chatInput').placeholder = t.chatPlaceholder;
   document.getElementById('hintGlobalDailyBasis').innerText = t.hintGlobalDailyBasis;
 
   const setTxt = (id, key) => { const el = document.getElementById(id); if (el && t[key] != null) el.innerText = t[key]; };
@@ -2880,982 +2816,4 @@ function autoCalcVacation() {
       vacationInput.value = calculatedVacation.toFixed(2);
       vacationInput.disabled = true;
       vacationHint.innerText = t.vacationHintAuto;
-      return;
-    }
-  }
-  
-  vacationInput.disabled = false;
-  vacationHint.innerText = t.vacationHintDefault;
-}
-
-function resetForm() {
-  document.getElementById('calcForm').reset();
-  if (canUseStorage()) {
-    try { localStorage.removeItem('kw_calc_draft'); } catch (e) { /* sandbox */ }
-  }
-  document.getElementById('resultsBox').style.display = 'none';
-  document.getElementById('vacationDays').disabled = false;
-  clearFieldInvalid('salary');
-  clearFieldInvalid('endDate');
-  handleCalcModeChange();
-  // إعادة تعيين المفتاح العام إلى 30
-  document.getElementById('globalDailyBasis').value = '30';
-  globalDailyBasis = 30;
-}
-
-function calculate(e) {
-  e.preventDefault();
-  const t = i18n[currentLang];
-  const mode = document.getElementById('calcMode').value;
-
-  const empName = document.getElementById('empName').value.trim();
-  const startDateVal = document.getElementById('startDate').value;
-  const endDateVal = document.getElementById('endDate').value;
-  const lastVacationReturnVal = document.getElementById('lastVacationReturn').value;
-  const unpaidLeaveDays = parseFloat(document.getElementById('unpaidLeaveDays').value) || 0;
-  const salary = parseFloat(document.getElementById('salary').value) || 0;
-  const reasonSelect = document.getElementById('reason');
-  const reason = reasonSelect.value;
-  const reasonText = reasonSelect.options[reasonSelect.selectedIndex].text;
-  const vacationDays = parseFloat(document.getElementById('vacationDays').value) || 0;
-  
-  const normalOT = parseFloat(document.getElementById('normalOT').value) || 0;
-  const weekendOT = parseFloat(document.getElementById('weekendOT').value) || 0;
-  const holidayOT = parseFloat(document.getElementById('holidayOT').value) || 0;
-
-  const unpaidSalary = parseFloat(document.getElementById('unpaidSalary').value) || 0;
-  const deductions = parseFloat(document.getElementById('deductions').value) || 0;
-
-  // استخدام المفتاح العام
-  const dailyBasis = globalDailyBasis;
-
-  if (!salary || salary <= 0) {
-    markFieldInvalid('salary', t.zeroSalaryAlert);
-    showToast(t.zeroSalaryAlert, 'error');
-    document.getElementById('salary').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
-  clearFieldInvalid('salary');
-
-  let years = 0;
-  let totalDays = 0;
-  let serviceText = t.notSpecified;
-
-  if (mode !== 'vacation' && mode !== 'overtime') {
-    const startDate = new Date(startDateVal);
-    const endDate = new Date(endDateVal);
-
-    if (endDate <= startDate) {
-      markFieldInvalid('endDate', t.dateAlert);
-      showToast(t.dateAlert, 'error');
-      document.getElementById('endDate').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-    clearFieldInvalid('endDate');
-
-    const diffTime = Math.abs(endDate - startDate);
-    totalDays = diffTime / (1000 * 60 * 60 * 24);
-    totalDays = Math.max(0, totalDays - unpaidLeaveDays);
-    years = totalDays / 365.25;
-
-    const displayYears = Math.floor(years);
-    const remainingMonths = Math.floor((years - displayYears) * 12);
-    const remainingDays = Math.floor(totalDays % 30.4375);
-
-    serviceText = `${displayYears} ${t.yearText} ${t.andText} ${remainingMonths} ${t.monthText} ${t.andText} ${remainingDays} ${t.dayText}`;
-    if (unpaidLeaveDays > 0) {
-      serviceText += currentLang === 'ar'
-        ? ` (بعد خصم ${unpaidLeaveDays} يوم بدون أجر)`
-        : ` (after deducting ${unpaidLeaveDays} unpaid leave days)`;
-    }
-    document.getElementById('servicePeriodText').style.display = 'inline';
-    document.getElementById('servicePeriodText').innerText = `${t.servicePeriodText}${serviceText}`;
-  } else {
-    document.getElementById('servicePeriodText').style.display = 'none';
-  }
-
-  document.getElementById('resEmpName').innerText = `${t.resEmpName}${empName}`;
-
-  const sector = document.getElementById('sectorType').value;
-  const isGov = sector === 'government';
-  // استخدام الأساس العام بدلاً من 26 أو 30 الثابت
-  const dailySalary = salary / dailyBasis;
-  const hourlyRate = salary / (dailyBasis * 8);
-
-  // أجر الإجازة يستخدم نفس الأساس العام
-  const vacationDailySalary = dailySalary;
-
-  let rawEOSBDays = 0;
-  let ratio = 1.0;
-  let rawEOSB = 0;
-  let netEOSBDays = 0;
-  let finalEOSB = 0;
-
-  if (mode === 'both' || mode === 'eosb') {
-    if (isGov) {
-      let yLeft = years;
-      const bands = [
-        { max: 5, rate: 0.10 },
-        { max: 5, rate: 0.12 },
-        { max: 5, rate: 0.15 },
-        { max: Infinity, rate: 0.20 }
-      ];
-      rawEOSB = 0;
-      for (const b of bands) {
-        if (yLeft <= 0) break;
-        const take = Math.min(b.max, yLeft);
-        rawEOSB += salary * 12 * b.rate * take;
-        yLeft -= take;
-      }
-      rawEOSBDays = salary > 0 ? (rawEOSB / dailySalary) : 0;
-      ratio = 1.0;
-      netEOSBDays = rawEOSBDays;
-      finalEOSB = rawEOSB;
-    } else {
-      if (years <= 5) {
-        rawEOSBDays = years * 15;
-      } else {
-        const first5YearsDays = 5 * 15;
-        const restYearsDays = (years - 5) * 30;
-        rawEOSBDays = first5YearsDays + restYearsDays;
-      }
-
-      const maxCapDays = 18 * 26; // الحد الأقصى ثابت بالقانون
-      if (rawEOSBDays > maxCapDays) {
-        rawEOSBDays = maxCapDays;
-      }
-
-      rawEOSB = rawEOSBDays * dailySalary;
-
-      if (reason === 'resignation') {
-        if (years < 3) {
-          ratio = 0;
-        } else if (years >= 3 && years < 5) {
-          ratio = 0.5;
-        } else if (years >= 5 && years < 10) {
-          ratio = 2 / 3;
-        } else {
-          ratio = 1.0;
-        }
-      }
-
-      netEOSBDays = rawEOSBDays * ratio;
-      finalEOSB = rawEOSB * ratio;
-    }
-  }
-
-  let vacationAmount = 0;
-  if (mode === 'both' || mode === 'vacation') {
-    vacationAmount = vacationDays * vacationDailySalary;
-  }
-
-  let overtimeAmount = 0;
-  if (mode === 'overtime') {
-    overtimeAmount = (normalOT * hourlyRate * 1.25) +
-                     (weekendOT * hourlyRate * 1.50) +
-                     (holidayOT * hourlyRate * 2.00);
-  }
-
-  const grandTotal = Math.max(0, (finalEOSB + vacationAmount + overtimeAmount + unpaidSalary) - deductions);
-
-  lastCalculationData = {
-    mode,
-    sector,
-    empName,
-    startDateVal: (mode !== 'vacation' && mode !== 'overtime') ? startDateVal : t.notSpecified,
-    endDateVal: (mode !== 'vacation' && mode !== 'overtime') ? endDateVal : (endDateVal || t.notSpecified),
-    lastVacationReturnVal: lastVacationReturnVal || t.notSpecified,
-    unpaidLeaveDays,
-    salary,
-    dailySalary,
-    hourlyRate,
-    reasonText: (mode !== 'vacation' && mode !== 'overtime') ? reasonText : t.notSpecified,
-    vacationDays: (mode === 'both' || mode === 'vacation') ? vacationDays.toFixed(2) : t.notCalculated,
-    rawEOSBDays: (mode === 'both' || mode === 'eosb') ? rawEOSBDays.toFixed(2) : t.notCalculated,
-    netEOSBDays: (mode === 'both' || mode === 'eosb') ? netEOSBDays.toFixed(2) : t.notCalculated,
-    normalOT,
-    weekendOT,
-    holidayOT,
-    overtimeAmount,
-    unpaidSalary,
-    deductions,
-    totalDays,
-    serviceText,
-    rawEOSB,
-    ratioText: (mode === 'both' || mode === 'eosb') ? ((ratio * 100).toFixed(1).replace('.0', '') + '%') : t.notCalculated,
-    finalEOSB,
-    vacationAmount,
-    grandTotal,
-    dailyBasisUsed: dailyBasis
-  };
-
-  const showEOSB = mode === 'both' || mode === 'eosb';
-  const showVacation = mode === 'both' || mode === 'vacation';
-  const showOT = mode === 'overtime';
-
-  document.getElementById('rowRawEOSBDays').style.display = showEOSB && !isGov ? 'flex' : 'none';
-  document.getElementById('rowEntitlementRatio').style.display = showEOSB && !isGov ? 'flex' : 'none';
-  document.getElementById('rowNetEOSBDays').style.display = showEOSB && !isGov ? 'flex' : 'none';
-  document.getElementById('rowRawEOSB').style.display = showEOSB && !isGov ? 'flex' : 'none';
-  document.getElementById('rowFinalEOSB').style.display = showEOSB ? 'flex' : 'none';
-  document.getElementById('rowVacationAmount').style.display = showVacation ? 'flex' : 'none';
-  document.getElementById('rowOvertimeAmount').style.display = showOT ? 'flex' : 'none';
-  document.getElementById('rowDeductionsAmount').style.display = deductions > 0 ? 'flex' : 'none';
-  document.getElementById('rowUnpaidSalaryAmount').style.display = unpaidSalary > 0 ? 'flex' : 'none';
-
-  if (showEOSB) {
-    document.getElementById('rawEOSBDays').innerText = rawEOSBDays.toFixed(2) + t.unitDays;
-    document.getElementById('netEOSBDays').innerText = netEOSBDays.toFixed(2) + t.unitDays;
-    document.getElementById('entitlementRatio').innerText = lastCalculationData.ratioText;
-    document.getElementById('rawEOSB').innerText = formatKWD(rawEOSB);
-    document.getElementById('finalEOSB').innerText = formatKWD(finalEOSB);
-  }
-
-  if (showVacation) {
-    document.getElementById('vacationAmount').innerText = formatKWD(vacationAmount);
-  }
-
-  if (showOT) {
-    document.getElementById('overtimeAmount').innerText = formatKWD(overtimeAmount);
-  }
-
-  if (deductions > 0) {
-    document.getElementById('deductionsAmount').innerText = '-' + formatKWD(deductions);
-  }
-
-  document.getElementById('unpaidSalaryAmount').innerText = formatKWD(unpaidSalary);
-  document.getElementById('grandTotal').innerText = formatKWD(grandTotal);
-
-  document.getElementById('cardValEosb').innerText = formatKWD(finalEOSB);
-  document.getElementById('cardValVacation').innerText = formatKWD(vacationAmount);
-  document.getElementById('cardValOvertime').innerText = formatKWD(overtimeAmount);
-  document.getElementById('cardValGrandTotal').innerText = formatKWD(grandTotal);
-
-  document.getElementById('calcNotesTitle').innerText = t.notesHeader;
-  const calcNotesList = document.getElementById('calcNotesList');
-  calcNotesList.innerHTML = '';
-
-  const note1 = document.createElement('li');
-  note1.innerText = `${t.noteDailyRate} (${salary.toFixed(3)} ÷ ${dailyBasis} = ${dailySalary.toFixed(3)}${t.unitKWD})`;
-  calcNotesList.appendChild(note1);
-
-  if (mode === 'overtime') {
-    const noteOT = document.createElement('li');
-    noteOT.innerText = `${t.noteHourlyRate} (${salary.toFixed(3)} ÷ ${dailyBasis * 8} = ${hourlyRate.toFixed(3)}${t.unitKWD})`;
-    calcNotesList.appendChild(noteOT);
-  }
-
-  if (showEOSB) {
-    const noteEOSB = document.createElement('li');
-    noteEOSB.innerText = isGov ? t.noteGovEOSBRule : t.noteEOSBRule;
-    calcNotesList.appendChild(noteEOSB);
-
-    if (!isGov) {
-      const noteResign = document.createElement('li');
-      noteResign.innerText = t.noteResignationRule;
-      calcNotesList.appendChild(noteResign);
-
-      if (totalDays > 0 && totalDays < 100) {
-        const noteProb = document.createElement('li');
-        noteProb.style.color = 'var(--red)';
-        noteProb.style.fontWeight = 'bold';
-        noteProb.innerText = t.noteProbationRule;
-        calcNotesList.appendChild(noteProb);
-      }
-    }
-  }
-
-  if (showVacation) {
-    const noteVac = document.createElement('li');
-    noteVac.innerText = t.noteVacationRule;
-    calcNotesList.appendChild(noteVac);
-  }
-
-  if (showOT) {
-    const noteOTRule = document.createElement('li');
-    noteOTRule.innerText = t.noteOvertimeRule;
-    calcNotesList.appendChild(noteOTRule);
-  }
-
-  lastCalculationData.notesList = Array.from(calcNotesList.querySelectorAll('li')).map(li => li.innerText);
-
-  document.getElementById('resultsBox').style.display = 'block';
-  document.getElementById('resultsBox').scrollIntoView({ behavior: 'smooth' });
-
-  saveToHistory(lastCalculationData);
-  updateComparePanel(lastCalculationData);
-}
-
-function openReceiptModal() {
-  if (!lastCalculationData) return;
-  const d = lastCalculationData;
-  const company = (document.getElementById('companyName').value || '').trim();
-  const civil = (document.getElementById('civilId').value || '').trim();
-  const empNo = (document.getElementById('empNumber').value || '').trim();
-  const isAr = currentLang === 'ar';
-
-  document.getElementById('rcpName').innerText = d.empName;
-  document.getElementById('rcpStart').innerText = d.startDateVal;
-  document.getElementById('rcpEnd').innerText = d.endDateVal;
-
-  const ref = 'KW-' + Date.now().toString(36).toUpperCase();
-  document.getElementById('rcpRef').innerText = ref;
-  document.getElementById('rcpIssueDate').innerText = new Date().toLocaleDateString(isAr ? 'ar-KW' : 'en-GB');
-
-  const companyLine = document.getElementById('rcpCompanyLine');
-  const rcpCompany = document.getElementById('rcpCompany');
-  const rcpCompanyInline = document.getElementById('rcpCompanyInline');
-  if (company) {
-    companyLine.style.display = 'block';
-    rcpCompany.innerText = company;
-    rcpCompanyInline.innerText = company;
-  } else {
-    companyLine.style.display = 'none';
-    rcpCompany.innerText = '';
-    rcpCompanyInline.innerText = isAr ? 'الشركة' : 'the company';
-  }
-
-  const civilDisplay = civil || '.........................';
-  document.getElementById('rcpCivil').innerText = civilDisplay;
-  document.getElementById('rcpCivilInline').innerText = civilDisplay;
-
-  const empWrap = document.getElementById('rcpEmpNumWrap');
-  if (empNo) {
-    empWrap.style.display = 'inline';
-    document.getElementById('rcpEmpNum').innerText = empNo;
-  } else {
-    empWrap.style.display = 'none';
-  }
-
-  const showEOSB = d.mode === 'both' || d.mode === 'eosb';
-  const showVacation = d.mode === 'both' || d.mode === 'vacation';
-
-  document.getElementById('rcpEosb').innerText = formatKWD(d.finalEOSB);
-  document.getElementById('rcpRowEosb').style.display = showEOSB ? '' : 'none';
-
-  document.getElementById('rcpVac').innerText = formatKWD(d.vacationAmount);
-  document.getElementById('rcpRowVac').style.display = showVacation ? '' : 'none';
-
-  document.getElementById('rcpSal').innerText = formatKWD(d.unpaidSalary);
-  document.getElementById('rcpRowSal').style.display = d.unpaidSalary > 0 ? '' : 'none';
-
-  document.getElementById('rcpDed').innerText = formatKWD(d.deductions);
-  document.getElementById('rcpRowDed').style.display = d.deductions > 0 ? '' : 'none';
-
-  document.getElementById('rcpTotal').innerText = formatKWD(d.grandTotal);
-  document.getElementById('receiptModal').style.display = 'block';
-}
-
-function closeReceiptModal() {
-  document.getElementById('receiptModal').style.display = 'none';
-}
-
-function printReceipt() {
-  document.body.classList.add('printing-receipt');
-  window.print();
-}
-
-window.addEventListener('afterprint', () => {
-  document.body.classList.remove('printing-receipt');
-});
-
-/* ===== تنسيق الطباعة/PDF بالكامل داخل صفحة واحدة ===== */
-function fitPrintContentToOnePage() {
-  const isReceipt = document.body.classList.contains('printing-receipt');
-  const target = isReceipt
-    ? document.querySelector('.receipt-box')
-    : document.getElementById('resultsBox');
-  if (!target) return;
-
-  target.style.transform = 'none';
-  target.style.width = '';
-
-  const usablePageHeightPx = Math.round((297 - 16) * (96 / 25.4));
-  const contentHeight = target.scrollHeight;
-
-  if (contentHeight > usablePageHeightPx) {
-    const scale = Math.max(0.35, usablePageHeightPx / contentHeight);
-    target.style.transform = `scale(${scale})`;
-    target.style.width = (100 / scale) + '%';
-    target.style.marginInlineStart = 'auto';
-    target.style.marginInlineEnd = 'auto';
-  }
-}
-
-function resetPrintContentScale() {
-  const resultsTarget = document.getElementById('resultsBox');
-  if (resultsTarget) { resultsTarget.style.transform = ''; resultsTarget.style.width = ''; }
-  const receiptTarget = document.querySelector('.receipt-box');
-  if (receiptTarget) { receiptTarget.style.transform = ''; receiptTarget.style.width = ''; }
-}
-
-window.addEventListener('beforeprint', fitPrintContentToOnePage);
-window.addEventListener('afterprint', resetPrintContentScale);
-
-async function ensureExcelJS() {
-  if (typeof ExcelJS !== 'undefined') return true;
-  return new Promise((resolve) => {
-    const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js';
-    s.onload = () => resolve(true);
-    s.onerror = () => resolve(false);
-    document.head.appendChild(s);
-  });
-}
-
-async function exportToExcelReal() {
-  if (!lastCalculationData) return;
-  const ok = await ensureExcelJS();
-  if (!ok || typeof ExcelJS === 'undefined') {
-    showToast(currentLang === 'ar' ? 'تعذر تحميل مكتبة الإكسل' : 'Failed to load Excel library', 'error');
-    return;
-  }
-  const d = lastCalculationData;
-  const t = i18n[currentLang];
-  const isRTL = currentLang === 'ar';
-
-  const COLOR_GREEN_DARK = 'FF1B3320';
-  const COLOR_GREEN      = 'FF2F5233';
-  const COLOR_BRASS      = 'FFB08D57';
-  const COLOR_BRASS_LT   = 'FFDCC79A';
-  const COLOR_PAPER      = 'FFEDF1E6';
-  const COLOR_WHITE      = 'FFFAFAF7';
-  const COLOR_RED        = 'FFA63D40';
-
-  const workbook = new ExcelJS.Workbook();
-  workbook.creator = 'Ahmed Abdelkarim';
-  const sheet = workbook.addWorksheet(t.headerTitle.substring(0, 28) || 'تقرير المستحقات', {
-    views: [{ rightToLeft: isRTL, showGridLines: false }]
-  });
-
-  sheet.columns = [{ width: 42 }, { width: 26 }];
-
-  const thinBorder = { style: 'thin', color: { argb: 'FFC7D6C4' } };
-  const allBorders = { top: thinBorder, left: thinBorder, right: thinBorder, bottom: thinBorder };
-
-  function addTitleRow(text) {
-    const row = sheet.addRow([text]);
-    sheet.mergeCells(row.number, 1, row.number, 2);
-    row.height = 32;
-    row.getCell(1).font = { name: 'Calibri', size: 15, bold: true, color: { argb: COLOR_WHITE } };
-    row.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
-    row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_GREEN_DARK } };
-    return row;
-  }
-
-  function addSectionRow(text) {
-    const row = sheet.addRow([text]);
-    sheet.mergeCells(row.number, 1, row.number, 2);
-    row.height = 22;
-    row.getCell(1).font = { name: 'Calibri', size: 12, bold: true, color: { argb: COLOR_WHITE } };
-    row.getCell(1).alignment = { vertical: 'middle', horizontal: isRTL ? 'right' : 'left', indent: 1 };
-    row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_GREEN } };
-    return row;
-  }
-
-  function addDataRow(label, value, opts = {}) {
-    const row = sheet.addRow([label, value]);
-    row.height = 20;
-    row.eachCell(cell => {
-      cell.border = allBorders;
-      cell.alignment = { vertical: 'middle', horizontal: isRTL ? 'right' : 'left', indent: 1 };
-    });
-    row.getCell(1).font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF1C2620' } };
-    row.getCell(2).font = { name: 'Calibri', size: 11, color: { argb: opts.color || 'FF1C2620' } };
-    row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: opts.stripe ? COLOR_PAPER : COLOR_WHITE } };
-    row.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: opts.stripe ? COLOR_PAPER : COLOR_WHITE } };
-    return row;
-  }
-
-  function addTotalRow(label, value) {
-    const row = sheet.addRow([label, value]);
-    row.height = 24;
-    row.eachCell(cell => {
-      cell.border = allBorders;
-      cell.alignment = { vertical: 'middle', horizontal: isRTL ? 'right' : 'left', indent: 1 };
-      cell.font = { name: 'Calibri', size: 12, bold: true, color: { argb: 'FF1C2620' } };
-      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_BRASS_LT } };
-    });
-    return row;
-  }
-
-  addTitleRow(t.headerTitle);
-  sheet.addRow([]);
-
-  addSectionRow(t.formTitle);
-  let stripe = false;
-  if (d.empName) { addDataRow(t.lblEmpName, d.empName, { stripe }); stripe = !stripe; }
-  addDataRow(t.lblSalary, d.salary.toFixed(3) + t.unitKWD, { stripe }); stripe = !stripe;
-  addDataRow(t.lblGlobalDailyBasis, d.dailyBasisUsed + ' يوم', { stripe }); stripe = !stripe;
-  if (d.startDateVal && d.startDateVal !== t.notSpecified) { addDataRow(t.lblStartDate, d.startDateVal, { stripe }); stripe = !stripe; }
-  if (d.endDateVal && d.endDateVal !== t.notSpecified) { addDataRow(t.lblEndDate, d.endDateVal, { stripe }); stripe = !stripe; }
-  if (d.serviceText && d.serviceText !== t.notSpecified) { addDataRow(t.servicePeriodText.replace(': ', ''), d.serviceText, { stripe }); stripe = !stripe; }
-  if (d.reasonText && d.reasonText !== t.notSpecified) { addDataRow(t.lblReason, d.reasonText, { stripe }); stripe = !stripe; }
-
-  sheet.addRow([]);
-
-  addSectionRow(isRTL ? '💰 النتائج المالية' : '💰 Financial Results');
-  stripe = false;
-  if (d.mode === 'both' || d.mode === 'eosb') { addDataRow(t.lblFinalEOSB, d.finalEOSB.toFixed(3) + t.unitKWD, { stripe }); stripe = !stripe; }
-  if (d.mode === 'both' || d.mode === 'vacation') { addDataRow(t.lblVacationAmount, d.vacationAmount.toFixed(3) + t.unitKWD, { stripe }); stripe = !stripe; }
-  if (d.mode === 'overtime') { addDataRow(t.lblOvertimeAmount, d.overtimeAmount.toFixed(3) + t.unitKWD, { stripe }); stripe = !stripe; }
-  if (d.unpaidSalary > 0) { addDataRow(t.lblUnpaidSalaryAmount, d.unpaidSalary.toFixed(3) + t.unitKWD, { stripe }); stripe = !stripe; }
-  if (d.deductions > 0) { addDataRow(t.lblDeductionsAmount, '-' + d.deductions.toFixed(3) + t.unitKWD, { stripe, color: COLOR_RED }); stripe = !stripe; }
-
-  sheet.addRow([]);
-  addTotalRow(t.lblGrandTotal, d.grandTotal.toFixed(3) + t.unitKWD);
-
-  if (Array.isArray(d.notesList) && d.notesList.length) {
-    sheet.addRow([]);
-    addSectionRow(t.notesHeader);
-    d.notesList.forEach((noteText, i) => {
-      const row = sheet.addRow([noteText]);
-      sheet.mergeCells(row.number, 1, row.number, 2);
-      row.getCell(1).alignment = { vertical: 'middle', horizontal: isRTL ? 'right' : 'left', wrapText: true, indent: 1 };
-      row.getCell(1).font = { name: 'Calibri', size: 10, color: { argb: 'FF1C2620' } };
-      row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: i % 2 ? COLOR_PAPER : COLOR_WHITE } };
-      row.getCell(1).border = allBorders;
-      row.height = 32;
-    });
-  }
-
-  const buffer = await workbook.xlsx.writeBuffer();
-  const blob = new Blob([buffer], { type: 'application/octet-stream' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `مستحقات_${d.empName || 'موظف'}.xlsx`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(link.href);
-}
-
-function generateSummaryText() {
-  if (!lastCalculationData) return '';
-  const d = lastCalculationData;
-  const t = i18n[currentLang];
-
-  let text = `📄 *${t.headerTitle}*\n`;
-  text += `👤 ${t.lblEmpName}: ${d.empName}\n`;
-  if (d.serviceText && d.serviceText !== t.notSpecified) {
-    text += `⏱️ ${t.servicePeriodText}${d.serviceText}\n`;
-  }
-  text += `💰 ${t.lblSalary}: ${d.salary.toFixed(3)}${t.unitKWD}\n`;
-  text += `📅 ${t.lblGlobalDailyBasis}: ${d.dailyBasisUsed} يوم\n`;
-  text += `-----------------------------------\n`;
-
-  if (d.mode === 'both' || d.mode === 'eosb') {
-    text += `🔹 ${t.lblFinalEOSB}: ${d.finalEOSB.toFixed(3)}${t.unitKWD}\n`;
-  }
-  if (d.mode === 'both' || d.mode === 'vacation') {
-    text += `🔹 ${t.lblVacationAmount} (${d.vacationDays}${t.unitDays}): ${d.vacationAmount.toFixed(3)}${t.unitKWD}\n`;
-  }
-  if (d.mode === 'overtime') {
-    text += `🔹 ${t.lblOvertimeAmount}: ${d.overtimeAmount.toFixed(3)}${t.unitKWD}\n`;
-  }
-  if (d.unpaidSalary > 0) {
-    text += `🔹 ${t.lblUnpaidSalaryAmount}: ${d.unpaidSalary.toFixed(3)}${t.unitKWD}\n`;
-  }
-  if (d.deductions > 0) {
-    text += `🔻 ${t.lblDeductionsAmount}: -${d.deductions.toFixed(3)}${t.unitKWD}\n`;
-  }
-
-  text += `-----------------------------------\n`;
-  text += `✅ *${t.lblGrandTotal}: ${d.grandTotal.toFixed(3)}${t.unitKWD}*\n`;
-  text += `-----------------------------------\n`;
-
-  text += `📌 *${t.notesHeader}*\n`;
-  text += `1️⃣ ${t.noteDailyRate} (${d.salary.toFixed(3)} ÷ ${d.dailyBasisUsed} = ${d.dailySalary.toFixed(3)}${t.unitKWD})\n`;
-
-  return text;
-}
-
-function copySummaryText() {
-  const text = generateSummaryText();
-  if (!text) return;
-
-  navigator.clipboard.writeText(text).then(() => {
-    showToast(i18n[currentLang].copiedMsg, 'success');
-  }).catch(() => {
-    const area = document.createElement('textarea');
-    area.value = text;
-    document.body.appendChild(area);
-    area.select();
-    document.execCommand('copy');
-    document.body.removeChild(area);
-    showToast(i18n[currentLang].copiedMsg, 'success');
-  });
-}
-
-function shareWhatsApp() {
-  const text = generateSummaryText();
-  if (!text) return;
-  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-  window.open(url, '_blank');
-}
-
-function formatKWD(amount) {
-  return amount.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + i18n[currentLang].unitKWD;
-}
-
-/* ===== History ===== */
-const HISTORY_KEY = 'kw_calc_history_v1';
-
-function getHistory() {
-  if (!canUseStorage()) return [];
-  try {
-    return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-  } catch (e) { return []; }
-}
-
-function saveToHistory(d) {
-  if (!d || !canUseStorage()) return;
-  try {
-    let list = getHistory();
-    const entry = {
-      ts: Date.now(),
-      empName: d.empName,
-      grandTotal: d.grandTotal,
-      mode: d.mode,
-      dailyBasisUsed: d.dailyBasisUsed || globalDailyBasis,
-      form: collectFormData()
-    };
-    list = [entry, ...list.filter(x => x.empName !== entry.empName || Math.abs(x.grandTotal - entry.grandTotal) > 0.01)].slice(0, 5);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
-    renderHistory();
-  } catch (e) { /* ignore */ }
-}
-
-function renderHistory() {
-  const card = document.getElementById('historyCard');
-  const listEl = document.getElementById('historyList');
-  if (!card || !listEl) return;
-  const t = i18n[currentLang];
-  const list = getHistory();
-  if (!list.length) {
-    card.style.display = 'none';
-    return;
-  }
-  card.style.display = 'block';
-  const clearBtn = document.getElementById('btnClearHistory');
-  if (clearBtn) clearBtn.innerText = t.historyClear;
-  const expBtn = document.getElementById('btnExportHistory');
-  if (expBtn) expBtn.innerText = t.historyExport;
-  listEl.innerHTML = '';
-  list.forEach((item, idx) => {
-    const div = document.createElement('div');
-    div.className = 'history-item';
-    const dateStr = new Date(item.ts).toLocaleString(currentLang === 'ar' ? 'ar-KW' : 'en-GB');
-    const info = document.createElement('div');
-    info.innerHTML = `<span class="hi-name">${item.empName || '—'}</span><div class="hi-meta">${dateStr} · ${Number(item.grandTotal).toFixed(3)} · أساس ${item.dailyBasisUsed || 30} يوم</div>`;
-    const actions = document.createElement('div');
-    actions.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;';
-    const loadBtn = document.createElement('button');
-    loadBtn.type = 'button';
-    loadBtn.innerText = t.historyLoad;
-    loadBtn.onclick = () => {
-      applyFormData(item.form);
-      showToast(currentLang === 'ar' ? 'تم تحميل البيانات من السجل' : 'Data loaded from history', 'success');
-    };
-    const delBtn = document.createElement('button');
-    delBtn.type = 'button';
-    delBtn.innerText = t.historyDelete;
-    delBtn.style.background = 'var(--danger)';
-    delBtn.onclick = () => deleteHistoryItem(idx);
-    actions.appendChild(loadBtn);
-    actions.appendChild(delBtn);
-    div.appendChild(info);
-    div.appendChild(actions);
-    listEl.appendChild(div);
-  });
-}
-
-function deleteHistoryItem(index) {
-  if (!canUseStorage()) return;
-  try {
-    let list = getHistory();
-    list.splice(index, 1);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
-    renderHistory();
-    showToast(i18n[currentLang].historyItemDeleted, 'success');
-  } catch (e) { /* ignore */ }
-}
-
-function clearAllHistory() {
-  if (!canUseStorage()) return;
-  try {
-    localStorage.removeItem(HISTORY_KEY);
-    renderHistory();
-    showToast(i18n[currentLang].historyCleared, 'success');
-  } catch (e) { /* ignore */ }
-}
-
-async function exportHistoryToExcel() {
-  const t = i18n[currentLang];
-  const list = getHistory();
-  if (!list.length) {
-    showToast(t.historyExportEmpty, 'error');
-    return;
-  }
-  const ok = await ensureExcelJS();
-  if (!ok || typeof ExcelJS === 'undefined') {
-    showToast(currentLang === 'ar' ? 'تعذر تحميل مكتبة الإكسل' : 'Failed to load Excel library', 'error');
-    return;
-  }
-
-  const isRTL = currentLang === 'ar';
-  const workbook = new ExcelJS.Workbook();
-  workbook.creator = 'Ahmed Abdelkarim';
-  const sheet = workbook.addWorksheet(isRTL ? 'سجل الحسابات' : 'History', {
-    views: [{ rightToLeft: isRTL, showGridLines: false }]
-  });
-
-  const headers = isRTL
-    ? ['#', 'اسم الموظف', 'التاريخ', 'الإجمالي (د.ك)', 'نوع الحساب', 'الراتب', 'تاريخ البداية', 'تاريخ النهاية', 'سبب الترك', 'أساس الأجر']
-    : ['#', 'Employee', 'Date', 'Total (KWD)', 'Mode', 'Salary', 'Start date', 'End date', 'Reason', 'Daily Basis'];
-
-  const headerRow = sheet.addRow(headers);
-  headerRow.eachCell(cell => {
-    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F766E' } };
-    cell.alignment = { vertical: 'middle', horizontal: 'center' };
-  });
-  headerRow.height = 22;
-
-  const modeLabel = (m) => {
-    const map = {
-      both: isRTL ? 'نهاية خدمة + إجازات' : 'EOS + Vacation',
-      eosb: isRTL ? 'نهاية خدمة فقط' : 'EOS only',
-      vacation: isRTL ? 'إجازات فقط' : 'Vacation only',
-      overtime: isRTL ? 'أوفر تايم فقط' : 'Overtime only'
-    };
-    return map[m] || m || '—';
-  };
-
-  list.forEach((item, i) => {
-    const f = item.form || {};
-    const dateStr = new Date(item.ts).toLocaleString(isRTL ? 'ar-KW' : 'en-GB');
-    sheet.addRow([
-      i + 1,
-      item.empName || f.empName || '—',
-      dateStr,
-      Number(item.grandTotal || 0).toFixed(3),
-      modeLabel(item.mode || f.calcMode),
-      f.salary || '—',
-      f.startDate || '—',
-      f.endDate || '—',
-      f.reason === 'resignation' ? (isRTL ? 'استقالة' : 'Resignation')
-        : f.reason === 'termination' ? (isRTL ? 'إنهاء خدمات' : 'Termination') : (f.reason || '—'),
-      f.globalDailyBasis || item.dailyBasisUsed || 30
-    ]);
-  });
-
-  sheet.columns.forEach(col => { col.width = 16; });
-  sheet.getColumn(2).width = 24;
-  sheet.getColumn(3).width = 22;
-  sheet.getColumn(10).width = 14;
-
-  const buffer = await workbook.xlsx.writeBuffer();
-  const blob = new Blob([buffer], { type: 'application/octet-stream' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = isRTL ? 'سجل_الحسابات.xlsx' : 'calculation_history.xlsx';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(link.href);
-  showToast(t.historyExportOk, 'success');
-}
-
-/* ===== Compare scenarios ===== */
-function resignationRatio(years) {
-  if (years < 3) return 0;
-  if (years < 5) return 0.5;
-  if (years < 10) return 2 / 3;
-  return 1;
-}
-
-function updateComparePanel(d) {
-  const box = document.getElementById('compareBox');
-  if (!box || !d) return;
-  if (d.sector === 'government' || (d.mode !== 'both' && d.mode !== 'eosb')) {
-    box.classList.remove('show');
-    return;
-  }
-  const years = (d.totalDays || 0) / 365.25;
-  const termAmt = d.rawEOSB;
-  const resAmt = d.rawEOSB * resignationRatio(years);
-  document.getElementById('compareTermVal').innerText = formatKWD(termAmt);
-  document.getElementById('compareResVal').innerText = formatKWD(resAmt);
-  document.getElementById('compareTermCol').classList.toggle('winner', termAmt >= resAmt);
-  document.getElementById('compareResCol').classList.toggle('winner', resAmt > termAmt);
-  const diff = termAmt - resAmt;
-  const t = i18n[currentLang];
-  document.getElementById('compareNote').innerText =
-    (currentLang === 'ar'
-      ? `الفرق بين السيناريوهين: ${formatKWD(Math.abs(diff))} · مدة الخدمة ≈ ${years.toFixed(2)} سنة · نسبة الاستقالة ${(resignationRatio(years) * 100).toFixed(1)}%`
-      : `Difference: ${formatKWD(Math.abs(diff))} · Tenure ≈ ${years.toFixed(2)} yrs · Resignation ratio ${(resignationRatio(years) * 100).toFixed(1)}%`);
-}
-
-function toggleCompare() {
-  if (!lastCalculationData) {
-    showToast(i18n[currentLang].compareNeedEosb, 'error');
-    return;
-  }
-  if (lastCalculationData.sector === 'government' || (lastCalculationData.mode !== 'both' && lastCalculationData.mode !== 'eosb')) {
-    showToast(i18n[currentLang].compareNeedEosb, 'error');
-    return;
-  }
-  const box = document.getElementById('compareBox');
-  updateComparePanel(lastCalculationData);
-  box.classList.toggle('show');
-  if (box.classList.contains('show')) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-/* ===== Email template ===== */
-function copyEmailTemplate() {
-  if (!lastCalculationData) return;
-  const d = lastCalculationData;
-  const t = i18n[currentLang];
-  let body = '';
-  if (currentLang === 'ar') {
-    body = `السلام عليكم،\n\nأرفق ملخص مستحقات نهاية الخدمة للموظف: ${d.empName}\n`;
-    if (d.serviceText && d.serviceText !== t.notSpecified) body += `مدة الخدمة: ${d.serviceText}\n`;
-    body += `الراتب الشامل: ${d.salary.toFixed(3)} د.ك\n`;
-    body += `أساس حساب الأجر: ${d.dailyBasisUsed} يوم\n`;
-    if (d.mode === 'both' || d.mode === 'eosb') body += `صافي مكافأة نهاية الخدمة: ${d.finalEOSB.toFixed(3)} د.ك\n`;
-    if (d.mode === 'both' || d.mode === 'vacation') body += `بدل الإجازات: ${d.vacationAmount.toFixed(3)} د.ك\n`;
-    if (d.unpaidSalary > 0) body += `رواتب متأخرة: ${d.unpaidSalary.toFixed(3)} د.ك\n`;
-    if (d.deductions > 0) body += `خصومات: ${d.deductions.toFixed(3)} د.ك\n`;
-    body += `\nإجمالي الصافي المستحق: ${d.grandTotal.toFixed(3)} د.ك\n\nملاحظة: حساب استرشادي وفق قانون العمل 6/2010.\n\nمع التحية`;
-  } else {
-    body = `Dear HR,\n\nPlease find the end-of-service entitlement summary for: ${d.empName}\n`;
-    if (d.serviceText && d.serviceText !== t.notSpecified) body += `Service period: ${d.serviceText}\n`;
-    body += `Total salary: ${d.salary.toFixed(3)} KWD\n`;
-    body += `Daily basis: ${d.dailyBasisUsed} days\n`;
-    if (d.mode === 'both' || d.mode === 'eosb') body += `Net indemnity: ${d.finalEOSB.toFixed(3)} KWD\n`;
-    if (d.mode === 'both' || d.mode === 'vacation') body += `Vacation pay: ${d.vacationAmount.toFixed(3)} KWD\n`;
-    if (d.unpaidSalary > 0) body += `Unpaid salary: ${d.unpaidSalary.toFixed(3)} KWD\n`;
-    if (d.deductions > 0) body += `Deductions: ${d.deductions.toFixed(3)} KWD\n`;
-    body += `\nGrand net payable: ${d.grandTotal.toFixed(3)} KWD\n\nNote: Indicative calculation per Labor Law 6/2010.\n\nBest regards`;
-  }
-  navigator.clipboard.writeText(body).then(() => {
-    showToast(t.emailCopied, 'success');
-  }).catch(() => {
-    const area = document.createElement('textarea');
-    area.value = body;
-    document.body.appendChild(area);
-    area.select();
-    document.execCommand('copy');
-    document.body.removeChild(area);
-    showToast(t.emailCopied, 'success');
-  });
-}
-
-/* ===== Chat Assistant (Gemini) ===== */
-let chatHistory = []; // {role: 'user'|'model', text: string}
-let chatOpened = false;
-let chatSending = false;
-
-function toggleChatPanel() {
-  const panel = document.getElementById('chatPanel');
-  const isOpen = panel.classList.toggle('open');
-  if (isOpen && !chatOpened) {
-    chatOpened = true;
-    appendChatMessage('bot', i18n[currentLang].chatWelcome);
-    setTimeout(() => document.getElementById('chatInput').focus(), 150);
-  } else if (isOpen) {
-    setTimeout(() => document.getElementById('chatInput').focus(), 150);
-  }
-}
-
-function handleChatKeydown(e) {
-  const ta = e.target;
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendChatMessage();
-    return;
-  }
-  setTimeout(() => {
-    ta.style.height = 'auto';
-    ta.style.height = Math.min(ta.scrollHeight, 90) + 'px';
-  }, 0);
-}
-
-function appendChatMessage(role, text, opts = {}) {
-  const container = document.getElementById('chatMessages');
-  const div = document.createElement('div');
-  div.className = 'chat-msg ' + (role === 'user' ? 'user' : 'bot') + (opts.typing ? ' typing' : '');
-  div.innerText = text;
-  if (opts.id) div.id = opts.id;
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-  return div;
-}
-
-async function sendChatMessage() {
-  if (chatSending) return;
-  const input = document.getElementById('chatInput');
-  const text = input.value.trim();
-  const t = i18n[currentLang];
-  if (!text) {
-    showToast(t.chatEmptyError, 'error');
-    return;
-  }
-
-  appendChatMessage('user', text);
-  chatHistory.push({ role: 'user', text });
-  input.value = '';
-  input.style.height = 'auto';
-
-  const typingEl = appendChatMessage('bot', t.chatThinking, { typing: true, id: 'chatTypingIndicator' });
-  chatSending = true;
-  document.getElementById('chatSendBtn').disabled = true;
-
-  try {
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: text,
-        history: chatHistory.slice(0, -1).slice(-10), // آخر 10 رسائل كسياق، بدون آخر رسالة (مُرسلة أعلاه)
-        lang: currentLang
-      })
-    });
-
-    if (!res.ok) throw new Error('bad_response');
-    const data = await res.json();
-    const reply = (data && data.reply) ? data.reply : t.chatError;
-
-    typingEl.classList.remove('typing');
-    typingEl.innerText = reply;
-    chatHistory.push({ role: 'model', text: reply });
-  } catch (err) {
-    typingEl.classList.remove('typing');
-    typingEl.innerText = t.chatError;
-  } finally {
-    chatSending = false;
-    document.getElementById('chatSendBtn').disabled = false;
-    document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
-  }
-}
-
-/* ===== Keyboard shortcuts ===== */
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    closeReceiptModal();
-  }
-});
-
-/* ===== Init extras ===== */
-window.addEventListener('DOMContentLoaded', () => {
-  // تعيين الأساس العام الافتراضي من القائمة
-  const basisSel = document.getElementById('globalDailyBasis');
-  globalDailyBasis = parseInt(basisSel.value, 10);
-  renderHistory();
-  handleSectorChange();
-});
-</script>
-
-</body>
-</html>
+      re
