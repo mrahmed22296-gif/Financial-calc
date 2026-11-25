@@ -2992,8 +2992,6 @@ function resetForm() {
 const FREE_TRIAL_KEY = 'kw_calc_free_used';
 const CREDITS_KEY = 'kw_calc_credits';
 const USED_CODES_KEY = 'kw_calc_used_codes';
-const CODE_SALT = 'f5a415868b7fc610';
-const CODE_HASHES = ["c2360e309e871dc7543dd0d0f408ef2a43a21c58ee74b97945148417e34677ab", "e5086d390fe07df17167c9b780831cc014901621a323c92b39bd89d7917f3074", "54ff711044aca4b47370a15dcbae6f5c75f86af73dae3fe69d0a2259cd254059", "2ea7edf365b7030604dd4362f4896dfb7c3fe1939e9dd4ecf21d2af049ebeddd", "ece0ba81d00d9fb907df9e1c7d7b8fd8f41577a550d0ecc73fb35651d37755bd", "689aef16849d62c250b7df726edd1225d3c30582c2d1512ae807e7e44e2898fd", "5e3135d3c09c2c11faeb46298900e0876c23e83d4a081113e09f56a7a4481714", "3530cf87b22638566da0feeb01aaac6c184ba5cfae83b7d8b860fed7fb8c7b03", "bede02980149e5988f50ddfdb7dbe2f376810f4f0f7970b6484df10e4c5c6fa9", "23db0f5c6d7fb48d644c5371396f6be8a939fbb686b4e0610c8d0b90d85895a0", "d0523df912744c8a9970a5918487c7d3631a456d0d4cbf1bd4db8d2be5eaab66", "d6f61d5a49fe74e0f0413baed2460a1dd29d84a87e267c79148c2f75139db0f0", "8223251bb9f9899e8a193b742625ea46d619567e781229139c7b440a80053307", "ef9246473b7356b640fb4157dac9d707fdbd031c2bcf6b10db986a5352748cb9", "78004549cc0f3bf9c606262b16540bd1fd37186d90917c17d2c67c169369bf22", "4a39e4f7bca519ee41a6cd34c21d7fd2b94197bdf5aff9dbed7eeccb0c7f5590", "56523533e31c4f51ed61771cc12e017279301f68486c23e69391869003ad6032", "45bfdd39982e0f49f40fd62a6757a3af2c24d54d15a7331970d979335ff78575", "67e0b1770dbfdb2e74892dcc2a10c1355abe4c953b9d88927c309ac32f5c130f", "14967ced3ada8f9d6635674364c59434cf9caa4ad05b19c37925db6dd2c16e14", "0b01f87f0827414bcb8fd9c6bdcb179867ccc9b4aaab6c3af59495dd36c5ed2c", "192530745d0c59475cf9a5c5cd76c86d3e2fb4b63135958561591204b09d0c7d", "905192ec9c4cfb7ab420afe6d2f8e788eec85e5865320b22318a6369c4033d3d", "ca539b1ceb7d902580e0ab376e5f2f69af33127fba1dee6a1d298412df12a44d", "f7c60dfaed6bb896ce41d226d260e19c4c63ebc1cbf6ebe94b738805d649f302", "498cfebf1bafab021b8cf7fd59fe94873a92373e8976c22eb042798637fe5369", "6c4d76b12dbcbde460d74b098ba21d78509f002d7b15d4d9930ace3b164f773d", "0411c505a2f6d11bd85a0fd308da9f9eb4bafc041f68251c3b16ed95d2ebfce0", "3ee7d527a56ab90cc16d8fd29d20514631c00bd5f4672b92f7664c4993533c67", "e554c2a376f0e9aeb7b44ee6032bf0066c23e6a8bed7f7bb72d88328e070370d", "27442cf3203e8c39bbcb21cf3aa0be72f387828f0fbb2efea9d295599ed1656c", "6543cb4ac93d434eb1acceff4c82116adc3ddb223d0be9d347588175734b34d5", "729fbc7572cae2ca09e7bb5e830b5d769ae23629dd3b15a9102551ec09bdb264", "a1a21a57173f30df9a922aa232e35d63f95068f4e1cf478ec2775bc296b05c9b", "f40f58c52ee4f91c7ffddf44891f5a093273bb2e747efad2557b583b81dd8160", "9d5d729816c5d1f74b2867072f44f08ded21bd6f976ce850fcf24bba161c74eb", "ade02fe10040df9cb65df02a47b350db2dc689f739f5bd7042c61c07365ca3dd", "0028cc057cab74dd2a179d4215e55a8ee1e4e2acd24ea45a1c23b0e8026a3d56", "0f0ab26f7b0b825c87a1ad6b999e3dd7c97f3a34183566fb6f296af5625215ff", "967dc6e11a4a6c0dec3a0e4ea35cdb6225149e4d0282491ba35af6af0ee7cfab", "0d6236855fd3e79cc631451c2279d0e7c8f9dc6a76b6502cead535f445c88e39", "0a3d615723aa148015036552db70324015b6f83babbe2b4901e9b471afaa9782", "d3e07da409b5e6dba704a9d564f8127b3f903db4c7615b6cc0f17e61d0e69ad8", "bf3a6fc7656086f3ff57791a23899e35b20afbaa5692b1cb1a02d0b7024f3406", "10ff4cd7272d98723585e271053cfef81e01396c88e0a85cbb7407e02271244f", "4fc2f8189c6c759531c4b5aafe53c28c4f6ee7d447eec04ff46a044622f0f8e0", "b48c64ddcfd6881122fe6a02653d5734d968940d93eaa80629eb8b7b68da44fc", "e5c29dbe4a53f67e4f62495114f14e7cc16033868c6bd6c013757176d7175687", "a0a6db8ec9fd5b5c1e1e77709e4c3a8fa6dac13aea723bdc2208781cc405f889", "8532e962efbe3eb30282b98d8a90ec22e7ee66c74ebb8b5c07da9b000d3efe50"];
 
 function lsGet(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* sandbox */ } }
@@ -3013,10 +3011,15 @@ async function activateCode() {
   const err = document.getElementById('trialErr');
   err.innerText = '';
   const raw = document.getElementById('trialCode').value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-  if (raw.length !== 10) { err.innerText = en ? 'Enter a valid code' : 'أدخل كوداً صحيحاً'; return; }
-  if (!(window.crypto && crypto.subtle)) { err.innerText = en ? 'Open the page over HTTPS' : 'افتح الصفحة عبر رابط https'; return; }
-  const h = await sha256Hex(CODE_SALT + raw);
-  if (!CODE_HASHES.includes(h)) { err.innerText = en ? 'Invalid code' : 'الكود غير صحيح'; return; }
+  if (raw.length < 8 || raw.length > 12) { err.innerText = en ? 'Enter a valid code' : 'أدخل كوداً صحيحاً'; return; }
+  let okCode = false;
+  try {
+    const rr = await fetch('https://mohasaba-online.vercel.app/api/redeem', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ site: 'eos-kw', code: raw }) });
+    const rd = await rr.json();
+    okCode = !!(rd && rd.ok);
+  } catch (e) { err.innerText = en ? 'Connection error, try again' : 'تعذر التحقق من الكود. تحقق من الاتصال وأعد المحاولة.'; return; }
+  if (!okCode) { err.innerText = en ? 'Invalid code' : 'الكود غير صحيح'; return; }
+  const h = raw;
   let used = [];
   try { used = JSON.parse(lsGet(USED_CODES_KEY, '[]')); } catch (e) { used = []; }
   if (used.includes(h)) { err.innerText = en ? 'This code was already used' : 'تم استخدام هذا الكود من قبل'; return; }
@@ -4276,4 +4279,4 @@ window.addEventListener('DOMContentLoaded', () => {
 
   </script>
 </body>
-</html>
+    </html>
